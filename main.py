@@ -148,34 +148,34 @@ class NineRiFt(App):
 
 	def build(self):
 
-		title_label = Label(text="NineRiFt", font_size=12,
-		 size_hint_x=1, height=16)
+		title_label = Label(text="NineRiFt", font_size='12sp',
+		 size_hint_x=1, height='16sp')
 
-		seladdr_label = Label(text="Addr:", font_size=12, height=14,
+		seladdr_label = Label(text="Addr:", font_size='12sp', height='14sp',
 		 size_hint_y=1, size_hint_x=.08)
 
 		seladdr_input = TextInput(multiline=False, text=address,
-		height=12, font_size=12, size_hint_x=.92, size_hint_y=1)
+		height='12sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
 
 		seladdr_input.bind(on_text_validate=lambda x: setdev(seladdr_input.text))
 
-		selfile_label = Label(text="FW file:", font_size=12, size_hint_x=1, height=12)
+		selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
 
 		selfile = FileChooserListView(path='/sdcard/')
-		
-		ble_button = Button(text="BLE", font_size=12, height=15,
+
+		ble_button = Button(text="BLE", font_size='12sp', height='15sp',
 		 on_press=lambda x:setdev('ble'))
 
-		esc_button = Button(text="ESC", font_size=12, height=15,
+		esc_button = Button(text="ESC", font_size='12sp', height='15sp',
 		 on_press=lambda x:setdev('esc'))
 
-		bms_button = Button(text="BMS", font_size=12, height=15,
+		bms_button = Button(text="BMS", font_size='12sp', height='15sp',
 		 on_press=lambda x:setdev('bms'))
 
-		ebms_button = Button(text="EBMS", font_size=12, height=15,
+		ebms_button = Button(text="EBMS", font_size='12sp', height='15sp',
 		 on_press=lambda x:setdev('extbms'))
 
-		flash_button = Button(text="Flash", font_size=15, height=16, on_press=Flash)
+		flash_button = Button(text="Flash", font_size='15sp', height='16sp', on_press=Flash)
 
 		titlelayout = BoxLayout(orientation='vertical', size_hint_y=.15)
 		titlelayout.add_widget(title_label)
@@ -200,7 +200,7 @@ class NineRiFt(App):
 
 		botlayout = BoxLayout(orientation='vertical', size_hint_y=.2)
 		botlayout.add_widget(flash_button)
-		flash_button = Button(text="Flash", font_size=18, height=20)
+		flash_button = Button(text="Flash", font_size='18sp', height='20sp')
 		#botlayout.add_widget(pb)
 
 		mainlayout = GridLayout(cols=1, rows=4)
