@@ -48,8 +48,8 @@ class BLE(BluetoothDispatcher):
 			self.connect_gatt(self.device)  # connect to device
 
 	def on_connection_state_change(self, status, state):
-		if status == GATT_SUCCESS and state:  # connection established
-			self.discover_services()  # discover what services a device offer
+		if status == GATT_SUCCESS and state:
+			self.discover_services()  # discover what services a device offers
 		else:  # disconnection or error
 			self.client_characteristic = None
 			self.transmit_characteristic = None
@@ -58,27 +58,27 @@ class BLE(BluetoothDispatcher):
 
 	def on_services(self, status, services):
 		print(services)
-		self.client_characteristic = services.search('2902')
-		self.transmit_characteristic = services.search('6e400003-b5a3-f393-e0a9-e50e24dcca9e')
-		self.receive_characteristic = services.search('6e400002-b5a3-f393-e0a9-e50e24dcca9e')
+		self.client_characteristic = services.search('2902') #sets characteristics via search
+		self.transmit_characteristic = services.search('6e400003')
+		self.receive_characteristic = services.search('6e400002')
 		self._adapter.enable_notifications(self.transmit_characteristic
 		, enable=True)
 
 	def write(self, barray):
-		self.write_characteristic(self.receive_characteristic, barray)
+		self.write_characteristic(self.receive_characteristic, barray) #writes packets to receive characteristic
 
 	def on_characteristic_changed(self, transmit_characteristic):
-		txchar = self.read_characteristic(self.transmit_characteristic)
-		self.rx_fifo.write(txchar)
+		txchar = self.read_characteristic(self.transmit_characteristic) #reads packets from transmit characteristic
+		self.rx_fifo.write(txchar) #into fifo
 
-_write_chunk_size = 20 # as in android dumps
+_write_chunk_size = 20
 
 class BLELink(BaseLink):
 	def __init__(self, *args, **kwargs):
 		super(BLELink, self).__init__(*args, **kwargs)
 
 	def __enter__(self):
-		self._adapter = BLE()#defines api for use in BLE
+		self._adapter = BLE() #defines class above for use in BLE
 		return self
 
 
@@ -89,7 +89,7 @@ class BLELink(BaseLink):
 	def scan(self, addr):
 		self._addr = addr
 		try:
-			self._dev = self._adapter.start_client(self._addr)#performs connection using Address Type random
+			self._dev = self._adapter.start_client(self._addr)#performs connection
 		except STATE_DISCONNECTED:
 			raise LinkOpenException
 
@@ -97,19 +97,19 @@ class BLELink(BaseLink):
 	def open(self, port):
 		self._addr = port
 		try:
-			self._dev = self._adapter.start_client(self._addr)#performs connection using Address Type random
+			self._dev = self._adapter.start_client(self._addr)#performs connection
 		except STATE_DISCONNECTED:
 			raise LinkOpenException
 
 
 	def close(self):
 		if self._adapter:
-			self._adapter.close_gatt()
+			self._adapter.close_gatt() #closes connection
 
 
 	def read(self, size):
 		try:
-			data = self._adapter.rx_fifo.read(size, timeout=self.timeout)
+			data = self._adapter.rx_fifo.read(size, timeout=self.timeout) #reads from receive fifo
 		except data.Empty:
 			raise LinkTimeoutException
 		if self.dump:
@@ -124,7 +124,7 @@ class BLELink(BaseLink):
 		ofs = 0
 		while size:
 			chunk_sz = min(size, _write_chunk_size)
-			self._adapter.write(bytearray(data[ofs:ofs+chunk_sz]))#writes byte array to characteristic
+			self._adapter.write(bytearray(data[ofs:ofs+chunk_sz])) #writes byte array to characteristic
 			ofs += chunk_sz
 			size -= chunk_sz
 
