@@ -87,7 +87,11 @@ class BLELink(BaseLink):
 
 
 	def scan(self, addr):
-		pass
+		self._addr = addr
+		try:
+			self._dev = self._adapter.start_client(self._addr)#performs connection using Address Type random
+		except STATE_DISCONNECTED:
+			raise LinkOpenException
 
 
 	def open(self, port):
