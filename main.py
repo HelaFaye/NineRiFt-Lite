@@ -28,7 +28,6 @@ protocol = 'ninebot'
 address = ''
 devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
 protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
-selfile = FileChooserListView(path='/sdcard/')
 
 def setaddr(a):
 	global address
@@ -162,6 +161,8 @@ class NineRiFt(App):
 
 		selfile_label = Label(text="FW file:", font_size=12, size_hint_x=1, height=12)
 
+		selfile = FileChooserListView(path='/sdcard/')
+		
 		ble_button = Button(text="BLE", font_size=12, height=15,
 		 on_press=lambda x:setdev('ble'))
 
