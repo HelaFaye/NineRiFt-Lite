@@ -28,7 +28,6 @@ protocol = 'ninebot'
 address = ''
 devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
 protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
-selfile = FileChooserListView(path='/sdcard/')
 
 def setaddr(a):
 	global address
@@ -40,11 +39,15 @@ def setdev(d):
 	device = d
 	print(device+' selected as device')
 
+def setfwfilep(f):
+	global fwfilep
+	fwfilep = f
+	print(fwfilep+' selected as fwfile')
+
 def checksum(s, data):
 	for c in data:
 		s += ord(c)
 	return (s & 0xFFFFFFFF)
-
 
 def UpdateFirmware(link, tran, dev, fwfile):
 	print('flashing '+fwfilep+' to '+ device)
@@ -99,11 +102,10 @@ def UpdateFirmware(link, tran, dev, fwfile):
 	print('Done')
 	return True
 
-def Flash(self):
+def Flash(self, fwfilepath):
 	if device=='extbms' and protocol!='ninebot':
 		exit('Only Ninebot supports External BMS !')
-	global fwfilep
-	fwfilep = selfile.selection[0]
+	setfwfilep(fwfilepath)
 	file = open(fwfilep, 'rb')
 	dev = devices.get(device)
 	if interface=='bleandroid':
@@ -124,17 +126,17 @@ def Flash(self):
 	with link:
 		tran = protocols.get(protocol)(link)
 
-		# if address!='':
-		addr = address
-		# elif interface!='bleandroid':
-		# 	print('Scanning...')
-		# 	ports = link.scan()
-		# 	if not ports:
-		# 		exit("No interfaces found !")
-		# 	print('Connecting to', ports[0][0])
-		# 	addr = ports[0][1]
-		# else:
-		# 	raise LinkOpenException
+		if address!='':
+			addr = address
+		elif interface!='bleandroid':
+		 	print('Scanning...')
+		 	ports = link.scan()
+		 	if not ports:
+		 		exit("No interfaces found !")
+		 	print('Connecting to', ports[0][0])
+		 	addr = ports[0][1]
+		else:
+		 	raise LinkOpenException
 			#commented out because of LinkOpenException despite address specified
 		link.open(addr)
 		print('Connected')
@@ -150,6 +152,8 @@ def Flash(self):
 class NineRiFt(App):
 
 	def build(self):
+		root_folder = getattr(self, 'user_data_dir')
+		cache_folder = os.path.join(root_folder, 'cache')
 
 		title_label = Label(text="NineRiFt", font_size='12sp',
 		 size_hint_x=1, height='16sp')
@@ -176,7 +180,10 @@ class NineRiFt(App):
 		ebms_button = Button(text="EBMS", font_size='12sp', height='15sp',
 		 on_press=lambda x:setdev('extbms'))
 
-		flash_button = Button(text="Flash", font_size='15sp', height='16sp', on_press=Flash)
+		selfile = FileChooserListView(path=cache_folder)
+
+		flash_button = Button(text="Flash", font_size='15sp', height='16sp',
+		 on_press=lambda x:Flash(selfile.selection[0]))
 
 		titlelayout = BoxLayout(orientation='vertical', size_hint_y=.15)
 		titlelayout.add_widget(title_label)
@@ -210,7 +217,6 @@ class NineRiFt(App):
 		mainlayout.add_widget(midlayout)
 		mainlayout.add_widget(botlayout)
 		return mainlayout
-
 
 if __name__ == "__main__":
 	NineRiFt().run()
