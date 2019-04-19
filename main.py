@@ -23,7 +23,7 @@ from py9b.command.update import *
 PING_RETRIES = 20
 device = ''
 fwfilep = ''
-interface = 'tcp'
+interface = 'bleandroid'
 protocol = 'ninebot'
 address = ''
 devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
@@ -124,16 +124,18 @@ def Flash(self):
 	with link:
 		tran = protocols.get(protocol)(link)
 
-		if address:
-			addr = address
-		else:
-			print('Scanning...')
-			ports = link.scan()
-			if not ports:
-				exit("No interfaces found !")
-			print('Connecting to', ports[0][0])
-			addr = ports[0][1]
-
+		# if address!='':
+		addr = address
+		# elif interface!='bleandroid':
+		# 	print('Scanning...')
+		# 	ports = link.scan()
+		# 	if not ports:
+		# 		exit("No interfaces found !")
+		# 	print('Connecting to', ports[0][0])
+		# 	addr = ports[0][1]
+		# else:
+		# 	raise LinkOpenException
+			#commented out because of LinkOpenException despite address specified
 		link.open(addr)
 		print('Connected')
 		try:

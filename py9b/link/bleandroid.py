@@ -25,10 +25,15 @@ class Fifo():
 
 class BLE(BluetoothDispatcher):
 	device = client_characteristic = receive_characteristic = transmit_characteristic = None
+	address = ''
+
+	def setaddr(self, a):
+		global address
+		address = a
 
 	def start_client(self, addr, *args, **kwargs):
 		self.rx_fifo = Fifo()
-		self._addr = addr
+		self.setaddr(addr)
 		if self.device:  # device is already founded during the scan
 			self.connect_gatt(self.device)  # reconnect
 		else:
@@ -37,9 +42,9 @@ class BLE(BluetoothDispatcher):
 
 	def on_device(self, device, rssi, advertisement):
         # some device is found during the scan
-		devices = self._adapter.scan(timeout=SCAN_TIMEOUT)
+		devices = self.device.getAddress()
 		for dev in devices:
-			if dev['address'].startswith((self._addr)):  #finds scooters
+			if dev['address'].startswith((address)):  #finds scooters
 				self.device = dev #picks the scoot
 				self.stop_scan()
 
@@ -87,7 +92,7 @@ class BLELink(BaseLink):
 
 
 	def scan(self, addr):
-		self._addr = addr
+		self._adapter.setaddr(addr)
 		try:
 			self._dev = self._adapter.start_client(self._addr)#performs connection
 		except STATE_DISCONNECTED:
@@ -95,7 +100,7 @@ class BLELink(BaseLink):
 
 
 	def open(self, port):
-		self._addr = port
+		self._adapter.setaddr(port)
 		try:
 			self._dev = self._adapter.start_client(self._addr)#performs connection
 		except STATE_DISCONNECTED:
