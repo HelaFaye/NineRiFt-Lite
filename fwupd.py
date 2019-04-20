@@ -26,12 +26,12 @@ class FWUpd():
 		self.device = d
 		print(self.device+' selected as device')
 
-	def setself.fwfilep(f):
+	def setfwfilep(f):
 		global self.fwfilep
 		self.fwfilep = f
 		print(self.fwfilep+' selected as fwfile')
 
-	def setself.interface(i):
+	def setinterface(i):
 		global self.interface
 		self.interface = i
 		print(self.interface+' selected as interface')
