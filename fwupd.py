@@ -16,28 +16,23 @@ class FWUpd():
 		self.protocol = 'ninebot'
 		self.address = ''
 
-	def setaddr(a):
-		global self.address
+	def setaddr(self, a):
 		self.address = a
 		print(self.address+' selected as address')
 
-	def setdev(d):
-		global self.device
+	def setdev(self, d):
 		self.device = d
 		print(self.device+' selected as device')
 
-	def setfwfilep(f):
-		global self.fwfilep
+	def setfwfilep(self, f):
 		self.fwfilep = f
 		print(self.fwfilep+' selected as fwfile')
 
-	def setinterface(i):
-		global self.interface
+	def setinterface(self, i):
 		self.interface = i
 		print(self.interface+' selected as interface')
 
-	def setproto(p):
-		global self.protocol
+	def setproto(self, p):
 		self.protocol = p
 		print(self.protocol+' selected as protocol')
 
@@ -99,10 +94,10 @@ class FWUpd():
 		print('Done')
 		return True
 
-	def Flash(self, self.fwfilepath):
+	def Flash(self, fwfilep):
 		if self.device=='extbms' and self.protocol!='ninebot':
 			exit('Only Ninebot supports External BMS !')
-		setself.fwfilep(self.fwfilepath)
+		setfwfilep(fwfilep)
 		file = open(self.fwfilep, 'rb')
 		dev = self.devices.get(self.device)
 		if self.interface=='bleandroid':
