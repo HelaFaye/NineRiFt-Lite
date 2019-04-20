@@ -7,39 +7,39 @@ from py9b.command.update import *
 
 class FWUpd():
 	def __init__(self):
-		PING_RETRIES = 20
-		devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
-		protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
-		device = ''
-		fwfilep = ''
-		interface = 'bleandroid'
-		protocol = 'ninebot'
-		address = ''
+		self.PING_RETRIES = 20
+		self.devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
+		self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
+		self.device = ''
+		self.fwfilep = ''
+		self.interface = 'bleandroid'
+		self.protocol = 'ninebot'
+		self.address = ''
 
 	def setaddr(a):
-		global address
-		address = a
-		print(address+' selected as host')
+		global self.address
+		self.address = a
+		print(self.address+' selected as address')
 
 	def setdev(d):
-		global device
-		device = d
-		print(device+' selected as device')
+		global self.device
+		self.device = d
+		print(self.device+' selected as device')
 
-	def setfwfilep(f):
-		global fwfilep
-		fwfilep = f
-		print(fwfilep+' selected as fwfile')
+	def setself.fwfilep(f):
+		global self.fwfilep
+		self.fwfilep = f
+		print(self.fwfilep+' selected as fwfile')
 
-	def setinterface(i):
-		global interface
-		interface = i
-		print(interface+' selected as interface')
+	def setself.interface(i):
+		global self.interface
+		self.interface = i
+		print(self.interface+' selected as interface')
 
 	def setproto(p):
-		global protocol
-		protocol = p
-		print(protocol+' selected as protocol')
+		global self.protocol
+		self.protocol = p
+		print(self.protocol+' selected as protocol')
 
 	def checksum(s, data):
 		for c in data:
@@ -47,15 +47,15 @@ class FWUpd():
 		return (s & 0xFFFFFFFF)
 
 	def UpdateFirmware(link, tran, dev, fwfile):
-		print('flashing '+fwfilep+' to '+ device)
+		print('flashing '+self.fwfilep+' to '+ self.device)
 		fwfile.seek(0, os.SEEK_END)
 		fw_size = fwfile.tell()
 		fwfile.seek(0)
 		fw_page_size = 0x80
 
-		dev = devices.get(device)
+		dev = self.devices.get(self.device)
 		print('Pinging...')
-		for retry in range(PING_RETRIES):
+		for retry in range(self.PING_RETRIES):
 			print('.')
 			try:
 				if dev==BT.BLE:
@@ -70,7 +70,7 @@ class FWUpd():
 			return False
 		print('OK')
 
-		if interface!='tcpnl':
+		if self.interface!='tcpnl':
 			print('Locking...')
 			tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
 		else:
@@ -99,42 +99,42 @@ class FWUpd():
 		print('Done')
 		return True
 
-	def Flash(self, fwfilepath):
-		if device=='extbms' and protocol!='ninebot':
+	def Flash(self, self.fwfilepath):
+		if self.device=='extbms' and self.protocol!='ninebot':
 			exit('Only Ninebot supports External BMS !')
-		setfwfilep(fwfilepath)
-		file = open(fwfilep, 'rb')
-		dev = devices.get(device)
-		if interface=='bleandroid':
+		setself.fwfilep(self.fwfilepath)
+		file = open(self.fwfilep, 'rb')
+		dev = self.devices.get(self.device)
+		if self.interface=='bleandroid':
 			try:
 				from py9b.link.bleandroid import BLELink
 			except:
 				exit('BLE is not supported on your system !')
 			link = BLELink()
-		elif interface=='tcp':
+		elif self.interface=='tcp':
 			from py9b.link.tcp import TCPLink
 			link = TCPLink()
-		elif interface=='serial':
+		elif self.interface=='serial':
 			from py9b.link.serial import SerialLink
 			link = SerialLink()
 		else:
-			exit('!!! BUG !!! Unknown interface selected: '+interface)
+			exit('!!! BUG !!! Unknown self.interface selected: '+self.interface)
 
 		with link:
-			tran = protocols.get(protocol)(link)
+			tran = self.protocols.get(self.protocol)(link)
 
-			if address!='':
-				addr = address
-			elif interface!='bleandroid':
+			if self.address!='':
+				addr = self.address
+			elif self.interface!='bleandroid':
 				print('Scanning...')
 				ports = link.scan()
 				if not ports:
-					exit("No interfaces found !")
+					exit("No self.interfaces found !")
 				print('Connecting to', ports[0][0])
 				addr = ports[0][1]
 			else:
 				raise LinkOpenException
-				#commented out because of LinkOpenException despite address specified
+
 			link.open(addr)
 			print('Connected')
 			try:
