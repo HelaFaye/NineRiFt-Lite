@@ -21,8 +21,8 @@ class NineRiFt(App):
         root_folder = getattr(self, 'user_data_dir')
         cache_folder = os.path.join(root_folder, 'cache')
 
-        title_label = Label(text="NineRiFt", font_size='12sp',
-         size_hint_x=1, height='16sp')
+        title_label = Label(text="NineRiFt", font_size='10sp',
+         size_hint_x=1, height='12sp')
 
         seladdr_label = Label(text="Addr:", font_size='12sp', height='14sp',
          size_hint_y=1, size_hint_x=.08)
@@ -34,9 +34,11 @@ class NineRiFt(App):
 
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
 
-        ifaceselspin= Spinner(text='TCP', values=('TCP', 'Serial', 'BLE'), font_size='12sp', height='15sp', on_text=lambda x:fwupd.setiface(ifaceselspin.text.lower))
+        ifaceselspin= Spinner(text='TCP', values=('TCP', 'Serial', 'BLE'), font_size='12sp',
+         height='14sp', on_text=lambda x:fwupd.setiface(ifaceselspin.text.lower))
 
-        devselspin= Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'), font_size='12sp', height='15sp', on_text=lambda x:fwupd.setdev(devselspin.text.lower))
+        devselspin= Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'), font_size='12sp',
+         height='14sp', on_text=lambda x:fwupd.setdev(devselspin.text.lower))
 
         # ble_button = Button(text="BLE", font_size='12sp', height='15sp',
         #  on_press=lambda x:fwupd.setdev('ble'))
@@ -52,10 +54,10 @@ class NineRiFt(App):
 
         selfile = FileChooserListView(path=cache_folder)
 
-        flash_button = Button(text="Flash", font_size='15sp', height='16sp',
+        flash_button = Button(text="Flash", font_size='12sp', height='14sp',
          on_press=lambda x: fwupd.Flash(selfile.selection[0]))
 
-        titlelayout = BoxLayout(orientation='vertical', size_hint_y=.15)
+        titlelayout = BoxLayout(orientation='vertical', size_hint_y=.1)
         titlelayout.add_widget(title_label)
 
         toplayout = GridLayout(rows=2, size_hint_y=.2)
