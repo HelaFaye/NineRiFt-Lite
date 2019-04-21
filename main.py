@@ -12,7 +12,7 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
-from fwupd import FWUpd as fwupd
+from fwupd import FWUpd
 from fwget import FWGet
 
 
@@ -21,7 +21,7 @@ class NineRiFt(App):
         root_folder = getattr(self, 'user_data_dir')
         cache_folder = os.path.join(root_folder, 'cache')
         fwget = FWGet(cache_folder)
-
+        fwupd = FWUpd()
         title_label = Label(text="NineRiFt", font_size='10sp',
          size_hint_x=1, height='12sp')
 
@@ -31,16 +31,17 @@ class NineRiFt(App):
         seladdr_input = TextInput(multiline=False, text='',
         height='12sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
 
-        seladdr_input.bind(on_text_validate=lambda x: fwupd.setdev(seladdr_input.text))
+        seladdr_input.bind(on_text_validate=lambda x: fwupd.setaddr(seladdr_input.text))
 
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
 
         ifaceselspin = Spinner(text='TCP', values=('TCP', 'Serial', 'BLE')
-        , font_size='12sp',height='14sp',
-         on_text=lambda x: fwupd.setiface(ifaceselspin.text.lower))
+        , font_size='12sp',height='14sp', sync_height=True)
+        ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
 
         devselspin = Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
-         font_size='12sp', height='14sp', on_text=lambda x: fwupd.setdev(devselspin.text.lower))
+         sync_height=True, font_size='12sp', height='14sp')
+        devselspin.bind(text=lambda x, y: fwupd.setdev(devselspin.text))
 
         # ble_button = Button(text="BLE", font_size='12sp', height='15sp',
         #  on_press=lambda x:fwupd.setdev('ble'))
