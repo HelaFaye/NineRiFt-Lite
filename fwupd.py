@@ -6,37 +6,40 @@ from py9b.transport.ninebot import NinebotTransport
 from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
 
-
-class FWUpd():
-    def __init__(self):
-        self.PING_RETRIES = 20
-        self.devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
-        self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
-        self.device = ''
-        self.fwfilep = ''
-        self.interface = 'bleandroid'
-        self.protocol = 'ninebot'
-        self.address = ''
+class FWUpd(object):
+    devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
+    protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
+    PING_RETRIES = 20
+    device = ''
+    fwfilep = ''
+    interface = ''
+    protocol = ''
+    address = ''    
 
     def setaddr(self, a):
-        self.address = a
-        print(self.address+' selected as address')
+        global address
+        address = a
+        print(address+' selected as address')
 
     def setdev(self, d):
-        self.device = d
-        print(self.device+' selected as device')
+        global device
+        device = d
+        print(device+' selected as device')
 
     def setfwfilep(self, f):
-        self.fwfilep = f
-        print(self.fwfilep+' selected as fwfile')
+        global fwfilep
+        fwfilep = f
+        print(fwfilep+' selected as fwfile')
 
     def setiface(self, i):
-        self.interface = i
-        print(self.interface+' selected as interface')
+        global interface
+        interface = i
+        print(interface+' selected as interface')
 
     def setproto(self, p):
-        self.protocol = p
-        print(self.protocol+' selected as protocol')
+        global protocol
+        protocol = p
+        print(protocol+' selected as protocol')
 
     def checksum(s, data):
         for c in data:
@@ -44,15 +47,15 @@ class FWUpd():
         return (s & 0xFFFFFFFF)
 
     def UpdateFirmware(self, link, tran, dev, fwfile):
-        print('flashing '+self.fwfilep+' to ' + self.device)
+        print('flashing '+fwfilep+' to ' + device)
         fwfile.seek(0, os.SEEK_END)
         fw_size = fwfile.tell()
         fwfile.seek(0)
         fw_page_size = 0x80
 
-        dev = self.devices.get(self.device)
+        dev = devices.get(device)
         print('Pinging...')
-        for retry in range(self.PING_RETRIES):
+        for retry in range(PING_RETRIES):
             print('.')
             try:
                 if dev == BT.BLE:
@@ -67,7 +70,7 @@ class FWUpd():
             return False
         print('OK')
 
-        if self.interface != 'tcpnl':
+        if interface != 'tcpnl':
             print('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
@@ -97,32 +100,32 @@ class FWUpd():
         return True
 
     def Flash(self, fwfilep):
-        if self.device == 'extbms' and self.protocol != 'ninebot':
+        if device == 'extbms' and protocol != 'ninebot':
             exit('Only Ninebot supports External BMS !')
-        setfwfilep(fwfilep)
-        file = open(self.fwfilep, 'rb')
-        dev = self.devices.get(self.device)
-        if self.interface == 'bleandroid':
+        self.setfwfilep(fwfilep)
+        file = open(fwfilep, 'rb')
+        dev = devices.get(device)
+        if interface == 'bleandroid':
             try:
                 from py9b.link.bleandroid import BLELink
             except:
                 exit('BLE is not supported on your system !')
             link = BLELink()
-        elif self.interface == 'tcp':
+        elif interface == 'tcp':
             from py9b.link.tcp import TCPLink
             link = TCPLink()
-        elif self.interface == 'serial':
+        elif interface == 'serial':
             from py9b.link.serial import SerialLink
             link = SerialLink()
         else:
             exit('!!! BUG !!! Unknown self.interface selected: '+self.interface)
 
         with link:
-            tran = self.protocols.get(self.protocol)(link)
+            tran = protocols.get(protocol)(link)
 
-            if self.address != '':
-                addr = self.address
-            elif self.interface != 'bleandroid':
+            if address != '':
+                addr = address
+            elif interface != 'bleandroid':
                 print('Scanning...')
                 ports = link.scan()
                 if not ports:

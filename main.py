@@ -13,13 +13,14 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from fwupd import FWUpd as fwupd
+from fwget import FWGet
 
 
 class NineRiFt(App):
-
     def build(self):
         root_folder = getattr(self, 'user_data_dir')
         cache_folder = os.path.join(root_folder, 'cache')
+        fwget = FWGet(cache_folder)
 
         title_label = Label(text="NineRiFt", font_size='10sp',
          size_hint_x=1, height='12sp')
@@ -34,11 +35,12 @@ class NineRiFt(App):
 
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
 
-        ifaceselspin= Spinner(text='TCP', values=('TCP', 'Serial', 'BLE'), font_size='12sp',
-         height='14sp', on_text=lambda x:fwupd.setiface(ifaceselspin.text.lower))
+        ifaceselspin = Spinner(text='TCP', values=('TCP', 'Serial', 'BLE')
+        , font_size='12sp',height='14sp',
+         on_text=lambda x: fwupd.setiface(ifaceselspin.text.lower))
 
-        devselspin= Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'), font_size='12sp',
-         height='14sp', on_text=lambda x:fwupd.setdev(devselspin.text.lower))
+        devselspin = Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
+         font_size='12sp', height='14sp', on_text=lambda x: fwupd.setdev(devselspin.text.lower))
 
         # ble_button = Button(text="BLE", font_size='12sp', height='15sp',
         #  on_press=lambda x:fwupd.setdev('ble'))
@@ -85,12 +87,12 @@ class NineRiFt(App):
         flash_button = Button(text="Flash", font_size='18sp', height='20sp')
         #botlayout.add_widget(pb)
 
-        mainlayout = GridLayout(cols=1, rows=4)
-        mainlayout.add_widget(titlelayout)
-        mainlayout.add_widget(toplayout)
-        mainlayout.add_widget(midlayout)
-        mainlayout.add_widget(botlayout)
-        return mainlayout
+        flashlayout = GridLayout(cols=1, rows=4)
+        flashlayout.add_widget(titlelayout)
+        flashlayout.add_widget(toplayout)
+        flashlayout.add_widget(midlayout)
+        flashlayout.add_widget(botlayout)
+        return flashlayout
 
 
 if __name__ == "__main__":

@@ -133,8 +133,3 @@ class FWGet():
         BMS = d["repo"]["files"]["BMS"]
         BLE = d["repo"]["files"]["BLE"]
         return(True, dirname, repoURL, name, DRV, BMS, BLE)
-
-fwget = FWGet(('./'+'NineRiFt/'))
-success, dirname, repoURL, name, DRV, BMS, BLE = fwget.loadRepo("https://files.scooterhacking.org/esx/fw/repo.json")
-print("Loaded the repo \"" + name+ "\" hosted at " +  repoURL + ". DRV:" + str(DRV) + " BMS:" + str(BMS) + " BLE:" + str(BLE))
-fwget.getFile("DRV","120")
