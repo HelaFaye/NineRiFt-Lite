@@ -96,7 +96,7 @@ class FWUpd(object):
         return True
 
     def Flash(self, fwfilep):
-        if self.device == 'extbms' and aelf.protocol != 'ninebot':
+        if self.device == 'extbms' and self.protocol != 'ninebot':
             exit('Only Ninebot supports External BMS !')
         self.setfwfilep(fwfilep)
         file = open(fwfilep, 'rb')

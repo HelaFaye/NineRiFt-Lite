@@ -66,7 +66,7 @@ class FWGet():
         else:
             if isFilePresent:
                 with open (completePath + ".md5", "r") as md5cached:
-                    checksum=md5cached.read()
+                    checksum = md5cached.read()
                     match = md5Checksum(completePath, None) == checksum
         if (isFilePresent and match):
             print(filename + ' was cached; moving on')

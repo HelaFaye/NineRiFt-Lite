@@ -9,6 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
 #from kivy.uix.progressbar import ProgressBar
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
@@ -22,8 +23,6 @@ class NineRiFt(App):
         cache_folder = os.path.join(root_folder, 'cache')
         fwget = FWGet(cache_folder)
         fwupd = FWUpd()
-        title_label = Label(text="NineRiFt", font_size='10sp',
-         size_hint_x=1, height='12sp')
 
         seladdr_label = Label(text="Addr:", font_size='12sp', height='14sp',
          size_hint_y=1, size_hint_x=.08)
@@ -57,12 +56,20 @@ class NineRiFt(App):
 
         selfile = FileChooserListView(path=cache_folder)
 
-        flash_button = Button(text="Flash", font_size='12sp', height='14sp',
+        flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
          on_press=lambda x: fwupd.Flash(selfile.selection[0]))
 
-        titlelayout = BoxLayout(orientation='vertical', size_hint_y=.1)
-        titlelayout.add_widget(title_label)
+        sm = ScreenManager()
+        flashscreen = Screen(name='Flash')
 
+        def switch_screen(scrn):
+            sm.current = scrn
+
+        flash_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
+         on_press=lambda x: switch_screen('Flash'))
+
+        titlelayout = BoxLayout(orientation='vertical', size_hint_y=.1)
+        titlelayout.add_widget(flash_screen_btn)
         toplayout = GridLayout(rows=2, size_hint_y=.2)
         addrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         addrlayout.add_widget(seladdr_label)
@@ -93,8 +100,10 @@ class NineRiFt(App):
         flashlayout.add_widget(toplayout)
         flashlayout.add_widget(midlayout)
         flashlayout.add_widget(botlayout)
-        return flashlayout
 
+        flashscreen.add_widget(flashlayout)
+        sm.add_widget(flashscreen)
+        return sm
 
 if __name__ == "__main__":
     NineRiFt().run()
