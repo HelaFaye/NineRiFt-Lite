@@ -24,24 +24,25 @@ class NineRiFt(App):
         fwget = FWGet(cache_folder)
         fwupd = FWUpd()
 
+        sm = ScreenManager()
+        def switch_screen(scrn):
+            sm.current = scrn
+        flashscreen = Screen(name='Flash')
+        downloadscreen = Screen(name='Download')
+
+
         seladdr_label = Label(text="Addr:", font_size='12sp', height='14sp',
          size_hint_y=1, size_hint_x=.08)
-
         seladdr_input = TextInput(multiline=False, text='',
         height='12sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
-
         seladdr_input.bind(on_text_validate=lambda x: fwupd.setaddr(seladdr_input.text))
-
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
-
         ifaceselspin = Spinner(text='TCP', values=('TCP', 'Serial', 'BLE')
         , font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
-
         devselspin = Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
          sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: fwupd.setdev(devselspin.text))
-
         # ble_button = Button(text="BLE", font_size='12sp', height='15sp',
         #  on_press=lambda x:fwupd.setdev('ble'))
         #
@@ -53,23 +54,11 @@ class NineRiFt(App):
         #
         # ebms_button = Button(text="EBMS", font_size='12sp', height='15sp',
         #  on_press=lambda x:fwupd.setdev('extbms'))
-
         selfile = FileChooserListView(path=cache_folder)
-
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
          on_press=lambda x: fwupd.Flash(selfile.selection[0]))
 
-        sm = ScreenManager()
-        flashscreen = Screen(name='Flash')
-
-        def switch_screen(scrn):
-            sm.current = scrn
-
-        flash_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
-         on_press=lambda x: switch_screen('Flash'))
-
-        titlelayout = BoxLayout(orientation='vertical', size_hint_y=.1)
-        titlelayout.add_widget(flash_screen_btn)
+        switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
         toplayout = GridLayout(rows=2, size_hint_y=.2)
         addrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         addrlayout.add_widget(seladdr_label)
@@ -83,26 +72,32 @@ class NineRiFt(App):
         topbtnlayout.add_widget(devselspin)
         toplayout.add_widget(addrlayout)
         toplayout.add_widget(topbtnlayout)
-
         midlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
         midlabelbox = AnchorLayout(anchor_y='top', size_hint_y=.1)
         midlabelbox.add_widget(selfile_label)
         midlayout.add_widget(midlabelbox)
         midlayout.add_widget(selfile)
-
         botlayout = BoxLayout(orientation='vertical', size_hint_y=.15)
         botlayout.add_widget(flash_button)
         flash_button = Button(text="Flash", font_size='18sp', height='20sp')
         #botlayout.add_widget(pb)
-
         flashlayout = GridLayout(cols=1, rows=4)
-        flashlayout.add_widget(titlelayout)
+        flashlayout.add_widget(switcherlayout)
         flashlayout.add_widget(toplayout)
         flashlayout.add_widget(midlayout)
         flashlayout.add_widget(botlayout)
 
+        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='12sp',
+         on_press=lambda x: switch_screen('Flash'))
+        fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
+         on_press=lambda x: switch_screen('Download'))
+
+        switcherlayout.add_widget(fwupd_screen_btn)
+        switcherlayout.add_widget(fwget_screen_btn)
+
         flashscreen.add_widget(flashlayout)
         sm.add_widget(flashscreen)
+        sm.add_widget(downloadscreen)
         return sm
 
 if __name__ == "__main__":
