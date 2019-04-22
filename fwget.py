@@ -3,7 +3,6 @@ from os import path
 import requests
 from kivy.utils import platform
 import hashlib
-import json
 
 
 class FWGet():
@@ -119,7 +118,7 @@ class FWGet():
                 print("Failed to grab JSON! (requests.ConnectionError)")
                 return(False)
 
-        elif os.path.isfile(cachePath + hashedName + ".json"):
+        elif os.path.isfile(self.cachePath + hashedName + ".json"):
             with open(self.cachePath + hashedName + ".json") as f:
                 d = eval(f.read())
             print("Fetched cached repo JSON.")
