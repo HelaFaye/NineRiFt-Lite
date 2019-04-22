@@ -81,12 +81,6 @@ class NineRiFt(App):
         botlayout.add_widget(flash_button)
         flash_button = Button(text="Flash", font_size='18sp', height='20sp')
         #botlayout.add_widget(pb)
-        flashlayout = GridLayout(cols=1, rows=4)
-        flashlayout.add_widget(switcherlayout)
-        flashlayout.add_widget(toplayout)
-        flashlayout.add_widget(midlayout)
-        flashlayout.add_widget(botlayout)
-
         fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='12sp',
          on_press=lambda x: switch_screen('Flash'))
         fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
@@ -94,11 +88,23 @@ class NineRiFt(App):
 
         switcherlayout.add_widget(fwupd_screen_btn)
         switcherlayout.add_widget(fwget_screen_btn)
+        flashlayout = GridLayout(cols=1, rows=3)
+        flashlayout.add_widget(toplayout)
+        flashlayout.add_widget(midlayout)
+        flashlayout.add_widget(botlayout)
+
+        downloadlayout = GridLayout(cols=1, rows=3)
+
+        mainlayout = GridLayout(cols=1, rows=2)
+        mainlayout.add_widget(switcherlayout)
 
         flashscreen.add_widget(flashlayout)
+        downloadscreen.add_widget(downloadlayout)
         sm.add_widget(flashscreen)
         sm.add_widget(downloadscreen)
-        return sm
+
+        mainlayout.add_widget(sm)
+        return mainlayout
 
 if __name__ == "__main__":
     NineRiFt().run()
