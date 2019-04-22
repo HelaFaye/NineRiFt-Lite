@@ -17,7 +17,7 @@ class FWGet():
     def setRepo(self, repo):
         self.repoURL = repo
 
-    def md5Checksum(filePath, url):
+    def md5Checksum(self, filePath, url):
         m = hashlib.md5()
         if url==None:
             with open(filePath, 'rb') as fh:
@@ -59,14 +59,14 @@ class FWGet():
                 f.write(response.content)
             checksum = response.text
             if isFilePresent:
-                match = md5Checksum(completePath, None) == checksum
+                match = self.md5Checksum(completePath, None) == checksum
             else:
                 match = False
         else:
             if isFilePresent:
                 with open(completePath + ".md5", "r") as md5cached:
                     checksum = md5cached.read()
-                    match = md5Checksum(completePath, None) == checksum
+                    match = self.md5Checksum(completePath, None) == checksum
         if (isFilePresent and match):
             print(filename + ' was cached; moving on')
             return(True, completePath)

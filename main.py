@@ -88,8 +88,14 @@ class NineRiFt(App):
 
         downloadlayout = GridLayout(cols=1, rows=3)
         fwget.setRepo("https://files.scooterhacking.org/esx/fw/repo.json")
+        fwdevselspin = Spinner(text='ESC', values=('BLE', 'ESC', 'BMS'),
+         sync_height=True, font_size='12sp', height='14sp')
+        fwverselspin = Spinner(text='ESC', values=(),
+         sync_height=True, font_size='12sp', height='14sp')
         download_button = Button(text="Download It!", font_size='12sp', height='14sp',
          on_press=lambda x: fwget.Gimme('BMS','136'))
+        downloadlayout.add_widget(fwdevselspin)
+        downloadlayout.add_widget(fwverselspin)
         downloadlayout.add_widget(download_button)
 
         fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='12sp',
