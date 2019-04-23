@@ -94,13 +94,15 @@ class NineRiFt(App):
          font_size='12sp', height='14sp', values = [], text_autoupdate = True)
 
         def fwget_dynver(sel):
+            fwget_verselspin.values = []
             if sel == 'BLE':
-                dict = str(fwget.BLE)
+                dev = fwget.BLE
             elif sel == 'BMS':
-                dict = str(fwget.BMS)
+                dev = fwget.BMS
             elif sel == 'DRV':
-                dict = str(fwget.DRV)
-            fwget_verselspin.values = dict
+                dev = fwget.DRV
+            for i in dev:
+                fwget_verselspin.values.append(str(i))
             return fwget_verselspin.values
 
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
