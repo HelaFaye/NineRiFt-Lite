@@ -40,7 +40,7 @@ class NineRiFt(App):
         ifaceselspin = Spinner(text='TCP', values=('TCP', 'Serial', 'BLE')
         , font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
-        devselspin = Spinner(text='ESC', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
+        devselspin = Spinner(text='DRV', values=('BLE', 'DRV', 'BMS', 'ExtBMS'),
          sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: fwupd.setdev(devselspin.text))
         # ble_button = Button(text="BLE", font_size='12sp', height='15sp',
@@ -87,14 +87,25 @@ class NineRiFt(App):
         flashlayout.add_widget(flashbotlayout)
 
         fwget.setRepo("https://files.scooterhacking.org/esx/fw/repo.json")
-        fwget_devselspin = Spinner(text='Firmware', values=('BLE', 'ESC', 'BMS'),
+        fwget.loadRepo(fwget.repoURL)
+        fwget_devselspin = Spinner(text='BLE', values=('BLE', 'DRV', 'BMS'),
          sync_height=True, font_size='12sp', height='14sp')
-        fwget_verselspin = Spinner(text='Version', values=(),
-         sync_height=True, font_size='12sp', height='14sp')
-        fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
-         on_press=lambda x: fwget.Gimme('BMS','136'))
+        fwget_verselspin = Spinner(text='Version', sync_height=True,
+         font_size='12sp', height='14sp', values = [], text_autoupdate = True)
 
-        fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.2)
+        def fwget_dynver(sel, dict):
+             if sel == 'BLE':
+                 dict = fwupd.BLE
+             elif sel == 'BMS':
+                 dict = fwupd.BMS
+             elif sel == 'DRV':
+                 dict = fwupd.DRV
+
+        fwget_devselspin.bind(text=lambda x,y: fwget_dynver(fwget_devselspin.text, fwget_verselspin.values))
+        fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
+         on_press=lambda x: fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text))
+
+        fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
         fwget_topbtnlayout = GridLayout(cols=2)
         fwget_topbtnlayout.add_widget(fwget_devselspin)
         fwget_topbtnlayout.add_widget(fwget_verselspin)
