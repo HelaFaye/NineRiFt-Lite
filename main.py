@@ -93,15 +93,17 @@ class NineRiFt(App):
         fwget_verselspin = Spinner(text='Version', sync_height=True,
          font_size='12sp', height='14sp', values = [], text_autoupdate = True)
 
-        def fwget_dynver(sel, dict):
-             if sel == 'BLE':
-                 dict = fwupd.BLE
-             elif sel == 'BMS':
-                 dict = fwupd.BMS
-             elif sel == 'DRV':
-                 dict = fwupd.DRV
+        def fwget_dynver(sel):
+            if sel == 'BLE':
+                dict = str(fwget.BLE)
+            elif sel == 'BMS':
+                dict = str(fwget.BMS)
+            elif sel == 'DRV':
+                dict = str(fwget.DRV)
+            fwget_verselspin.values = dict
+            return fwget_verselspin.values
 
-        fwget_devselspin.bind(text=lambda x,y: fwget_dynver(fwget_devselspin.text, fwget_verselspin.values))
+        fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
          on_press=lambda x: fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text))
 

@@ -127,12 +127,12 @@ class FWGet():
         self.dirname = str(d["repo"]["infos"]["dirname"])
         self.repoURL = str(d["repo"]["infos"]["files_URL"])
         name = str(d["repo"]["infos"]["name"])
-        DRV = d["repo"]["files"]["DRV"]
-        BMS = d["repo"]["files"]["BMS"]
-        BLE = d["repo"]["files"]["BLE"]
+        self.DRV = d["repo"]["files"]["DRV"]
+        self.BMS = d["repo"]["files"]["BMS"]
+        self.BLE = d["repo"]["files"]["BLE"]
         print("Loaded the repo \"" + name+ "\" hosted at " +  self.repoURL + ". DRV:"
-         + str(DRV) + " BMS:" + str(BMS) + " BLE:" + str(BLE))
-        return(True, self.dirname, self.repoURL, name, DRV, BMS, BLE)
+         + str(self.DRV) + " BMS:" + str(self.BMS) + " BLE:" + str(self.BLE))
+        return(True, self.dirname, self.repoURL, name, self.DRV, self.BMS, self.BLE)
 
     def Gimme(self, firm, ver):
         self.getFile(firm,ver)
