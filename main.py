@@ -38,7 +38,7 @@ class NineRiFt(App):
         seladdr_input.bind(on_text_validate=lambda x: fwupd.setaddr(seladdr_input.text))
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
         #ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE')
-        ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial')
+        ifaceselspin = Spinner(text='Interface', values=('TCP', '')
         , font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
         devselspin = Spinner(text='Device', values=('BLE', 'DRV', 'BMS', 'ExtBMS'),
