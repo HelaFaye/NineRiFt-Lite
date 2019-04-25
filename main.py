@@ -38,23 +38,13 @@ class NineRiFt(App):
         seladdr_input.bind(on_text_validate=lambda x: fwupd.setaddr(seladdr_input.text))
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
         #ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE')
-        ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial')
+        ifaceselspin = Spinner(text='Interface', values=('TCP', '')
         , font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
         devselspin = Spinner(text='Device', values=('BLE', 'DRV', 'BMS', 'ExtBMS'),
          sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: fwupd.setdev(devselspin.text))
-        # ble_button = Button(text="BLE", font_size='12sp', height='15sp',
-        #  on_press=lambda x:fwupd.setdev('ble'))
-        #
-        # esc_button = Button(text="ESC", font_size='12sp', height='15sp',
-        #  on_press=lambda x:fwupd.setdev('esc'))
-        #
-        # bms_button = Button(text="BMS", font_size='12sp', height='15sp',
-        #  on_press=lambda x:fwupd.setdev('bms'))
-        #
-        # ebms_button = Button(text="EBMS", font_size='12sp', height='15sp',
-        #  on_press=lambda x:fwupd.setdev('extbms'))
+
         selfile = FileChooserListView(path=cache_folder)
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
          on_press=lambda x: fwupd.Flash(selfile.selection[0]))

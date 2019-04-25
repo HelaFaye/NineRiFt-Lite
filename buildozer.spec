@@ -28,7 +28,7 @@ source.include_exts = py,png,jpg,kv,atlas
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.3
+version = 0.4
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -37,7 +37,6 @@ version = 0.3
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
 requirements = hostpython2,kivy,android,able,lictionary,tatsu,requests[security],openssl,urllib3
-
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -218,6 +217,8 @@ p4a.local_recipes = ~/able/recipes
 
 # (int) port number to specify an explicit --port= p4a argument (eg for bootstrap flask)
 #p4a.port =
+
+android.whitelist = lib-dynload/termios.so
 
 
 #
