@@ -101,10 +101,18 @@ class FWUpd(object):
         self.setfwfilep(fwfilep)
         file = open(fwfilep, 'rb')
         dev = self.devices.get(self.device)
-        if self.interface == 'bleandroid':
-            try:
-                from py9b.link.bleandroid import BLELink
-            except:
+        if self.interface == 'ble':
+            if platform != 'android':
+                try:
+                    from py9b.link.ble import BLELink
+                except:
+                    exit('BLE is not supported on your system !')
+            elif platform == 'android':
+                try:
+                    from py9b.link.bleandroid import BLELink
+                except:
+                    exit('BLE is not supported on your system !')
+            else:
                 exit('BLE is not supported on your system !')
             link = BLELink()
         elif self.interface == 'tcp':
