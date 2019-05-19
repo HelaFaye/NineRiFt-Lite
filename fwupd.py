@@ -13,7 +13,7 @@ class FWUpd(object):
         PING_RETRIES = 20
         self.device = 'esc'
         self.fwfilep = ''
-        self.interface = 'tcp'
+        self.interface = 'ble'
         self.protocol = 'ninebot'
         self.address = ''
 
