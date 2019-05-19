@@ -3,7 +3,9 @@
 from __future__ import absolute_import
 from .base import BaseLink, LinkTimeoutException, LinkOpenException
 from binascii import hexlify
-from able import BluetoothDispatcher, GATT_SUCCESS, STATE_DISCONNECTED
+from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher, STATE_DISCONNECTED
+from kivy.logger import Logger
+from kivy.properties import ObjectProperty
 import Queue
 
 SCAN_TIMEOUT = 3
@@ -23,7 +25,7 @@ class Fifo():
 			res += chr(self.q.get(True, timeout))
 		return res
 
-class BLE(BluetoothDispatcher):
+class NineBLE(BluetoothDispatcher):
 	device = client_characteristic = receive_characteristic = transmit_characteristic = None
 	address = ''
 
@@ -31,43 +33,29 @@ class BLE(BluetoothDispatcher):
 		global address
 		address = a
 
-	def start_client(self, addr, *args, **kwargs):
-		self.rx_fifo = Fifo()
-		self.setaddr(addr)
-		if self.device:  # device is already founded during the scan
-			self.connect_gatt(self.device)  # reconnect
-		else:
-			self.stop_scan()  # stop previous scan
-			self.start_scan()  # start a scan for devices
+	def discover(self):
+		self.start_scan()
+        self.state = 'scan'
 
 	def on_device(self, device, rssi, advertisement):
-        # some device is found during the scan
-		devices = self.device.getAddress()
-		for dev in devices:
-			if dev['address'].startswith((address)):  #finds scooters
-				self.device = dev #picks the scoot
-				self.stop_scan()
-
-	def on_scan_completed(self):
-		if self.device:
-			self.connect_gatt(self.device)  # connect to device
-
-	def on_connection_state_change(self, status, state):
-		if status == GATT_SUCCESS and state:
-			self.discover_services()  # discover what services a device offers
-		else:  # disconnection or error
-			self.client_characteristic = None
-			self.transmit_characteristic = None
-			self.receive_characteristic = None
-			self.close_gatt()  # close current connection
-
-	def on_services(self, status, services):
-		print(services)
-		self.client_characteristic = services.search('2902') #sets characteristics via search
-		self.transmit_characteristic = services.search('6e400003')
-		self.receive_characteristic = services.search('6e400002')
-		self._adapter.enable_notifications(self.transmit_characteristic
-		, enable=True)
+		if self.state != 'scan':
+			return
+		Logger.debug("on_device event {}".format(list(advertisement)))
+        scoot_found = False
+        name = ''
+        for ad in advertisement:
+            if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
+                if ad.data.startswith(self.identity):
+                    scoot_found = True
+                else:
+                    break
+            elif ad.ad_type == Advertisement.ad_types.complete_local_name:
+                name = str(ad.data)
+        if scoot_found:
+            self.state = 'found'
+            self.ble_device = device
+            Logger.debug("Ninebot detected: {}".format(name))
+            self.stop_scan()
 
 	def write(self, barray):
 		self.write_characteristic(self.receive_characteristic, barray) #writes packets to receive characteristic
