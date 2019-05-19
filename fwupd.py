@@ -119,6 +119,8 @@ class FWUpd(object):
             from py9b.link.tcp import TCPLink
             link = TCPLink()
         elif self.interface == 'serial':
+            if platform == 'android':
+                exit('Serial is not yet supported on Android !')
             from py9b.link.serial import SerialLink
             link = SerialLink()
         else:
