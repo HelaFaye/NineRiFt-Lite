@@ -25,24 +25,33 @@ class Fifo():
 		return res
 
 class BLELink(BaseLink, BluetoothDispatcher):
+    def __init__(self, *args, **kwargs):
+		super(BLELink, self).__init__(*args, **kwargs)
+		self._rx_fifo = Fifo()
+        self.tx_characteristic = None
+        self.rx_characteristic = None
+
+    def __exit__(self, exc_type, exc_value, traceback):
+		self.close()
 
     ble_device = ObjectProperty(None)
 
     identity = bytearray([
-        0x4e, 042,  # Ninebot Bluetooth ID
+        0x4e, 042  # Ninebot Bluetooth ID
     ])
-
-    receive_ids = {
-        'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
-    }
-
-    transmit_ids = {
-        'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
-    }
 
     service_ids = {
         'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
     }
+
+    receive_ids = {
+        'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
+    }
+
+    transmit_ids = {
+        'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
+    }
+
 
     def discover(self):
         self.start_scan()
@@ -78,20 +87,46 @@ class BLELink(BaseLink, BluetoothDispatcher):
         if status == GATT_SUCCESS and state:
             self.discover_services()
         else:
-            self.alert_characteristic = None
             self.close_gatt()
             self.services = None
 
     def on_services(self, status, services):
         self.services = services
         for uuid in receive_ids.values():
-            tx_characteristic = self.services.search(uuid)
+            self.rx_characteristic = self.services.search(uuid)
         for uuid in transmit_ids.values():
-            rx_characteristic = self.services.search(uuid)
-            self.enable_notifications(rx_characteristic)
+            self.tx_characteristic = self.services.search(uuid)
+            self.enable_notifications(self.tx_characteristic)
 
     def on_characteristic_changed(self, characteristic):
-        uuid = characteristic.getUuid().toString()
-        data = characteristic.getValue()
-        Logger.debug("Characteristic {} changed value: {}".format(
-            uuid, str(data).encode('hex')))
+        if characteristic == tx_characteristic:
+            data = characteristic.getValue()
+            self._rx_fifo.write(data)
+
+    def open(self, port):
+
+    def close(self):
+        self.close_gatt()
+        self.services = None
+
+    def read(self, size):
+		try:
+			data = self._rx_fifo.read(size, timeout=self.timeout)
+		except Queue.Empty:
+			raise LinkTimeoutException
+		if self.dump:
+			print '<', hexlify(data).upper()
+		return data
+
+    def write(self, data):
+		if self.dump:
+			print '>', hexlify(data).upper()
+		size = len(data)
+		ofs = 0
+		while size:
+            chunk_sz = min(size, _write_chunk_size)
+            self.write_characteristic(rx_characteristic, bytearray(data[ofs:ofs+chunk_sz]))
+            ofs += chunk_sz
+			size -= chunk_sz
+
+__all__ = ['BLELink']
