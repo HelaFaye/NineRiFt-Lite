@@ -41,15 +41,15 @@ class BLELink(BaseLink, BluetoothDispatcher):
     ])
 
     service_ids = {
-        'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
+        'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #service UUID
     }
 
     receive_ids = {
-        'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
+        'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
     }
 
     transmit_ids = {
-        'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
+        'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
     }
 
 
