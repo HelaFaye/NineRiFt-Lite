@@ -1,9 +1,18 @@
+"""BLE link using ABLE"""
+
 from __future__ import absolute_import
-from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
-from .base import BaseLink, LinkTimeoutException, LinkOpenException
+try:
+	from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
+except ImportError:
+	exit('error importing able')
+try:
+	from .base import BaseLink, LinkTimeoutException, LinkOpenException
+except ImportError:
+	exit('error importing .base')
 from binascii import hexlify
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty
+
 try:
 	import queue
 except ImportError:
@@ -26,12 +35,20 @@ class Fifo():
 		return res
 
 class BLELink(BaseLink, BluetoothDispatcher):
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
+		super(SerialLink, self).__init__(*args, **kwargs)
 		self.rx_fifo = Fifo()
 		self.tx_characteristic = ObjectProperty(None)
 		self.rx_characteristic = ObjectProperty(None)
 		self.addr = ObjectProperty(None)
 		self.ble_device = ObjectProperty(None)
+
+	def __enter__(self):
+		return self
+
+
+	def __exit__(self, exc_type, exc_value, traceback):
+		self.close()
 
 	identity = bytearray([
 	0x4e, 0x42  # Ninebot Bluetooth ID
@@ -137,3 +154,5 @@ class BLELink(BaseLink, BluetoothDispatcher):
 
 	def scan(self):
 		discover()
+
+__all__ = ['BLELink']
