@@ -109,6 +109,7 @@ class BLELink(BaseLink, BluetoothDispatcher):
             self._rx_fifo.write(data)
 
     def open(self, port):
+        self.tx_characteristic = self.rx_characteristic = None
         self.addr = port
         discover()
 

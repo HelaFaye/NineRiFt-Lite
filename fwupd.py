@@ -5,6 +5,7 @@ from py9b.transport.xiaomi import XiaomiTransport
 from py9b.transport.ninebot import NinebotTransport
 from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
+from kivy.utils import platform
 
 class FWUpd(object):
     def __init__(self):
