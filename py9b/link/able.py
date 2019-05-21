@@ -37,7 +37,7 @@ class BLELink(BaseLink, BluetoothDispatcher):
     ble_device = ObjectProperty(None)
 
     identity = bytearray([
-        0x4e, 042  # Ninebot Bluetooth ID
+        0x4e, 0x42  # Ninebot Bluetooth ID
     ])
 
     service_ids = {
