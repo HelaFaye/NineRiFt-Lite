@@ -25,8 +25,8 @@ class Fifo():
 
 class BLELink(BaseLink, BluetoothDispatcher):
     def __init__(self, *args, **kwargs):
-		super(BLELink, self).__init__(*args, **kwargs)
-		self._rx_fifo = Fifo()
+        super(BLELink, self).__init__(*args, **kwargs)
+        self._rx_fifo = Fifo()
         self.tx_characteristic = None
         self.rx_characteristic = None
 
@@ -127,14 +127,14 @@ class BLELink(BaseLink, BluetoothDispatcher):
 		return data
 
     def write(self, data):
-		if self.dump:
+        if self.dump:
 			print '>', hexlify(data).upper()
-		size = len(data)
-		ofs = 0
-		while size:
-            chunk_sz = min(size, _write_chunk_size)
-            self.write_characteristic(rx_characteristic, bytearray(data[ofs:ofs+chunk_sz]))
-            ofs += chunk_sz
+        size = len(data)
+        ofs = 0
+        while size:
+			chunk_sz = min(size, _write_chunk_size)
+			self.write_characteristic(rx_characteristic, bytearray(data[ofs:ofs+chunk_sz]))
+			ofs += chunk_sz
 			size -= chunk_sz
 
 __all__ = ['BLELink']
