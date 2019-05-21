@@ -4,14 +4,17 @@ from __future__ import absolute_import
 import pygatt
 from .base import BaseLink, LinkTimeoutException, LinkOpenException
 from binascii import hexlify
-import Queue
+try:
+	import queue
+except ImportError:
+	import Queue as queue
 
 SCAN_TIMEOUT = 3
 
 
 class Fifo():
 	def __init__(self):
-		self.q = Queue.Queue()
+		self.q = queue.Queue()
 
 	def write(self, data): # put bytes
 		for b in data:
@@ -48,7 +51,7 @@ class BLELink(BaseLink):
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
 
-	
+
 	def _make_rx_cb(self): # this is a closure :)
 		def rx_cb(handle, value):
 			self._rx_fifo.write(value)
@@ -71,7 +74,7 @@ class BLELink(BaseLink):
 			self._wr_handle = self._dev.get_handle(_rx_char_uuid)
 		except pygatt.exceptions.NotConnectedError:
 			raise LinkOpenException
-			
+
 
 	def close(self):
 		if self._dev:
@@ -84,7 +87,7 @@ class BLELink(BaseLink):
 	def read(self, size):
 		try:
 			data = self._rx_fifo.read(size, timeout=self.timeout)
-		except Queue.Empty:
+		except queue.Empty:
 			raise LinkTimeoutException
 		if self.dump:
 			print '<', hexlify(data).upper()

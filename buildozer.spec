@@ -36,7 +36,7 @@ version = 0.4
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = hostpython2,kivy,android,able,lictionary,tatsu,requests[security],openssl,urllib3
+requirements = hostpython2,kivy,android,able,lictionary,tatsu,requests[security],openssl,urllib3,chardet,certifi,idna
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy

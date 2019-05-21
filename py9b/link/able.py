@@ -2,16 +2,18 @@ from __future__ import absolute_import
 from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
 from .base import BaseLink, LinkTimeoutException, LinkOpenException
 from binascii import hexlify
-from kivy.clock import Clock
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty
-import Queue
+try:
+	import queue
+except ImportError:
+	import Queue as queue
 
 SCAN_TIMEOUT = 3
 
 class Fifo():
 	def __init__(self):
-		self.q = Queue.Queue()
+		self.q = queue.Queue()
 
 	def write(self, data): # put bytes
 		for b in data:
@@ -24,18 +26,14 @@ class Fifo():
 		return res
 
 class BLELink(BaseLink, BluetoothDispatcher):
-    def __init__(self, *args, **kwargs):
-        super(BLELink, self).__init__(*args, **kwargs)
-        self._rx_fifo = Fifo()
-        self.tx_characteristic = None
-        self.rx_characteristic = None
+	def __init__(self):
+		self.rx_fifo = Fifo()
+		self.tx_characteristic = ObjectProperty(None)
+		self.rx_characteristic = ObjectProperty(None)
+		self.addr = ObjectProperty(None)
+		self.ble_device = ObjectProperty(None)
 
-    def __exit__(self, exc_type, exc_value, traceback):
-		self.close()
-
-    ble_device = ObjectProperty(None)
-
-    identity = bytearray([
+	identity = bytearray([
         0x4e, 0x42  # Ninebot Bluetooth ID
     ])
 
@@ -104,9 +102,9 @@ class BLELink(BaseLink, BluetoothDispatcher):
             self.enable_notifications(self.tx_characteristic)
 
     def on_characteristic_changed(self, characteristic):
-        if characteristic == tx_characteristic:
+        if characteristic == self.tx_characteristic:
             data = characteristic.getValue()
-            self._rx_fifo.write(data)
+            self.rx_fifo.write(data)
 
     def open(self, port):
         self.tx_characteristic = self.rx_characteristic = None
@@ -119,8 +117,8 @@ class BLELink(BaseLink, BluetoothDispatcher):
 
     def read(self, size):
 		try:
-			data = self._rx_fifo.read(size, timeout=self.timeout)
-		except Queue.Empty:
+			data = self.rx_fifo.read(size, timeout=self.timeout)
+		except queue.Empty:
 			raise LinkTimeoutException
 		if self.dump:
 			print '<', hexlify(data).upper()
@@ -137,4 +135,5 @@ class BLELink(BaseLink, BluetoothDispatcher):
 			ofs += chunk_sz
 			size -= chunk_sz
 
-__all__ = ['BLELink']
+	def scan(self):
+		discover()
