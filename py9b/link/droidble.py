@@ -73,10 +73,10 @@ class BLELink(BaseLink, BluetoothDispatcher):
 
 
 	def on_device(self, device, rssi, advertisement):
+		scoot_found = False
 		if self.state != 'scan':
 			return
 		Logger.debug("on_device event {}".format(list(advertisement)))
-		scoot_found = False
 		address = device.getAddress()
 		if self.addr and address.startswith(self.addr):  # is a Mi Band device
 			self.ble_device = device
