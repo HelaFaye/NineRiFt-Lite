@@ -9,7 +9,6 @@ import Queue
 
 SCAN_TIMEOUT = 3
 
-
 class Fifo():
 	def __init__(self):
 		self.q = Queue.Queue()
@@ -57,20 +56,26 @@ class BLELink(BaseLink, BluetoothDispatcher):
         self.start_scan()
         self.state = 'scan'
 
+
     def on_device(self, device, rssi, advertisement):
         if self.state != 'scan':
             return
         Logger.debug("on_device event {}".format(list(advertisement)))
         scoot_found = False
-        name = ''
-        for ad in advertisement:
-            if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
-                if ad.data.startswith(self.identity):
-                    scoot_found = True
-                else:
-                    break
-            elif ad.ad_type == Advertisement.ad_types.complete_local_name:
-                name = str(ad.data)
+        address = device.getAddress()
+        if self.addr and address.startswith(self.addr):  # is a Mi Band device
+            self.ble_device = device
+            scoot_found = True
+            self.stop_scan()
+        else:
+            for ad in advertisement:
+                if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
+                    if ad.data.startswith(self.identity):
+                        scoot_found = True
+                    else:
+                        break
+                elif ad.ad_type == Advertisement.ad_types.complete_local_name:
+                    name = str(ad.data)
         if scoot_found:
             self.state = 'found'
             self.ble_device = device
@@ -104,6 +109,8 @@ class BLELink(BaseLink, BluetoothDispatcher):
             self._rx_fifo.write(data)
 
     def open(self, port):
+        self.addr = port
+        discover()
 
     def close(self):
         self.close_gatt()
