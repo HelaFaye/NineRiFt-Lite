@@ -46,7 +46,6 @@ class BLELink(BaseLink, BluetoothDispatcher):
 	def __enter__(self):
 		return self
 
-
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
 
@@ -131,9 +130,9 @@ class BLELink(BaseLink, BluetoothDispatcher):
 		discover()
 
 	def close(self):
-		self.close_gatt()
-		self.services = None
-
+		if self.ble_device:
+			self.close_gatt()
+		self.services = self.tx_characteristic = self.rx_characteristic = None
 	def read(self, size):
 		try:
 			data = self.rx_fifo.read(size, timeout=self.timeout)
