@@ -36,7 +36,7 @@ class Fifo():
 
 class BLELink(BaseLink, BluetoothDispatcher):
 	def __init__(self, *args, **kwargs):
-		super(SerialLink, self).__init__(*args, **kwargs)
+		super(BLELink, self).__init__(*args, **kwargs)
 		self.rx_fifo = Fifo()
 		self.tx_characteristic = ObjectProperty(None)
 		self.rx_characteristic = ObjectProperty(None)
@@ -66,6 +66,7 @@ class BLELink(BaseLink, BluetoothDispatcher):
     'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
     }
 
+	scoot_found = False
 
 	def discover(self):
 		self.start_scan()
@@ -73,6 +74,7 @@ class BLELink(BaseLink, BluetoothDispatcher):
 
 
 	def on_device(self, device, rssi, advertisement):
+		global scoot_found
 		scoot_found = False
 		if self.state != 'scan':
 			return
