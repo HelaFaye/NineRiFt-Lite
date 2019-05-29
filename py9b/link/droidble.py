@@ -12,6 +12,7 @@ except ImportError:
 from binascii import hexlify
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty
+from kivy.properties import StringProperty
 
 try:
 	import queue
@@ -19,6 +20,24 @@ except ImportError:
 	import Queue as queue
 
 SCAN_TIMEOUT = 3
+
+identity = bytearray([
+0x4e, 0x42  # Ninebot Bluetooth ID
+])
+
+service_ids = {
+'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #service UUID
+}
+
+receive_ids = {
+'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
+}
+
+transmit_ids = {
+'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
+}
+
+scoot_found = False
 
 class Fifo():
 	def __init__(self):
@@ -34,36 +53,18 @@ class Fifo():
 			res += chr(self.q.get(True, timeout))
 		return res
 
-class BLELink(BaseLink, BluetoothDispatcher):
-	def __init__(self, *args, **kwargs):
-		super(BLELink, self).__init__(*args, **kwargs)
+class ScootBT(BluetoothDispatcher):
+	def __init__(self):
+		super(ScootBT, self).__init__()
 		self.rx_fifo = Fifo()
-		self.tx_characteristic = ObjectProperty(None)
-		self.rx_characteristic = ObjectProperty(None)
-		self.addr = ObjectProperty(None)
 		self.ble_device = ObjectProperty(None)
+		self.state = StringProperty()
 
 	def __enter__(self):
 		return self
 
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
-
-	identity = bytearray([
-	0x4e, 0x42  # Ninebot Bluetooth ID
-    ])
-
-	service_ids = {
-	'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #service UUID
-    }
-
-	receive_ids = {
-    'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
-    }
-
-	transmit_ids = {
-    'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
-    }
 
 	scoot_found = False
 
@@ -74,11 +75,10 @@ class BLELink(BaseLink, BluetoothDispatcher):
 
 	def on_device(self, device, rssi, advertisement):
 		global scoot_found
-		scoot_found = False
 		if self.state != 'scan':
 			return
 		Logger.debug("on_device event {}".format(list(advertisement)))
-		address = device.getAddress()
+		self.addr = device.getAddress()
 		if self.addr and address.startswith(self.addr):  # is a Mi Band device
 			self.ble_device = device
 			scoot_found = True
@@ -125,14 +125,14 @@ class BLELink(BaseLink, BluetoothDispatcher):
 			self.rx_fifo.write(data)
 
 	def open(self, port):
-		self.tx_characteristic = self.rx_characteristic = None
 		self.addr = port
-		discover()
+		self.discover()
 
 	def close(self):
-		if self.ble_device:
+		if self.ble_device != None:
 			self.close_gatt()
 		self.services = self.tx_characteristic = self.rx_characteristic = None
+
 	def read(self, size):
 		try:
 			data = self.rx_fifo.read(size, timeout=self.timeout)
@@ -154,6 +154,41 @@ class BLELink(BaseLink, BluetoothDispatcher):
 			size -= chunk_sz
 
 	def scan(self):
-		discover()
+		self.discover()
+
+class BLELink(BaseLink):
+	def __init__(self, *args, **kwargs):
+		super(BLELink, self).__init__(*args, **kwargs)
+		self._adapter = None
+
+
+	def __enter__(self):
+		self._adapter = ScootBT()
+		return self
+
+
+	def __exit__(self, exc_type, exc_value, traceback):
+		self.close()
+
+
+	def scan(self):
+		devices = self._adapter.scan()
+
+
+	def open(self, port):
+		self._adapter.open(port)
+
+
+	def close(self):
+		self._adapter.close()
+
+
+	def read(self, size):
+		self._adapter.read(size)
+
+
+	def write(self, data):
+		self._adapter.write(data)
+
 
 __all__ = ['BLELink']

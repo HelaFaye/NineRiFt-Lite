@@ -6,12 +6,13 @@ from py9b.transport.ninebot import NinebotTransport
 from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
 from kivy.utils import platform
+import os
 
 class FWUpd(object):
     def __init__(self):
         self.devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
         self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
-        PING_RETRIES = 20
+        self.PING_RETRIES = 20
         self.device = 'esc'
         self.fwfilep = ''
         self.interface = 'ble'
@@ -44,7 +45,7 @@ class FWUpd(object):
         return (s & 0xFFFFFFFF)
 
     def UpdateFirmware(self, link, tran, dev, fwfile):
-        print('flashing '+fwfilep+' to ' + self.device)
+        print('flashing '+self.fwfilep+' to ' + self.device)
         fwfile.seek(0, os.SEEK_END)
         fw_size = fwfile.tell()
         fwfile.seek(0)
@@ -52,7 +53,7 @@ class FWUpd(object):
 
         dev = self.devices.get(self.device)
         print('Pinging...')
-        for retry in range(PING_RETRIES):
+        for retry in range(self.PING_RETRIES):
             print('.')
             try:
                 if dev == BT.BLE:
@@ -82,7 +83,7 @@ class FWUpd(object):
         while fw_size:
             chunk_sz = min(fw_size, fw_page_size)
             data = fwfile.read(chunk_sz)
-            chk = checksum(chk, data)
+            chk = self.checksum(chk, data)
             #tran.execute(WriteUpdate(dev, page, data))
             tran.execute(WriteUpdate(dev, page, data+b'\x00'*(fw_page_size-chunk_sz)))
             page += 1
@@ -125,27 +126,28 @@ class FWUpd(object):
             from py9b.link.serial import SerialLink
             link = SerialLink()
         else:
-            exit('!!! BUG !!! Unknown interface selected: '+interface)
+            exit('!!! BUG !!! Unknown interface selected: '+self.interface)
 
         with link:
             tran = self.protocols.get(self.protocol)(link)
 
-            if self.address != '':
-                addr = self.address
-            elif self.interface != 'ble':
-                print('Scanning...')
-                ports = link.scan()
-                if not ports:
-                    exit("No interfaces found !")
-                print('Connecting to', ports[0][0])
-                addr = ports[0][1]
+            if self.address:
+        		addr = self.address
             else:
-                raise LinkOpenException
+                try:
+                    print('Scanning...')
+                    ports = link.scan()
+                    if not ports:
+                        exit("No interfaces found !")
+                    print('Connecting to', ports[0][0])
+                    addr = ports[0][1]
+                except:
+                    raise LinkOpenException
 
             link.open(addr)
             print('Connected')
             try:
-                UpdateFirmware(link, tran, dev, file)
+                self.UpdateFirmware(link, tran, dev, file)
             except Exception as e:
                 print('Error:', e)
                 raise

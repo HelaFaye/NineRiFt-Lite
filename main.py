@@ -66,7 +66,7 @@ class NineRiFt(App):
         # topbtnlayout.add_widget(ebms_button)
         flashtopbtnlayout.add_widget(ifaceselspin)
         flashtopbtnlayout.add_widget(devselspin)
-        flashtopbtnlayout.add_widget()
+        #flashtopbtnlayout.add_widget()
         flashtoplayout.add_widget(flashaddrlayout)
         flashtoplayout.add_widget(flashtopbtnlayout)
         flashmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
