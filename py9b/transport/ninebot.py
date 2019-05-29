@@ -40,11 +40,12 @@ class NinebotTransport(BT):
 
 	def send(self, packet):
 		print("data "+packet.data)
+		print("datalen "+str(len(packet.data)))
 		print("src "+str(packet.src))
 		print("dst "+str(packet.dst))
 		print("cmd "+str(packet.cmd))
 		print("arg "+str(packet.arg))
-		pkt = pack("<BBBBB", len(packet.data), packet.src, packet.dst, packet.cmd, packet.arg)+packet.data
+		pkt = pack("<BBBBB", len(packet.data), int(packet.src), packet.dst, int(packet.cmd), int(packet.arg))+packet.data
 		pkt = "\x5A\xA5" + pkt + pack("<H", checksum(pkt))
 		self.link.write(pkt)
 
