@@ -45,7 +45,7 @@ class NineRiFt(App):
             ifaceselspin = Spinner(text='Interface', values=('TCP', 'BLE')
         , font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
-        devselspin = Spinner(text='Device', values=('BLE', 'DRV', 'BMS', 'ExtBMS'),
+        devselspin = Spinner(text='Device', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
          sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: fwupd.setdev(devselspin.text))
 
