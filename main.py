@@ -32,10 +32,10 @@ class NineRiFt(App):
         downloadscreen = Screen(name='Download')
 
 
-        seladdr_label = Label(text="Addr:", font_size='12sp', height='14sp',
+        seladdr_label = Label(text="Addr:", font_size='12sp', height='15sp',
          size_hint_y=1, size_hint_x=.08)
         seladdr_input = TextInput(multiline=False, text='',
-        height='12sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
+        height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
         seladdr_input.bind(on_text_validate=lambda x: fwupd.setaddr(seladdr_input.text))
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
         if platform != 'android':
@@ -58,13 +58,15 @@ class NineRiFt(App):
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         flashaddrlayout.add_widget(seladdr_label)
         flashaddrlayout.add_widget(seladdr_input)
-        flashtopbtnlayout = BoxLayout(orientation='horizontal', size_hint_y=.7)
+        #flashtopbtnlayout = GridLayout(orientation='horizontal', cols=3, size_hint_y=.7)
+        flashtopbtnlayout = GridLayout(orientation='horizontal', cols=2, size_hint_y=.7)
         # topbtnlayout.add_widget(ble_button)
         # topbtnlayout.add_widget(esc_button)
         # topbtnlayout.add_widget(bms_button)
         # topbtnlayout.add_widget(ebms_button)
         flashtopbtnlayout.add_widget(ifaceselspin)
         flashtopbtnlayout.add_widget(devselspin)
+        flashtopbtnlayout.add_widget()
         flashtoplayout.add_widget(flashaddrlayout)
         flashtoplayout.add_widget(flashtopbtnlayout)
         flashmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
@@ -120,7 +122,7 @@ class NineRiFt(App):
         downloadlayout.add_widget(fwget_midlayout)
         downloadlayout.add_widget(fwget_botlayout)
 
-        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='12sp',
+        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
          on_press=lambda x: switch_screen('Flash'))
         fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
          on_press=lambda x: switch_screen('Download'))
