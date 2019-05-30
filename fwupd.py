@@ -113,7 +113,7 @@ class FWUpd(object):
                 try:
                     from py9b.link.droidble import BLELink
                 except:
-                    exit('BLE is not yet supported on Android !')
+                    exit('BLE on Android failed to import!')
             else:
                 exit('BLE is not supported on your system !')
             link = BLELink()
@@ -132,7 +132,8 @@ class FWUpd(object):
             tran = self.protocols.get(self.protocol)(link)
 
             if self.address:
-        		addr = self.address
+                addr = self.address
+                print('link address assigned')
             else:
                 try:
                     print('Scanning...')
@@ -143,8 +144,11 @@ class FWUpd(object):
                     addr = ports[0][1]
                 except:
                     raise LinkOpenException
-
-            link.open(addr)
+            try:
+                link.open(addr)
+            except:
+                print('failed to open link')
+                raise LinkOpenException
             print('Connected')
             try:
                 self.UpdateFirmware(link, tran, dev, file)
