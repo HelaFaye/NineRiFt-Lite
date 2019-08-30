@@ -23,7 +23,7 @@ class XiaomiTransport(BT):
 					BT.MOTOR : {BT.HOST : MOTOR, BT.ESC : MOTOR, BT.BMS : MOTOR } }
 
 	# TBC
-	_BleAddr2SaDa = { 	MASTER2ESC : (BT.HOST, BT.ESC),
+	_BleAddr2SaDa = { 	MASTER2ESC : (BT.HOST, BT.ESC), 
 						ESC2MASTER : (BT.ESC, BT.HOST),
 						MASTER2BMS : (BT.HOST, BT.BMS),
 						BMS2MASTER : (BT.BMS, BT.HOST),
@@ -31,7 +31,7 @@ class XiaomiTransport(BT):
 						BLE2MASTER : (BT.BLE, BT.HOST),
 						MOTOR	 : (BT.MOTOR, BT.HOST) }
 
-	_BmsAddr2SaDa = { 	MASTER2ESC : (BT.BMS, BT.ESC),
+	_BmsAddr2SaDa = { 	MASTER2ESC : (BT.BMS, BT.ESC), 
 						ESC2MASTER : (BT.ESC, BT.BMS),
 						MASTER2BMS : (BT.ESC, BT.BMS),
 						BMS2MASTER : (BT.BMS, BT.ESC),
@@ -48,7 +48,7 @@ class XiaomiTransport(BT):
 	def _make_addr(self, src, dst):
 		return XiaomiTransport._SaDa2Addr[src][dst]
 
-
+			
 	def _split_addr(self, addr):
 		if self.device==BT.BMS:
 			return XiaomiTransport._BmsAddr2SaDa[addr]
@@ -65,7 +65,7 @@ class XiaomiTransport(BT):
 			while True:
 				c = self.link.read(1)
 				if c=="\xAA":
-					return True
+					return True 
 				if c!="\x55":
 					break # start waiting 55 again, else - this is 55, so wait for AA
 
@@ -79,12 +79,12 @@ class XiaomiTransport(BT):
 		ck_calc = checksum(pkt[0:-2])
 		ck_pkt = unpack("<H", pkt[-2:])[0]
 		if ck_pkt!=ck_calc:
-			print("Checksum mismatch !")
+			print "Checksum mismatch !"
 			return None
 		sa, da = self._split_addr(ord(pkt[1]))
 		return BasePacket(sa, da, ord(pkt[2]), ord(pkt[3]), pkt[4:-2]) # sa, da, cmd, arg, data
 
-
+	
 	def send(self, packet):
 		dev = self._make_addr(packet.src, packet.dst)
 		pkt = pack("<BBBB", len(packet.data)+2, dev, packet.cmd, packet.arg)+packet.data
