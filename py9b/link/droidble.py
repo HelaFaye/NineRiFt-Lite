@@ -23,7 +23,8 @@ SCAN_TIMEOUT = 3
 _write_chunk_size = 20
 
 identity = bytearray([
-0x4e, 0x42  # Ninebot Bluetooth ID
+0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDE,  # Ninebot Bluetooth ID 4E422100000000DE
+0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDF   # Xiaomi Bluetooth ID 4E422100000000DF
 ])
 
 service_ids = {
@@ -86,11 +87,10 @@ class ScootBT(BluetoothDispatcher):
     def on_device(self, device, rssi, advertisement):
         global scoot_found
         if self.state != 'scan':
-            self.discover()
             return
         Logger.debug("on_device event {}".format(list(advertisement)))
         self.addr = device.getAddress()
-        if self.addr and address.startswith(self.addr):  # is a Mi Band device
+        if self.addr and address.startswith(self.addr):
             self.state = 'address'
             print(self.state)
             self.ble_device = device
@@ -138,8 +138,6 @@ class ScootBT(BluetoothDispatcher):
 
     def on_services(self, status, services):
         self.services = services
-        self.state = 'enumerate'
-        print(self.state)
         for uuid in receive_ids.values():
             self.rx_characteristic = self.services.search(uuid)
             print('RX: '+uuid)
@@ -147,8 +145,6 @@ class ScootBT(BluetoothDispatcher):
             self.tx_characteristic = self.services.search(uuid)
             print('TX: '+uuid)
             self.enable_notifications(self.tx_characteristic)
-        self.state = 'link'
-        print(self.state)
 
 
     def on_characteristic_changed(self, characteristic):
@@ -159,7 +155,12 @@ class ScootBT(BluetoothDispatcher):
 
     def open(self, port):
         self.addr = port
-        self.discover()
+        if self.ble_device == None:
+            self.discover()
+        if self.state!='connected':
+            self.connect_gatt(self.ble_device)
+        else:
+            return
 
 
     def close(self):
