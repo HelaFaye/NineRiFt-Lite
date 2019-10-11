@@ -36,7 +36,7 @@ version = 0.5
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python2,kivy,android,able,lictionary,tatsu,requests[security],openssl,urllib3,chardet,certifi,idna
+requirements = python2,kivy,android,able,requests,openssl
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -105,10 +105,10 @@ android.api = 28
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-#android.ndk_path = /usr/share/android-studio/ndk-bundle
+android.ndk_path = /opt/android-studio/ndk-bundle
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = /usr/share/android-studio
+android.sdk_path = /opt/Android/Sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
@@ -181,7 +181,7 @@ android.accept_sdk_license = True
 
 # (bool) Indicate whether the screen should stay on
 # Don't forget to add the WAKE_LOCK permission if you set this to True
-#android.wakelock = False
+android.wakelock = True
 
 # (list) Android application meta-data to set (key=value format)
 #android.meta_data =

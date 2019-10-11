@@ -67,7 +67,7 @@ class ScootBT(BluetoothDispatcher):
         self.tx_characteristic = None
         self.rx_characteristic = None
         self.timeout = SCAN_TIMEOUT
-        set_queue_timeout(self.timeout)
+        self.set_queue_timeout(self.timeout)
 
 
     def __enter__(self):
@@ -91,15 +91,13 @@ class ScootBT(BluetoothDispatcher):
         Logger.debug("on_device event {}".format(list(advertisement)))
         self.addr = device.getAddress()
         if self.addr and address.startswith(self.addr):
-            self.state = 'address'
-            print(self.state)
+            print(self.addr)
             self.ble_device = device
             self.scoot_found = True
             self.stop_scan()
         else:
             for ad in advertisement:
-                self.state = 'advertisement'
-                print(self.state)
+                print(ad)
                 if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
                     if ad.data.startswith(self.identity):
                         scoot_found = True
@@ -167,13 +165,11 @@ class ScootBT(BluetoothDispatcher):
         if self.ble_device != None:
             self.close_gatt()
         self.services = None
-        self.state = 'close'
-        print(self.state)
+        print('close')
 
 
     def read(self, size):
-        self.state = 'read'
-        print(self.state)
+        print('read')
         if self.ble_device:
             try:
                 data = self.rx_fifo.read(size, timeout=self.timeout)
@@ -188,6 +184,7 @@ class ScootBT(BluetoothDispatcher):
 
 
     def write(self, data):
+        print('write')
         if self.ble_device:
             if self.dump:
                 print '>', hexlify(data).upper()
