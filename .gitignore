@@ -109,5 +109,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-adb-log.sh
