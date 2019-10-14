@@ -1,13 +1,12 @@
 """TCP-BLE bridge link"""
-from __future__ import absolute_import
+
 import socket
 from binascii import hexlify
 from .base import BaseLink, LinkTimeoutException, LinkOpenException
 
 HOST, PORT = "127.0.0.1", 6000
 
-_write_chunk_size = 20  # 20 as in android dumps
-
+_write_chunk_size = 20 # 20 as in android dumps
 
 def recvall(sock, size):
 	data = ""

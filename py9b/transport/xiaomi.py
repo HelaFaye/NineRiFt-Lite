@@ -74,12 +74,12 @@ class XiaomiTransport(BT):
 		self._wait_pre()
 		pkt = self.link.read(1)
 		l = ord(pkt)+3
-		for i in xrange(l):
+		for i in range(l):
 			pkt += self.link.read(1)
 		ck_calc = checksum(pkt[0:-2])
 		ck_pkt = unpack("<H", pkt[-2:])[0]
 		if ck_pkt!=ck_calc:
-			print "Checksum mismatch !"
+			print("Checksum mismatch !")
 			return None
 		sa, da = self._split_addr(ord(pkt[1]))
 		return BasePacket(sa, da, ord(pkt[2]), ord(pkt[3]), pkt[4:-2]) # sa, da, cmd, arg, data

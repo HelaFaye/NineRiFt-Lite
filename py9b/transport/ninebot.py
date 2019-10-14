@@ -28,12 +28,12 @@ class NinebotTransport(BT):
 		self._wait_pre()
 		pkt = self.link.read(1)
 		l = ord(pkt)+6
-		for i in xrange(l):
+		for i in range(l):
 			pkt += self.link.read(1)
 		ck_calc = checksum(pkt[0:-2])
 		ck_pkt = unpack("<H", pkt[-2:])[0]
 		if ck_pkt!=ck_calc:
-			print "Checksum mismatch !"
+			print("Checksum mismatch !")
 			return None
 		return BasePacket(ord(pkt[1]), ord(pkt[2]), ord(pkt[3]), ord(pkt[4]), pkt[5:-2]) # sa, da, cmd, arg, data
 

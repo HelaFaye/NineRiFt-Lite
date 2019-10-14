@@ -1,6 +1,7 @@
 """BLE link using ABLE"""
 
 from __future__ import absolute_import
+
 try:
     from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
 except ImportError:
@@ -52,7 +53,7 @@ class Fifo():
 
     def read(self, size=1, timeout=None): # but read string
         res = ''
-        for i in xrange(size):
+        for i in range(size):
             res += chr(self.q.get(True, timeout))
         return res
 
@@ -136,10 +137,10 @@ class ScootBT(BluetoothDispatcher):
 
     def on_services(self, status, services):
         self.services = services
-        for uuid in receive_ids.values():
+        for uuid in list(receive_ids.values()):
             self.rx_characteristic = self.services.search(uuid)
             print('RX: '+uuid)
-        for uuid in transmit_ids.values():
+        for uuid in list(transmit_ids.values()):
             self.tx_characteristic = self.services.search(uuid)
             print('TX: '+uuid)
             self.enable_notifications(self.tx_characteristic)
@@ -176,7 +177,7 @@ class ScootBT(BluetoothDispatcher):
             except queue.Empty:
                 raise LinkTimeoutException
             if self.dump:
-                print '<', hexlify(data).upper()
+                print('<', hexlify(data).upper())
             return data
         else:
             print('BLE not connected')
@@ -187,7 +188,7 @@ class ScootBT(BluetoothDispatcher):
         print('write')
         if self.ble_device:
             if self.dump:
-                print '>', hexlify(data).upper()
+                print('>', hexlify(data).upper())
             size = len(data)
             ofs = 0
             while size:
