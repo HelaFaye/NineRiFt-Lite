@@ -91,13 +91,13 @@ class BLELink(BaseLink):
 		except queue.Empty:
 			raise LinkTimeoutException
 		if self.dump:
-			print '<', hexlify(data).upper()
+			print('<', hexlify(data).upper())
 		return data
 
 
 	def write(self, data):
 		if self.dump:
-			print '>', hexlify(data).upper()
+			print('>', hexlify(data).upper())
 		size = len(data)
 		ofs = 0
 		while size:
