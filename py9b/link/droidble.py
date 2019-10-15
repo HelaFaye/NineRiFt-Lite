@@ -22,8 +22,8 @@ SCAN_TIMEOUT = 3
 _write_chunk_size = 20
 
 identity = bytearray([
-0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDE,  # Ninebot Bluetooth ID 4E422100000000DE
-0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDF   # Xiaomi Bluetooth ID 4E422100000000DF
+0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDE  # Ninebot Bluetooth ID 4E422100000000DE
+#0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDF   # Xiaomi Bluetooth ID 4E422100000000DF
 ])
 
 service_ids = {
@@ -58,6 +58,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
     def __init__(self):
         super(BLELink, self).__init__()
         self.rx_fifo = Fifo()
+        self.addr = ''
         self.ble_device = None
         self.scoot_found = False
         self.state = StringProperty()
@@ -193,7 +194,12 @@ class BLELink(BluetoothDispatcher, BaseLink):
 
 
     def scan(self):
+        res = []
         self.discover()
+        self.open(self.addr)
+        res.append((self.ble_device.getName(), self.ble_device.getAddress()))
+        return res
+
 
 
 __all__ = ['BLELink']
