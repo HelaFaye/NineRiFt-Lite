@@ -75,6 +75,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
         self.close()
 
     def discover(self):
+        self.stop_scan()
         self.start_scan()
         self.state = 'scan'
         print(self.state)
@@ -118,8 +119,6 @@ class BLELink(BluetoothDispatcher, BaseLink):
     def on_connection_state_change(self, status, state):
         if status == GATT_SUCCESS and state:
             self.discover_services()
-            self.state = 'discover'
-            print(self.state)
         else:
             self.close_gatt()
             self.rx_characteristic = None
@@ -156,6 +155,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
 
     def close(self):
         if self.ble_device != None:
+            print('gclose')
             self.close_gatt()
         self.services = None
         print('close')
@@ -194,11 +194,12 @@ class BLELink(BluetoothDispatcher, BaseLink):
 
 
     def scan(self):
-        res = []
-        self.discover()
-        self.open(self.addr)
-        res.append((self.ble_device.getName(), self.ble_device.getAddress()))
-        return res
+        if self.ble_device:  # device is already founded during the scan
+            self.connect_gatt(self.device)  # reconnect
+        else:
+            self.stop_scan()  # stop previous scan
+            self.start_scan()  # start a scan for devices
+        return
 
 
 
