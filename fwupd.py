@@ -136,8 +136,13 @@ class FWUpd(object):
                 print('link address assigned')
             else:
                 try:
+                    ports = None
                     print('Scanning...')
-                    ports = link.scan()
+                    if self.interface != 'ble':
+                        ports = link.scan()
+                    if self.interface == 'ble':
+                        link.scan()
+                        
                     if not ports:
                         exit("No ports found !")
                     print('Connecting to', ports[0][0])

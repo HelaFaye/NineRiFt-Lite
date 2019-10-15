@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from sys import exit
 import os
+import threading
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -14,7 +15,10 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
-
+try:
+    from kivymd import toast.toast
+except:
+    print('no toast for yous')
 from fwupd import FWUpd
 from fwget import FWGet
 
@@ -25,7 +29,6 @@ class NineRiFt(App):
         cache_folder = os.path.join(root_folder, 'cache')
         fwget = FWGet(cache_folder)
         fwupd = FWUpd()
-
         sm = ScreenManager()
         def switch_screen(scrn):
             sm.current = scrn
@@ -106,9 +109,22 @@ class NineRiFt(App):
                 fwget_verselspin.values.append(str(i))
             return fwget_verselspin.values
 
+        download = None
+
+        def fwget_bg():
+            fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text)
+
+        def fwget_thread():
+            fwthread = threading.Thread(target=fwget_bg)
+            fwthread.start()
+            try:
+                toast('download finished')
+            except:
+                print('download finished')
+
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
-         on_press=lambda x: fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text))
+         on_press=lambda x: fwget_thread())
 
         fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
         fwget_topbtnlayout = GridLayout(cols=2)
