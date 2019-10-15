@@ -110,10 +110,10 @@ class FWUpd(object):
                 except:
                     exit('BLE is not yet working with your configuration !')
             elif platform == 'android':
-                try:
-                    from py9b.link.droidble import BLELink
-                except:
-                    exit('BLE on Android failed to import!')
+                #try:
+                from py9b.link.droidble import BLELink
+                #except:
+                    #exit('BLE on Android failed to import!')
             else:
                 exit('BLE is not supported on your system !')
             link = BLELink()

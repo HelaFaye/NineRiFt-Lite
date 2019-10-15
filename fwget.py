@@ -96,7 +96,7 @@ class FWGet():
     def loadRepo(self, jsonURL):
         d = ''
         noInternet = False
-        hashedName = hashlib.md5(jsonURL).hexdigest()
+        hashedName = hashlib.md5(jsonURL.encode("utf-8")).hexdigest()
         try:
             r = requests.head(jsonURL)
             if (r.status_code != 200):

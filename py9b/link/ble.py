@@ -1,6 +1,5 @@
 """BLE link using BlueGiga adapter via PyGatt/BGAPI"""
 
-from __future__ import absolute_import
 import pygatt
 from .base import BaseLink, LinkTimeoutException, LinkOpenException
 from binascii import hexlify

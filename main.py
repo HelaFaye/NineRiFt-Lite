@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import
 from sys import exit
 import os
 
@@ -14,6 +14,7 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
+
 from fwupd import FWUpd
 from fwget import FWGet
 
@@ -59,7 +60,7 @@ class NineRiFt(App):
         flashaddrlayout.add_widget(seladdr_label)
         flashaddrlayout.add_widget(seladdr_input)
         #flashtopbtnlayout = GridLayout(orientation='horizontal', cols=3, size_hint_y=.7)
-        flashtopbtnlayout = GridLayout(orientation='horizontal', cols=2, size_hint_y=.7)
+        flashtopbtnlayout = GridLayout(cols=2, size_hint_y=.7)
         # topbtnlayout.add_widget(ble_button)
         # topbtnlayout.add_widget(esc_button)
         # topbtnlayout.add_widget(bms_button)

@@ -1,11 +1,9 @@
 """BLE link using ABLE"""
 
-from __future__ import absolute_import
-
-try:
-    from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
-except ImportError:
-    exit('error importing able')
+#try:
+from able import BluetoothDispatcher, Advertisement, GATT_SUCCESS
+#except ImportError:
+#    exit('error importing able')
 try:
     from .base import BaseLink, LinkTimeoutException, LinkOpenException
 except ImportError:
@@ -40,8 +38,6 @@ transmit_ids = {
 'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
 }
 
-scoot_found = False
-
 
 class Fifo():
     def __init__(self):
@@ -58,17 +54,16 @@ class Fifo():
         return res
 
 
-class ScootBT(BluetoothDispatcher):
+class BLELink(BluetoothDispatcher, BaseLink):
     def __init__(self):
-        super(ScootBT, self).__init__()
+        super(BLELink, self).__init__()
         self.rx_fifo = Fifo()
         self.ble_device = None
+        self.scoot_found = False
         self.state = StringProperty()
         self.dump = True
         self.tx_characteristic = None
         self.rx_characteristic = None
-        self.timeout = SCAN_TIMEOUT
-        self.set_queue_timeout(self.timeout)
 
 
     def __enter__(self):
@@ -78,7 +73,6 @@ class ScootBT(BluetoothDispatcher):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-
     def discover(self):
         self.start_scan()
         self.state = 'scan'
@@ -86,7 +80,6 @@ class ScootBT(BluetoothDispatcher):
 
 
     def on_device(self, device, rssi, advertisement):
-        global scoot_found
         if self.state != 'scan':
             return
         Logger.debug("on_device event {}".format(list(advertisement)))
@@ -101,14 +94,12 @@ class ScootBT(BluetoothDispatcher):
                 print(ad)
                 if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
                     if ad.data.startswith(self.identity):
-                        scoot_found = True
+                        self.scoot_found = True
                     else:
                         break
                 elif ad.ad_type == Advertisement.ad_types.complete_local_name:
                     name = str(ad.data)
-        if scoot_found:
-            self.state = 'found'
-            print(self.state)
+        if self.scoot_found:
             self.ble_device = device
             Logger.debug("Scooter detected: {}".format(name))
             self.stop_scan()
@@ -203,42 +194,6 @@ class ScootBT(BluetoothDispatcher):
 
     def scan(self):
         self.discover()
-
-
-class BLELink(BaseLink):
-    def __init__(self, *args, **kwargs):
-        super(BLELink, self).__init__(*args, **kwargs)
-        self._adapter = None
-
-
-    def __enter__(self):
-        self._adapter = ScootBT()
-        self._adapter.discover()
-        return self
-
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.close()
-
-
-    def scan(self):
-        devices = self._adapter.scan()
-
-
-    def open(self, port):
-        self._adapter.open(port)
-
-
-    def close(self):
-        self._adapter.close()
-
-
-    def read(self, size):
-        self._adapter.read(size)
-
-
-    def write(self, data):
-        self._adapter.write(data)
 
 
 __all__ = ['BLELink']
