@@ -7,6 +7,7 @@ from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
 from kivy.utils import platform
 import os
+import threading
 
 class FWUpd(object):
     def __init__(self):
@@ -141,12 +142,12 @@ class FWUpd(object):
                     if self.interface != 'ble':
                         ports = link.scan()
                     if self.interface == 'ble':
-                        link.scan()
-                        
-                    if not ports:
+                        scanthread = threading.Thread(target=link.scan())
+                        scanthread.start()
+                    if not self.interface=='ble' and not ports:
                         exit("No ports found !")
-                    print('Connecting to', ports[0][0])
-                    addr = ports[0][1]
+                        print('Connecting to', ports[0][0])
+                        addr = ports[0][1]
                 except:
                     raise LinkOpenException
             try:

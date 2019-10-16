@@ -16,9 +16,9 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
 try:
-    from kivymd import toast.toast
+    from kivymd.toast import toast
 except:
-    print('no toast for yous')
+    print('no toast for you')
 from fwupd import FWUpd
 from fwget import FWGet
 
@@ -109,13 +109,8 @@ class NineRiFt(App):
                 fwget_verselspin.values.append(str(i))
             return fwget_verselspin.values
 
-        download = None
-
-        def fwget_bg():
-            fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text)
-
         def fwget_thread():
-            fwthread = threading.Thread(target=fwget_bg)
+            fwthread = threading.Thread(target=fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text))
             fwthread.start()
             try:
                 toast('download finished')
