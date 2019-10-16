@@ -65,7 +65,6 @@ class BLELink(BluetoothDispatcher, BaseLink):
         self.dump = True
         self.tx_characteristic = None
         self.rx_characteristic = None
-        self.res = []
 
     def __enter__(self):
         return self
@@ -75,7 +74,6 @@ class BLELink(BluetoothDispatcher, BaseLink):
         self.close()
 
     def discover(self):
-        self.stop_scan()
         self.start_scan()
         self.state = 'scan'
         print(self.state)
@@ -85,7 +83,6 @@ class BLELink(BluetoothDispatcher, BaseLink):
         if self.state != 'scan':
             return
         Logger.debug("on_device event {}".format(list(advertisement)))
-        self.addr = device.getAddress()
         if self.addr and address.startswith(self.addr):
             print(self.addr)
             self.ble_device = device
@@ -121,7 +118,6 @@ class BLELink(BluetoothDispatcher, BaseLink):
             self.discover_services()
         else:
             self.close_gatt()
-            self.res = []
             self.rx_characteristic = None
             self.tx_characteristic = None
             self.services = None
@@ -148,7 +144,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
         self.addr = port
         if self.ble_device == None:
             self.discover()
-        if self.state!='connected':
+        if self.scoot_found and self.state!='connected':
             self.connect_gatt(self.ble_device)
         else:
             return
@@ -158,7 +154,6 @@ class BLELink(BluetoothDispatcher, BaseLink):
         if self.ble_device != None:
             print('gclose')
             self.close_gatt()
-        self.res = []
         self.services = None
         print('close')
 
@@ -196,7 +191,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
 
 
     def scan(self):
-        self.open(self.addr)
+        self.discover()
 
 
 
