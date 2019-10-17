@@ -33,8 +33,9 @@ class Fifo():
         return res
 
 
-class BLELink(BluetoothDispatcher, BaseLink):
+class BLE(BluetoothDispatcher):
     def __init__(self):
+        super(BLE, self).__init__()
         self.rx_fifo = Fifo()
         self.addr = ''
         self.ble_device = None
@@ -58,7 +59,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
         }
         self.tx_characteristic = None
         self.rx_characteristic = None
-        self.self._write_chunk_size = 20
+        self._write_chunk_size = 20
 
     def __enter__(self):
         return self
@@ -187,6 +188,39 @@ class BLELink(BluetoothDispatcher, BaseLink):
     def scan(self):
         self.discover()
 
+class BLELink(BaseLink):
+	def __init__(self, *args, **kwargs):
+		super(BLELink, self).__init__(*args, **kwargs)
+		self._adapter = None
+		self._rx_fifo = Fifo()
+        self._adapter = BLE()
+
+	def __enter__(self):
+		return self
+
+
+	def __exit__(self, exc_type, exc_value, traceback):
+		self.close()
+
+	def scan(self):
+		self._adapter.scan()
+
+
+	def open(self, port):
+		self._adapter.open(port)
+
+
+	def close(self):
+		if self._adapter:
+			self._adapter.close()
+
+
+	def read(self, size):
+		self._adapter.read()
+
+
+	def write(self, data):
+		self._adapter.write()
 
 
 __all__ = ['BLELink']
