@@ -3,7 +3,7 @@
 def checksum(data):
 	s = 0
 	for c in data:
-		s += ord(c)
+		s += ord(chr(c))
 	return (s & 0xFFFF) ^ 0xFFFF
 
 
@@ -15,7 +15,7 @@ class BaseTransport(object):
 	BMS = 0x22
 	EXTBMS = 0x23
 	HOST = 0x3E
-	
+
 	DeviceNames = { MOTOR : "MOTOR", ESC : "ESC", BLE : "BLE", BMS : "BMS", EXTBMS : "EXTBMS", HOST : "HOST" }
 
 	def __init__(self, link):

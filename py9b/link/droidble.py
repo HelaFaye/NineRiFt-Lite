@@ -17,27 +17,6 @@ try:
 except ImportError:
     import Queue as queue
 
-SCAN_TIMEOUT = 3
-
-_write_chunk_size = 20
-
-identity = bytearray([
-0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDE  # Ninebot Bluetooth ID 4E422100000000DE
-#0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDF   # Xiaomi Bluetooth ID 4E422100000000DF
-])
-
-service_ids = {
-'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #service UUID
-}
-
-receive_ids = {
-'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
-}
-
-transmit_ids = {
-'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
-}
-
 
 class Fifo():
     def __init__(self):
@@ -56,15 +35,30 @@ class Fifo():
 
 class BLELink(BluetoothDispatcher, BaseLink):
     def __init__(self):
-        super(BLELink, self).__init__()
         self.rx_fifo = Fifo()
         self.addr = ''
         self.ble_device = None
         self.scoot_found = False
         self.state = StringProperty()
         self.dump = True
+        self.identity = bytearray([
+        0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDE  # Ninebot Bluetooth ID 4E422100000000DE
+        #0x4e, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDF   # Xiaomi Bluetooth ID 4E422100000000DF
+        ])
+        self.service_ids = {
+        'retail': '6e400001-b5a3-f393-e0a9-e50e24dcca9e' #service UUID
+        }
+
+        self.receive_ids = {
+        'retail': '6e400002-b5a3-f393-e0a9-e50e24dcca9e' #receive characteristic UUID
+        }
+
+        self.transmit_ids = {
+        'retail': '6e400003-b5a3-f393-e0a9-e50e24dcca9e' #transmit characteristic UUID
+        }
         self.tx_characteristic = None
         self.rx_characteristic = None
+        self.self._write_chunk_size = 20
 
     def __enter__(self):
         return self
@@ -181,7 +175,7 @@ class BLELink(BluetoothDispatcher, BaseLink):
             size = len(data)
             ofs = 0
             while size:
-                chunk_sz = min(size, _write_chunk_size)
+                chunk_sz = min(size, self._write_chunk_size)
                 self.write_characteristic(self.rx_characteristic, bytearray(data[ofs:ofs+chunk_sz]))
                 ofs += chunk_sz
                 size -= chunk_sz
