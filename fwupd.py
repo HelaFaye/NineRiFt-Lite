@@ -143,8 +143,7 @@ class FWUpd(object):
                     if self.interface != 'ble':
                         ports = link.scan()
                     if self.interface == 'ble':
-                        scanthread = threading.Thread(target=link.scan())
-                        scanthread.start()
+                        link.scan()
                     if not self.interface=='ble' and not ports:
                         exit("No ports found !")
                         print('Connecting to', ports[0][0])
