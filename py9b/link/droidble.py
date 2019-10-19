@@ -86,6 +86,7 @@ class BLE(BluetoothDispatcher):
 				if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
 					if ad.data.startswith(self.identity):
 						self.scoot_found = True
+						name = str(ad.data)
 					else:
 						break
 				elif ad.ad_type == Advertisement.ad_types.complete_local_name:
@@ -116,14 +117,16 @@ class BLE(BluetoothDispatcher):
 
 	def on_services(self, status, services):
 		self.services = services
-		for uuid in list(self.receive_ids.values()):
-			self.rx_characteristic = self.services.search(uuid)
-			print('RX: '+uuid)
-		for uuid in list(self.transmit_ids.values()):
-			self.tx_characteristic = self.services.search(uuid)
-			print('TX: '+uuid)
-			self.enable_notifications(self.tx_characteristic)
-
+		try:
+			for uuid in self.receive_ids.values():
+				self.rx_characteristic = self.services.search(uuid)
+				print('RX: '+uuid)
+			for uuid in self.transmit_ids.values():
+				self.tx_characteristic = self.services.search(uuid)
+				print('TX: '+uuid)
+				self.enable_notifications(self.tx_characteristic)
+		except:
+			print('no matching services found')
 
 	def on_characteristic_changed(self, characteristic):
 		if characteristic == self.tx_characteristic:
