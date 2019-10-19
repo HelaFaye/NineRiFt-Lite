@@ -19,28 +19,13 @@ except:
 from fwupd import FWUpd
 from fwget import FWGet
 
-root_folder = getattr(self, 'user_data_dir')
-cache_folder = os.path.join(root_folder, 'cache')
-fwget = FWGet(cache_folder)
-fwupd = FWUpd()
-
-def fwget_func(dev, ver):
-    try:
-        toast('download started')
-    except:
-        print('download started')
-    fwget.Gimme(dev, ver)
-    try:
-        toast('download finished')
-    except:
-        print('download finished')
-
-def fwget_preload():
-    fwget.setRepo("https://files.scooterhacking.org/esx/fw/repo.json")
-    fwget.loadRepo(fwget.repoURL)
 
 class NineRiFt(App):
     def build(self):
+        root_folder = getattr(self, 'user_data_dir')
+        cache_folder = os.path.join(root_folder, 'cache')
+        fwget = FWGet(cache_folder)
+        fwupd = FWUpd()
         sm = ScreenManager()
         def switch_screen(scrn):
             sm.current = scrn
@@ -104,6 +89,9 @@ class NineRiFt(App):
         fwget_verselspin = Spinner(text='Version', sync_height=True,
          font_size='12sp', height='14sp', values = [], text_autoupdate = True)
 
+        def fwget_preload():
+            fwget.setRepo("https://files.scooterhacking.org/esx/fw/repo.json")
+            fwget.loadRepo(fwget.repoURL)
         fwget_preload()
 
         def fwget_dynver(sel):
@@ -117,6 +105,17 @@ class NineRiFt(App):
             for i in dev:
                 fwget_verselspin.values.append(str(i))
             return fwget_verselspin.values
+
+        def fwget_func(dev, ver):
+            try:
+                toast('download started')
+            except:
+                print('download started')
+            fwget.Gimme(dev, ver)
+            try:
+                toast('download finished')
+            except:
+                print('download finished')
 
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',

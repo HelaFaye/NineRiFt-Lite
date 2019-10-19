@@ -55,7 +55,8 @@ class BLE(BluetoothDispatcher):
 		self.tx_characteristic = None
 		self.rx_characteristic = None
 		self._write_chunk_size = 20
-		self.queue_timeout = 8
+		self.timeout = 4
+		self.queue_timeout = self.timeout
 
 	def __enter__(self):
 		return self
@@ -115,10 +116,10 @@ class BLE(BluetoothDispatcher):
 
 	def on_services(self, status, services):
 		self.services = services
-		for uuid in list(receive_ids.values()):
+		for uuid in list(self.receive_ids.values()):
 			self.rx_characteristic = self.services.search(uuid)
 			print('RX: '+uuid)
-		for uuid in list(transmit_ids.values()):
+		for uuid in list(self.transmit_ids.values()):
 			self.tx_characteristic = self.services.search(uuid)
 			print('TX: '+uuid)
 			self.enable_notifications(self.tx_characteristic)
