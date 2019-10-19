@@ -3,6 +3,7 @@ from os import path
 import requests
 from kivy.utils import platform
 import hashlib
+import threading
 
 
 class FWGet():
@@ -135,4 +136,5 @@ class FWGet():
         return(True, self.dirname, self.repoURL, name, self.DRV, self.BMS, self.BLE)
 
     def Gimme(self, firm, ver):
-        self.getFile(firm,ver)
+        gimmeit = threading.Thread(target=self.getFile(firm,ver))
+        gimmeit.start()
