@@ -21,10 +21,10 @@ class Fifo():
 		for b in data:
 			self.q.put(b)
 
-	def read(self, size=1, timeout=None): # but read string
-		res = ''
+	def read(self, size=1, timeout=None):  # but read string
+		res = bytearray()
 		for i in range(size):
-			res += chr(self.q.get(True, timeout))
+			res.append(self.q.get(True, timeout))
 		return res
 
 
@@ -86,12 +86,12 @@ class BLE(BluetoothDispatcher):
 				if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
 					if ad.data.startswith(self.identity):
 						self.scoot_found = True
-						name = str(ad.data)
 					else:
 						break
 				elif ad.ad_type == Advertisement.ad_types.complete_local_name:
-					name = str(ad.data)
+
 		if self.scoot_found:
+			name = str(ad.data)
 			self.ble_device = device
 			Logger.debug("Scooter detected: {}".format(name))
 			self.stop_scan()
@@ -124,13 +124,13 @@ class BLE(BluetoothDispatcher):
 			for uuid in self.transmit_ids.values():
 				self.tx_characteristic = self.services.search(uuid)
 				print('TX: '+uuid)
-				self.enable_notifications(self.tx_characteristic)
+				self.enable_notifications(self.tx_characteristic, enable=True)
 		except:
 			print('no matching services found')
 
-	def on_characteristic_changed(self, characteristic):
-		if characteristic == self.tx_characteristic:
-			data = characteristic.getValue()
+	def on_characteristic_changed(self, tx_characteristic):
+		if self.tx_characteristic:
+			data = tx_characteristic.getValue()
 			self.rx_fifo.write(data)
 
 
