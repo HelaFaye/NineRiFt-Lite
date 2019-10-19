@@ -88,13 +88,12 @@ class BLE(BluetoothDispatcher):
 						self.scoot_found = True
 					else:
 						break
-				elif ad.ad_type == Advertisement.ad_types.complete_local_name:
 
-		if self.scoot_found:
-			name = str(ad.data)
-			self.ble_device = device
-			Logger.debug("Scooter detected: {}".format(name))
-			self.stop_scan()
+			if self.scoot_found:
+				name = str(ad.data)
+				self.ble_device = device
+				Logger.debug("Scooter detected: {}".format(name))
+				self.stop_scan()
 
 
 	def on_scan_completed(self):
