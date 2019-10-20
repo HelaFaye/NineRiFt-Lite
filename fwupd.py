@@ -106,10 +106,7 @@ class FWUpd(object):
         dev = self.devices.get(self.device)
         if self.interface == 'ble':
             if platform != 'android':
-                try:
-                    from py9b.link.ble import BLELink
-                except:
-                    exit('BLE is not yet working with your configuration !')
+                from py9b.link.bleak import BLELink
             elif platform == 'android':
                 try:
                     from py9b.link.droidble import BLELink
