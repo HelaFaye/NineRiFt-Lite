@@ -55,7 +55,7 @@ class BLE(BluetoothDispatcher):
 		self.tx_characteristic = None
 		self.rx_characteristic = None
 		self._write_chunk_size = 20
-		self.timeout = 4
+		self.timeout = 5
 		self.queue_timeout = self.timeout
 
 	def __enter__(self):
