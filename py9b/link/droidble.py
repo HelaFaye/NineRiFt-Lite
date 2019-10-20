@@ -21,7 +21,7 @@ class Fifo():
 		for b in data:
 			self.q.put(b)
 
-	def read(self, size=1, timeout=None):  # but read string
+	def read(self, size=1, timeout=None):  # read bytes
 		res = bytearray()
 		for i in range(size):
 			res.append(self.q.get(True, timeout))
