@@ -148,7 +148,12 @@ class FWUpd(object):
                 except:
                     raise LinkOpenException
             try:
-                link.open(addr)
+                if self.interface=='ble' and platform != 'android':
+                    devs = link.scan()
+                    print(devs)
+                    link.open(devs[0])
+                else:
+                    link.open(addr)
             except:
                 print('failed to open link')
                 raise LinkOpenException
