@@ -30,9 +30,8 @@ class Fifo:
 
 
 # _cccd_uuid = '00002902-0000-1000-8000-00805f9b34fb'
-_rx_char_uuid = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
-_tx_char_uuid = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
-
+_rx_char_uuid = input("RX UUID?")
+_tx_char_uuid = input("TX UUID?")
 _write_chunk_size = 20  # as in android dumps
 
 
@@ -45,7 +44,7 @@ class BLELink(BaseLink):
         self._rx_fifo = Fifo()
 
     def __enter__(self):
-        self._adapter = pygatt.GATTToolBackend()
+        self._adapter = pygatt.BGAPIBackend()
         self._adapter.start()
         return self
 
@@ -60,12 +59,9 @@ class BLELink(BaseLink):
 
     def scan(self):
         res = []
-        self._adapter.reset()
         devices = self._adapter.scan(timeout=SCAN_TIMEOUT)
         for dev in devices:
-            if dev["name"] and dev["name"].startswith(
-                (u"MISc", u"NBSc", u"JP2", u"Seg")
-            ):
+            if dev["name"].startswith((u"MISc", u"NBSc")):
                 res.append((dev["name"], dev["address"]))
         return res
 
@@ -83,8 +79,8 @@ class BLELink(BaseLink):
         if self._dev:
             self._dev.disconnect()
             self._dev = None
-            if self._adapter:
-                self._adapter.stop()
+        if self._adapter:
+            self._adapter.stop()
 
     def read(self, size):
         try:
@@ -98,15 +94,15 @@ class BLELink(BaseLink):
     def write(self, data):
         if self.dump:
             print(">", hexlify(data).upper())
-            size = len(data)
-            ofs = 0
-            while size:
-                chunk_sz = min(size, _write_chunk_size)
-                self._dev.char_write_handle(
-                    self._wr_handle, bytearray(data[ofs : ofs + chunk_sz])
-                )
-                ofs += chunk_sz
-                size -= chunk_sz
+        size = len(data)
+        ofs = 0
+        while size:
+            chunk_sz = min(size, _write_chunk_size)
+            self._dev.char_write_handle(
+                self._wr_handle, bytearray(data[ofs : ofs + chunk_sz])
+            )
+            ofs += chunk_sz
+            size -= chunk_sz
 
 
 __all__ = ["BLELink"]

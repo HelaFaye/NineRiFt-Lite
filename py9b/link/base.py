@@ -1,34 +1,32 @@
 class LinkTimeoutException(Exception):
-	pass
+    pass
+
 
 class LinkOpenException(Exception):
-	pass
+    pass
+
 
 class BaseLink(object):
-	DEF_TIMEOUT = 1
+    DEF_TIMEOUT = 1
 
-	def __init__(self, timeout=DEF_TIMEOUT, dump=False):
-		self.dump = dump
-		self.timeout = timeout
-	
+    def __init__(self, timeout=DEF_TIMEOUT, dump=False):
+        self.dump = dump
+        self.timeout = timeout
 
-	def scan(self):
-		raise NotImplementedError()
+    def scan(self):
+        raise NotImplementedError()
 
+    def open(self, port):
+        raise NotImplementedError()
 
-	def open(self, port):
-		raise NotImplementedError()
+    def close(self):
+        pass
 
-		
-	def close(self):
-		pass		
+    def read(self, size):
+        raise NotImplementedError()
 
+    def write(self, data):
+        raise NotImplementedError()
 
-	def read(self, size):
-		raise NotImplementedError()
-
-	def write(self, data):
-		raise NotImplementedError()
-	
 
 __all__ = ["LinkTimeoutException", "LinkOpenException", "BaseLink"]
