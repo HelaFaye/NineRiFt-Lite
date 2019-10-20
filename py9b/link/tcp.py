@@ -1,5 +1,5 @@
 """TCP-BLE bridge link"""
-
+from __future__ import absolute_import
 import socket
 from binascii import hexlify
 from .base import BaseLink, LinkTimeoutException, LinkOpenException

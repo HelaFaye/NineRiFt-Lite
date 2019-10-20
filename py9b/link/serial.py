@@ -1,6 +1,6 @@
 """Direct serial link"""
 
-
+from __future__ import absolute_import
 import serial
 import serial.tools.list_ports as lp
 from binascii import hexlify

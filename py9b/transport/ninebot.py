@@ -28,7 +28,7 @@ class NinebotTransport(BT):
 		self._wait_pre()
 		pkt = self.link.read(1)
 		l = ord(pkt)+6
-		for i in range(l):
+		for i in xrange(l):
 			pkt += self.link.read(1)
 		ck_calc = checksum(pkt[0:-2])
 		ck_pkt = unpack("<H", pkt[-2:])[0]
@@ -40,7 +40,7 @@ class NinebotTransport(BT):
 
 	def send(self, packet):
 		pkt = pack("<BBBBB", len(packet.data), packet.src, packet.dst, packet.cmd, packet.arg)+packet.data
-		pkt = pack("<BB", int("0x5A", 16), int("0xA5", 16)) + pkt + pack("<H", checksum(pkt))
+		pkt = "\x5A\xA5" + pkt + pack("<H", checksum(pkt))
 		self.link.write(pkt)
 
 

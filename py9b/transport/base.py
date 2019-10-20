@@ -3,7 +3,7 @@
 def checksum(data):
 	s = 0
 	for c in data:
-		s += ord(chr(c))
+		s += c
 	return (s & 0xFFFF) ^ 0xFFFF
 
 

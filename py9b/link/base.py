@@ -8,10 +8,9 @@ class BaseLink(object):
 	DEF_TIMEOUT = 1
 
 	def __init__(self, timeout=DEF_TIMEOUT, dump=False):
-		super(BaseLink, self).__init__()
 		self.dump = dump
 		self.timeout = timeout
-
+	
 
 	def scan(self):
 		raise NotImplementedError()
@@ -20,9 +19,9 @@ class BaseLink(object):
 	def open(self, port):
 		raise NotImplementedError()
 
-
+		
 	def close(self):
-		pass
+		pass		
 
 
 	def read(self, size):
@@ -30,6 +29,6 @@ class BaseLink(object):
 
 	def write(self, data):
 		raise NotImplementedError()
-
+	
 
 __all__ = ["LinkTimeoutException", "LinkOpenException", "BaseLink"]
