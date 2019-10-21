@@ -2,10 +2,6 @@
 
 from __future__ import absolute_import
 
-import asyncio
-
-from threading import Thread
-
 try:
     from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
 except ImportError:
@@ -25,11 +21,6 @@ except ImportError:
 
 from time import sleep
 
-def run_worker(loop):
-    print("Starting event loop", loop)
-    asyncio.set_event_loop(loop)
-    loop.run_forever()
-
 identity = bytearray(
     [
         0x4E,
@@ -40,14 +31,14 @@ identity = bytearray(
         0x00,
         0x00,
         0xDE,  # Ninebot Bluetooth ID 4E422100000000DE
-        0x4E,
-        0x42,
-        0x21,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0xDF,  # Xiaomi Bluetooth ID 4E422100000000DF
+#        0x4E,
+#        0x42,
+#        0x21,
+#        0x00,
+#        0x00,
+#        0x00,
+#        0x00,
+#        0xDF,  # Xiaomi Bluetooth ID 4E422100000000DF
     ]
 )
 
@@ -61,9 +52,7 @@ transmit_ids = {
     "retail": "6e400003-b5a3-f393-e0a9-e50e24dcca9e"  # transmit characteristic UUID
 }
 
-_keys_char_uuid = "00000014-0000-1000-8000-00805f9b34fb"
 
-scoot_found = False
 SCAN_TIMEOUT = 3
 _write_chunk_size = 20
 
@@ -76,9 +65,9 @@ class Fifo:
             self.q.put(b)
 
     def read(self, size=1, timeout=None):  # but read string
-        res = ""
-        for i in xrange(size):
-            res += chr(self.q.get(True, timeout))
+        res = bytearray()
+        for i in range(size):
+            res.append(self.q.get(True, timeout))
         return res
 
 
@@ -86,12 +75,14 @@ class BLE(BluetoothDispatcher):
     def __init__(self):
         super(BLE, self).__init__()
         self.rx_fifo = Fifo()
+        self.addr = ''
         self.ble_device = None
+        self.scoot_found = False
         self.state = StringProperty()
-        self.dump = True
         self.tx_characteristic = None
         self.rx_characteristic = None
         self.timeout = SCAN_TIMEOUT
+        self.dump = True
 
     def __enter__(self):
         return self
@@ -108,11 +99,10 @@ class BLE(BluetoothDispatcher):
 
 
     def on_device(self, device, rssi, advertisement):
-        global scoot_found
         if self.state != "scan":
             return
         Logger.debug("on_device event {}".format(list(advertisement)))
-        self.addr = device.getAddress()
+        address = device.getAddress()
         if self.addr and address.startswith(self.addr):
             print(self.addr)
             self.ble_device = device
@@ -122,13 +112,13 @@ class BLE(BluetoothDispatcher):
             for ad in advertisement:
                 print(ad)
                 if ad.ad_type == Advertisement.ad_types.manufacturer_specific_data:
-                    if ad.data.startswith(self.identity):
-                        scoot_found = True
+                    if ad.data.startswith(identity):
+                        self.scoot_found = True
                     else:
                         break
                 elif ad.ad_type == Advertisement.ad_types.complete_local_name:
                     name = str(ad.data)
-        if scoot_found:
+        if self.scoot_found:
             self.state = "found"
             print(self.state)
             self.ble_device = device
@@ -144,10 +134,8 @@ class BLE(BluetoothDispatcher):
             self.scan()
 
     def on_connection_state_change(self, status, state):
-        if status == GATT_SUCCESS and state:
+        if self.ble_device:
             self.discover_services()
-            self.state = "discover"
-            print(self.state)
         else:
             self.close_gatt()
             self.rx_characteristic = None
@@ -164,10 +152,9 @@ class BLE(BluetoothDispatcher):
             print("TX: " + uuid)
             self.enable_notifications(self.tx_characteristic)
 
-    def on_characteristic_changed(self, characteristic):
-        if characteristic == self.tx_characteristic:
-            data = characteristic.getValue()
-            self.rx_fifo.write(data)
+    def on_characteristic_changed(self, tx_characteristic):
+        data = tx_characteristic.getValue()
+        self.rx_fifo.write(data)
 
     def open(self, port):
         self.addr = port
@@ -189,14 +176,14 @@ class BLE(BluetoothDispatcher):
         if self.ble_device:
             try:
                 data = self.rx_fifo.read(size, timeout=self.timeout)
+                if self.dump:
+                    print("<", hexlify(data).upper())
             except queue.Empty:
                 raise LinkTimeoutException
-            if self.dump:
-                print("<", hexlify(data).upper())
-            return data
         else:
             print("BLE not connected")
             self.scan()
+        return data
 
     def write(self, data):
         print("write")
@@ -224,65 +211,29 @@ class BLELink(BaseLink):
     def __init__(self, *args, **kwargs):
         super(BLELink, self).__init__(*args, **kwargs)
         self._adapter = None
-        self.loop = loop or asyncio.get_event_loop()
-        self._th = None
 
     def __enter__(self):
         self._adapter = BLE()
-        self.start()
         return self
-
-    def start(self):
-        if self._th:
-            return
-
-        self._th = Thread(target=run_worker, args=(self.loop,))
-        self._th.daemon = True
-        self._th.start()
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self._adapter:
             self.close()
 
     def scan(self, timeout=SCAN_TIMEOUT):
-        future = asyncio.run_coroutine_threadsafe(
-            self._adapter.scan(), self.loop
-        )
-        return [
-            (dev.getName, dev.getAddress)
-            for dev in future.result(timeout * 2)
-            if self._adapter.ad.data.startswith(identity)
-        ]
-
+        self._adapter.scan()
 
     def open(self, port):
-        fut = asyncio.run_coroutine_threadsafe(self._connect(port), self.loop)
-        fut.result(10)
-
-    async def _connect(self, port):
-        self._adapter = BLE()
-        await self._adapter.open(port)
-        print("connected")
-        await self._adapter.on_services()
+        self._adapter.open(port)
 
     def close(self):
-        asyncio.run_coroutine_threadsafe(self._adapter.disconnect(), self.loop).result(
-            10
-        )
+        self._adapter.close()
 
     def read(self, size):
         self._adapter.read(size)
 
     def write(self, data):
-        fut = asyncio.run_coroutine_threadsafe(
-            self._adapter.write(bytearray(data)),
-            self.loop,
-        )
-        return fut.result(3)
+        self._adapter.write(bytearray(data))
 
-#    def fetch_keys(self):
-#        return asyncio.run_coroutine_threadsafe(
-#            self._adapter.getValue(_keys_char_uuid), self.loop
-#        ).result(5)
 
 __all__ = ["BLELink"]

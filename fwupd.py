@@ -53,21 +53,21 @@ class FWUpd(object):
         fw_page_size = 0x80
 
         dev = self.devices.get(self.device)
-        print('Pinging...')
+        print("Pinging...", end="")
         for retry in range(self.PING_RETRIES):
-            print('.')
+            print(".", end="")
             try:
                 if dev == BT.BLE:
-                    tran.execute(ReadRegs(dev, 0, '13s'))
+                    tran.execute(ReadRegs(dev, 0, "13s"))
                 else:
-                    tran.execute(ReadRegs(dev, 0x10, '14s'))
+                    tran.execute(ReadRegs(dev, 0x10, "14s"))
             except LinkTimeoutException:
                 continue
             break
         else:
-            print('Timed out !')
+            print("Timed out !")
             return False
-        print('OK')
+        print("OK")
 
         if self.interface != 'tcpnl':
             print('Locking...')
@@ -85,7 +85,6 @@ class FWUpd(object):
             chunk_sz = min(fw_size, fw_page_size)
             data = fwfile.read(chunk_sz)
             chk = self.checksum(chk, data)
-            #tran.execute(WriteUpdate(dev, page, data))
             tran.execute(WriteUpdate(dev, page, data+b'\x00'*(fw_page_size-chunk_sz)))
             page += 1
             fw_size -= chunk_sz
@@ -108,7 +107,10 @@ class FWUpd(object):
             if platform != 'android':
                 from py9b.link.bleak import BLELink
             elif platform == 'android':
-                from py9b.link.droidble import BLELink
+                try:
+                    from py9b.link.droidble import BLELink
+                except:
+                    exit('BLE on Android failed to import!')
             else:
                 exit('BLE is not supported on your system !')
             link = BLELink()
@@ -131,16 +133,26 @@ class FWUpd(object):
                 print('link address assigned')
             else:
                 try:
+                    addr = self.address
+                    ports = None
                     print('Scanning...')
-                    ports = link.scan()
-                    if not ports:
-                        exit("No interfaces found !")
-                    print('Connecting to', ports[0][0])
-                    addr = ports[0][1]
+                    if self.interface != 'ble':
+                        ports = link.scan()
+                    if self.interface == 'ble':
+                        link.scan()
+                    if not self.interface=='ble' and not ports:
+                        exit("No ports found !")
+                        print('Connecting to', ports[0][0])
+                        addr = ports[0][1]
                 except:
                     raise LinkOpenException
             try:
-                link.open(addr)
+                if self.interface=='ble' and platform != 'android':
+                    devs = link.scan()
+                    print(devs)
+                    link.open(devs[0])
+                else:
+                    link.open(addr)
             except:
                 print('failed to open link')
                 raise LinkOpenException
