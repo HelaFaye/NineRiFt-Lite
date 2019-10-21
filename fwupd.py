@@ -108,10 +108,7 @@ class FWUpd(object):
             if platform != 'android':
                 from py9b.link.bleak import BLELink
             elif platform == 'android':
-                try:
-                    from py9b.link.droidble import BLELink
-                except:
-                    exit('BLE on Android failed to import!')
+                from py9b.link.droidble import BLELink
             else:
                 exit('BLE is not supported on your system !')
             link = BLELink()
@@ -134,26 +131,16 @@ class FWUpd(object):
                 print('link address assigned')
             else:
                 try:
-                    addr = self.address
-                    ports = None
                     print('Scanning...')
-                    if self.interface != 'ble':
-                        ports = link.scan()
-                    if self.interface == 'ble':
-                        link.scan()
-                    if not self.interface=='ble' and not ports:
-                        exit("No ports found !")
-                        print('Connecting to', ports[0][0])
-                        addr = ports[0][1]
+                    ports = link.scan()
+                    if not ports:
+                        exit("No interfaces found !")
+                    print('Connecting to', ports[0][0])
+                    addr = ports[0][1]
                 except:
                     raise LinkOpenException
             try:
-                if self.interface=='ble' and platform != 'android':
-                    devs = link.scan()
-                    print(devs)
-                    link.open(devs[0])
-                else:
-                    link.open(addr)
+                link.open(addr)
             except:
                 print('failed to open link')
                 raise LinkOpenException

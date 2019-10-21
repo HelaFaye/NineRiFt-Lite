@@ -23,10 +23,12 @@ try:
 except ImportError:
     import Queue as queue
 
-#def run_worker(loop):
-#    print("Starting event loop", loop)
-#    asyncio.set_event_loop(loop)
-#    loop.run_forever()
+from time import sleep
+
+def run_worker(loop):
+    print("Starting event loop", loop)
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
 
 identity = bytearray(
     [
@@ -82,7 +84,7 @@ class Fifo:
 
 class BLE(BluetoothDispatcher):
     def __init__(self):
-        super(ScootBT, self).__init__()
+        super(BLE, self).__init__()
         self.rx_fifo = Fifo()
         self.ble_device = None
         self.state = StringProperty()
@@ -97,10 +99,13 @@ class BLE(BluetoothDispatcher):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def discover(self):
+    def discover(self, timeout):
         self.start_scan()
         self.state = "scan"
         print(self.state)
+        sleep(timeout)
+        self.stop_scan()
+
 
     def on_device(self, device, rssi, advertisement):
         global scoot_found
@@ -136,7 +141,7 @@ class BLE(BluetoothDispatcher):
             self.state = "connected"
             print(self.state)
         else:
-            self.start_scan()
+            self.scan()
 
     def on_connection_state_change(self, status, state):
         if status == GATT_SUCCESS and state:
@@ -167,8 +172,8 @@ class BLE(BluetoothDispatcher):
     def open(self, port):
         self.addr = port
         if self.ble_device == None:
-            self.discover()
-        if self.state != "connected":
+            self.scan()
+        if self.ble_device and self.state != "connected":
             self.connect_gatt(self.ble_device)
         else:
             return
@@ -191,7 +196,7 @@ class BLE(BluetoothDispatcher):
             return data
         else:
             print("BLE not connected")
-            self.discover()
+            self.scan()
 
     def write(self, data):
         print("write")
@@ -209,10 +214,10 @@ class BLE(BluetoothDispatcher):
                 size -= chunk_sz
         else:
             print("BLE not connected")
-            self.discover()
+            self.scan()
 
     def scan(self):
-        self.discover()
+        self.discover(SCAN_TIMEOUT)
 
 
 class BLELink(BaseLink):
@@ -222,6 +227,11 @@ class BLELink(BaseLink):
         self.loop = loop or asyncio.get_event_loop()
         self._th = None
 
+    def __enter__(self):
+        self._adapter = BLE()
+        self.start()
+        return self
+
     def start(self):
         if self._th:
             return
@@ -230,18 +240,13 @@ class BLELink(BaseLink):
         self._th.daemon = True
         self._th.start()
 
-    def __enter__(self):
-        self._adapter = BLE()
-        self.start()
-        return self
-
     def __exit__(self, exc_type, exc_value, traceback):
         if self._adapter:
             self.close()
 
-    def scan(self, timeout=self._adapter.timeout):
+    def scan(self, timeout=SCAN_TIMEOUT):
         future = asyncio.run_coroutine_threadsafe(
-            self._adapter.discover(timeout=timeout, device=self._adapter.ble_device), self.loop
+            self._adapter.scan(), self.loop
         )
         return [
             (dev.getName, dev.getAddress)
