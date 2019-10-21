@@ -2,6 +2,10 @@
 
 from __future__ import absolute_import
 
+import asyncio
+
+from threading import Thread
+
 try:
     from able import GATT_SUCCESS, Advertisement, BluetoothDispatcher
 except ImportError:
@@ -19,9 +23,10 @@ try:
 except ImportError:
     import Queue as queue
 
-SCAN_TIMEOUT = 3
-
-_write_chunk_size = 20
+#def run_worker(loop):
+#    print("Starting event loop", loop)
+#    asyncio.set_event_loop(loop)
+#    loop.run_forever()
 
 identity = bytearray(
     [
@@ -54,8 +59,11 @@ transmit_ids = {
     "retail": "6e400003-b5a3-f393-e0a9-e50e24dcca9e"  # transmit characteristic UUID
 }
 
-scoot_found = False
+_keys_char_uuid = "00000014-0000-1000-8000-00805f9b34fb"
 
+scoot_found = False
+SCAN_TIMEOUT = 3
+_write_chunk_size = 20
 
 class Fifo:
     def __init__(self):
@@ -72,7 +80,7 @@ class Fifo:
         return res
 
 
-class ScootBT(BluetoothDispatcher):
+class BLE(BluetoothDispatcher):
     def __init__(self):
         super(ScootBT, self).__init__()
         self.rx_fifo = Fifo()
@@ -82,7 +90,6 @@ class ScootBT(BluetoothDispatcher):
         self.tx_characteristic = None
         self.rx_characteristic = None
         self.timeout = SCAN_TIMEOUT
-        self.set_queue_timeout(self.timeout)
 
     def __enter__(self):
         return self
@@ -212,29 +219,65 @@ class BLELink(BaseLink):
     def __init__(self, *args, **kwargs):
         super(BLELink, self).__init__(*args, **kwargs)
         self._adapter = None
+        self.loop = loop or asyncio.get_event_loop()
+        self._th = None
+
+    def start(self):
+        if self._th:
+            return
+
+        self._th = Thread(target=run_worker, args=(self.loop,))
+        self._th.daemon = True
+        self._th.start()
 
     def __enter__(self):
-        self._adapter = ScootBT()
-        self._adapter.discover()
+        self._adapter = BLE()
+        self.start()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.close()
+        if self._adapter:
+            self.close()
 
-    def scan(self):
-        devices = self._adapter.scan()
+    def scan(self, timeout=self._adapter.timeout):
+        future = asyncio.run_coroutine_threadsafe(
+            self._adapter.discover(timeout=timeout, device=self._adapter.ble_device), self.loop
+        )
+        return [
+            (dev.getName, dev.getAddress)
+            for dev in future.result(timeout * 2)
+            if self._adapter.ad.data.startswith(identity)
+        ]
+
 
     def open(self, port):
-        self._adapter.open(port)
+        fut = asyncio.run_coroutine_threadsafe(self._connect(port), self.loop)
+        fut.result(10)
+
+    async def _connect(self, port):
+        self._adapter = BLE()
+        await self._adapter.open(port)
+        print("connected")
+        await self._adapter.on_services()
 
     def close(self):
-        self._adapter.close()
+        asyncio.run_coroutine_threadsafe(self._adapter.disconnect(), self.loop).result(
+            10
+        )
 
     def read(self, size):
         self._adapter.read(size)
 
     def write(self, data):
-        self._adapter.write(data)
+        fut = asyncio.run_coroutine_threadsafe(
+            self._adapter.write(bytearray(data)),
+            self.loop,
+        )
+        return fut.result(3)
 
+#    def fetch_keys(self):
+#        return asyncio.run_coroutine_threadsafe(
+#            self._adapter.getValue(_keys_char_uuid), self.loop
+#        ).result(5)
 
 __all__ = ["BLELink"]
