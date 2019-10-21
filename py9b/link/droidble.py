@@ -21,6 +21,9 @@ except ImportError:
 
 from time import sleep
 
+from threading import Event
+
+
 identity = bytearray(
     [
         0x4E,
@@ -53,7 +56,7 @@ transmit_ids = {
 }
 
 
-SCAN_TIMEOUT = 3
+SCAN_TIMEOUT = 15
 _write_chunk_size = 20
 
 class Fifo:
@@ -83,6 +86,7 @@ class BLE(BluetoothDispatcher):
         self.rx_characteristic = None
         self.timeout = SCAN_TIMEOUT
         self.dump = True
+        self.connected = Event()
 
     def __enter__(self):
         return self
@@ -94,7 +98,7 @@ class BLE(BluetoothDispatcher):
         self.start_scan()
         self.state = "scan"
         print(self.state)
-        sleep(timeout)
+        self.connected.wait(timeout)
         self.stop_scan()
 
 
@@ -151,6 +155,10 @@ class BLE(BluetoothDispatcher):
             self.tx_characteristic = self.services.search(uuid)
             print("TX: " + uuid)
             self.enable_notifications(self.tx_characteristic)
+        if self.tx_characteristic and self.rx_characteristic:
+            self.connected.set()
+        else:
+            return
 
     def on_characteristic_changed(self, tx_characteristic):
         data = tx_characteristic.getValue()
@@ -169,6 +177,9 @@ class BLE(BluetoothDispatcher):
         if self.ble_device != None:
             self.close_gatt()
         self.services = None
+        self.rx_characteristic = None
+        self.tx_characteristic = None
+        self.connected.clear()
         print("close")
 
     def read(self, size):
@@ -178,12 +189,13 @@ class BLE(BluetoothDispatcher):
                 data = self.rx_fifo.read(size, timeout=self.timeout)
                 if self.dump:
                     print("<", hexlify(data).upper())
+                return data
             except queue.Empty:
                 raise LinkTimeoutException
         else:
             print("BLE not connected")
             self.scan()
-        return data
+
 
     def write(self, data):
         print("write")
@@ -195,7 +207,7 @@ class BLE(BluetoothDispatcher):
             while size:
                 chunk_sz = min(size, _write_chunk_size)
                 self.write_characteristic(
-                    self.rx_characteristic, bytearray(data[ofs : ofs + chunk_sz])
+                    self.rx_characteristic, bytearray(data)
                 )
                 ofs += chunk_sz
                 size -= chunk_sz
