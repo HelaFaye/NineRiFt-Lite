@@ -3,7 +3,7 @@ from .base import BaseTransport as BT
 
 
 class BasePacket(object):
-    def __init__(self, src=0, dst=0, cmd=0, arg=0, data=""):
+    def __init__(self, src=0, dst=0, cmd=0, arg=0, data=bytearray()):
         self.src = src
         self.dst = dst
         self.cmd = cmd

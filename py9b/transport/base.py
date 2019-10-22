@@ -31,7 +31,7 @@ class BaseTransport(object):
     def recv(self):
         raise NotImplementedError()
 
-    def send(self, src, dst, cmd, arg, data=""):
+    def send(self, src, dst, cmd, arg, data=bytearray()):
         raise NotImplementedError()
 
     def execute(self, command):

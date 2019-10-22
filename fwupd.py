@@ -40,9 +40,9 @@ class FWUpd(object):
         self.protocol = p.lower()
         print(self.protocol+' selected as protocol')
 
-    def checksum(s, data):
+    def checksum(self, s, data):
         for c in data:
-            s += ord(c)
+            s += c
         return (s & 0xFFFFFFFF)
 
     def UpdateFirmware(self, link, tran, dev, fwfile):
