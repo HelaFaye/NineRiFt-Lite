@@ -123,12 +123,16 @@ class BLE(BluetoothDispatcher):
             self.stop_scan()
 
     def on_scan_completed(self):
-        if self.ble_device:
+        if self.ble_device and self.state != "connected":
             self.connect_gatt(self.ble_device)
+        else:
+            self.close()
 
     def on_connection_state_change(self, status, state):
-        if self.ble_device:
+        if self.ble_device and self.state != "connected":
             self.discover_services()
+        else:
+            self.close()
 
     def on_services(self, status, services):
         self.services = services
@@ -160,25 +164,27 @@ class BLE(BluetoothDispatcher):
             self.connect_gatt(self.ble_device)
 
     def close(self):
-        if self.ble_device:
+        if self.ble_device and self.state == 'connected':
             self.close_gatt()
         self.services = None
         self.rx_characteristic = None
         self.tx_characteristic = None
         self.connected.clear()
-        print("close")
+        self.state = "close"
+        print(self.state)
 
     def read(self, size):
-        try:
-            data = self.rx_fifo.read(size, timeout=self.timeout)
-        except queue.Empty:
-            raise LinkTimeoutException
-        if self.dump:
-            print("<", hexlify(data).upper())
-        return data
+        if self.ble_device and self.state == 'connected':
+            try:
+                data = self.rx_fifo.read(size, timeout=self.timeout)
+            except queue.Empty:
+                raise LinkTimeoutException
+            if self.dump:
+                print("<", hexlify(data).upper())
+            return data
 
     def write(self, data):
-        if self.ble_device:
+        if self.ble_device and self.state == 'connected':
             if self.dump:
                 print(">", hexlify(data).upper())
             size = len(data)
