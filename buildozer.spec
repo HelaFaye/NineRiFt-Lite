@@ -36,7 +36,7 @@ version = 0.6
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,android,able,lictionary,tatsu,requests,openssl,kivymd
+requirements = libffi,python3,kivy,android,requests,openssl,kivymd,able
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -105,10 +105,10 @@ android.api = 28
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = /opt/android-studio/ndk-bundle
+android.ndk_path = ./.android/ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = /opt/Android/Sdk
+android.sdk_path = ./.android/sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
@@ -207,7 +207,7 @@ android.arch = armeabi-v7a
 #p4a.source_dir =
 
 # (str) The directory in which python-for-android should look for your own build recipes (if any)
-p4a.local_recipes = ~/able/recipes
+p4a.local_recipes = ./.android/able/recipes
 
 # (str) Filename to the hook for p4a
 #p4a.hook =
