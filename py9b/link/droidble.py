@@ -49,7 +49,7 @@ transmit_ids = {
 }
 
 
-SCAN_TIMEOUT = 12
+SCAN_TIMEOUT = 5
 _write_chunk_size = 20
 
 class Fifo:
@@ -153,8 +153,6 @@ class BLE(BluetoothDispatcher):
         if characteristic == self.tx_characteristic:
             data = characteristic.getValue()
             self.rx_fifo.write(data)
-        else:
-            return
 
     def open(self, port):
         self.addr = port
@@ -175,12 +173,13 @@ class BLE(BluetoothDispatcher):
         print("close")
 
     def read(self, size):
-        try:
-            data = self.rx_fifo.read(size, timeout=self.timeout)
-        except queue.Empty:
-            raise LinkTimeoutException
-        if self.dump:
-            print("<", hexlify(data).upper())
+        if self.ble_device:
+            try:
+                data = self.rx_fifo.read(size, timeout=self.timeout)
+                if self.dump:
+                    print("<", hexlify(data).upper())
+            except queue.Empty:
+                raise LinkTimeoutException
         return data
 
     def write(self, data):
@@ -196,9 +195,6 @@ class BLE(BluetoothDispatcher):
                 )
                 ofs += chunk_sz
                 size -= chunk_sz
-        else:
-            print("BLE not connected")
-            self.scan()
 
     def scan(self):
         self.discover(SCAN_TIMEOUT)

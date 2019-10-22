@@ -26,9 +26,8 @@ class NinebotTransport(BT):
         self._wait_pre()
         pkt = self.link.read(1)
         l = ord(pkt) + 6
-        print(l)
         for i in range(l):
-            pkt.extend(self.link.read(1))
+            pkt += self.link.read(1)
         ck_calc = checksum(pkt[0:-2])
         ck_pkt = unpack("<H", pkt[-2:])[0]
         if ck_pkt != ck_calc:
