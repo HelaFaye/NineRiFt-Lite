@@ -53,9 +53,9 @@ class FWUpd(object):
         fw_page_size = 0x80
 
         dev = self.devices.get(self.device)
-        
+
         print('Pinging...', end='')
-        for retry in range(PING_RETRIES):
+        for retry in range(self.PING_RETRIES):
             print(".", end="")
             try:
                 if dev == BT.BLE:
