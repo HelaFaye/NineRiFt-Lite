@@ -224,7 +224,7 @@ class BLELink(BaseLink):
         self._adapter.close()
 
     def read(self, size):
-        self._adapter.read(size)
+        return self._adapter.read(size)
 
     def write(self, data):
         self._adapter.write(bytearray(data))
