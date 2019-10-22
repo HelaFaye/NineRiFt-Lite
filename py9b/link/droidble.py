@@ -129,9 +129,6 @@ class BLE(BluetoothDispatcher):
     def on_connection_state_change(self, status, state):
         if self.ble_device:
             self.discover_services()
-        else:
-            self.connect_gatt()
-            self.connected.wait(timeout)
 
     def on_services(self, status, services):
         self.services = services
@@ -149,10 +146,11 @@ class BLE(BluetoothDispatcher):
         else:
             return
 
-    def on_characteristic_changed(self, characteristic):
-        if characteristic == self.tx_characteristic:
-            data = characteristic.getValue()
+    def on_characteristic_changed(self, tx_characteristic):
+        if self.tx_characteristic:
+            data = self.tx_characteristic.getValue()
             self.rx_fifo.write(data)
+            return
 
     def open(self, port):
         self.addr = port
@@ -160,8 +158,6 @@ class BLE(BluetoothDispatcher):
             self.scan()
         if self.ble_device and self.state != "connected":
             self.connect_gatt(self.ble_device)
-        else:
-            return
 
     def close(self):
         if self.ble_device:
@@ -173,13 +169,12 @@ class BLE(BluetoothDispatcher):
         print("close")
 
     def read(self, size):
-        if self.ble_device:
-            try:
-                data = self.rx_fifo.read(size, timeout=self.timeout)
-                if self.dump:
-                    print("<", hexlify(data).upper())
-            except queue.Empty:
-                raise LinkTimeoutException
+        try:
+            data = self.rx_fifo.read(size, timeout=self.timeout)
+        except queue.Empty:
+            raise LinkTimeoutException
+        if self.dump:
+            print("<", hexlify(data).upper())
         return data
 
     def write(self, data):

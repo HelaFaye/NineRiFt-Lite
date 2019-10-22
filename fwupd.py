@@ -53,21 +53,22 @@ class FWUpd(object):
         fw_page_size = 0x80
 
         dev = self.devices.get(self.device)
+        
         print('Pinging...', end='')
-        for retry in range(self.PING_RETRIES):
-            print('.', end='')
+        for retry in range(PING_RETRIES):
+            print(".", end="")
             try:
                 if dev == BT.BLE:
-                    tran.execute(ReadRegs(dev, 0, '13s'))
+                    tran.execute(ReadRegs(dev, 0, "13s"))
                 else:
-                    tran.execute(ReadRegs(dev, 0x10, '14s'))
+                    tran.execute(ReadRegs(dev, 0x10, "14s"))
             except LinkTimeoutException:
                 continue
             break
         else:
-            print('Timed out !')
+            print("Timed out !")
             return False
-        print('OK')
+        print("OK")
 
         if self.interface != 'fleet':
             print('Locking...')
