@@ -122,5 +122,12 @@ class XiaomiTransport(BT):
         k = self.keys
         return bytearray([b ^ (k[i] if i < len(k) else 0) for i, b in enumerate(data)])
 
+    def recover_keys(self):
+        req = BasePacket(src=BT.HOST, dst=BT.BMS, cmd=0x01,
+                         arg=0x50, data=bytearray([0x20]))
+        self.send(req)
+        resp = self.recv()
+        self.keys += resp.data[9:]
+
 
 __all__ = ["XiaomiTransport"]

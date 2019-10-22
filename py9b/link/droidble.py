@@ -26,14 +26,7 @@ from threading import Event
 
 identity = bytearray(
     [
-        0x4E,
-        0x42,
-        0x21,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0xDE,  # Ninebot Bluetooth ID 4E422100000000DE
+        0x4E, 0x42, 0x21, 0x00, 0x00, 0x00, 0x00, 0xDE,  # Ninebot Bluetooth ID 4E422100000000DE
 #        0x4E,
 #        0x42,
 #        0x21,
@@ -56,7 +49,7 @@ transmit_ids = {
 }
 
 
-SCAN_TIMEOUT = 15
+SCAN_TIMEOUT = 12
 _write_chunk_size = 20
 
 class Fifo:
@@ -132,19 +125,13 @@ class BLE(BluetoothDispatcher):
     def on_scan_completed(self):
         if self.ble_device:
             self.connect_gatt(self.ble_device)
-            self.state = "connected"
-            print(self.state)
-        else:
-            self.scan()
 
     def on_connection_state_change(self, status, state):
         if self.ble_device:
             self.discover_services()
         else:
-            self.close_gatt()
-            self.rx_characteristic = None
-            self.tx_characteristic = None
-            self.services = None
+            self.connect_gatt()
+            self.connected.wait(timeout)
 
     def on_services(self, status, services):
         self.services = services
@@ -157,16 +144,21 @@ class BLE(BluetoothDispatcher):
             self.enable_notifications(self.tx_characteristic)
         if self.tx_characteristic and self.rx_characteristic:
             self.connected.set()
+            self.state = "connected"
+            print(self.state)
         else:
             return
 
-    def on_characteristic_changed(self, tx_characteristic):
-        data = tx_characteristic.getValue()
-        self.rx_fifo.write(data)
+    def on_characteristic_changed(self, characteristic):
+        if characteristic == self.tx_characteristic:
+            data = characteristic.getValue()
+            self.rx_fifo.write(data)
+        else:
+            return
 
     def open(self, port):
         self.addr = port
-        if self.ble_device == None:
+        if not self.ble_device:
             self.scan()
         if self.ble_device and self.state != "connected":
             self.connect_gatt(self.ble_device)
@@ -174,7 +166,7 @@ class BLE(BluetoothDispatcher):
             return
 
     def close(self):
-        if self.ble_device != None:
+        if self.ble_device:
             self.close_gatt()
         self.services = None
         self.rx_characteristic = None
@@ -183,22 +175,15 @@ class BLE(BluetoothDispatcher):
         print("close")
 
     def read(self, size):
-        print("read")
-        if self.ble_device:
-            try:
-                data = self.rx_fifo.read(size, timeout=self.timeout)
-                if self.dump:
-                    print("<", hexlify(data).upper())
-                return data
-            except queue.Empty:
-                raise LinkTimeoutException
-        else:
-            print("BLE not connected")
-            self.scan()
-
+        try:
+            data = self.rx_fifo.read(size, timeout=self.timeout)
+        except queue.Empty:
+            raise LinkTimeoutException
+        if self.dump:
+            print("<", hexlify(data).upper())
+        return data
 
     def write(self, data):
-        print("write")
         if self.ble_device:
             if self.dump:
                 print(">", hexlify(data).upper())
@@ -207,7 +192,7 @@ class BLE(BluetoothDispatcher):
             while size:
                 chunk_sz = min(size, _write_chunk_size)
                 self.write_characteristic(
-                    self.rx_characteristic, bytearray(data)
+                    self.rx_characteristic, bytearray(data[ofs : ofs + chunk_sz])
                 )
                 ofs += chunk_sz
                 size -= chunk_sz

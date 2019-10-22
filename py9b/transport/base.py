@@ -2,11 +2,8 @@
 
 
 def checksum(data):
-    s = 0
-    for c in data:
-        s += c
-    return (s & 0xFFFF) ^ 0xFFFF
-
+    checksum = sum(data) ^ 0xFFFF
+    return checksum
 
 class BaseTransport(object):
     MOTOR = 0x01
