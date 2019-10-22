@@ -5,7 +5,6 @@ def checksum(data):
     checksum = (sum(data) & 0xFFFF) ^ 0xFFFF
     return checksum
 
-
 class BaseTransport(object):
     MOTOR = 0x01
     ESC = 0x20
