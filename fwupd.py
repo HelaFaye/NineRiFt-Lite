@@ -7,7 +7,11 @@ from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
 from kivy.utils import platform
 import os
-import threading
+
+try:
+    from kivymd.toast import toast
+except:
+    print('no toast for you')
 
 class FWUpd(object):
     def __init__(self):
@@ -19,6 +23,8 @@ class FWUpd(object):
         self.interface = 'ble'
         self.protocol = 'ninebot'
         self.address = ''
+        self.progress = 0
+        self.maxprogress = 100
 
     def setaddr(self, a):
         self.address = a
@@ -40,12 +46,20 @@ class FWUpd(object):
         self.protocol = p.lower()
         print(self.protocol+' selected as protocol')
 
+    def getprog(self):
+        return self.progress
+
     def checksum(self, s, data):
         for c in data:
             s += c
         return (s & 0xFFFFFFFF)
 
     def UpdateFirmware(self, link, tran, dev, fwfile):
+        try:
+            toast('update started')
+        except:
+            print('update started')
+
         print('flashing '+self.fwfilep+' to ' + self.device)
         fwfile.seek(0, os.SEEK_END)
         fw_size = fwfile.tell()
@@ -54,7 +68,10 @@ class FWUpd(object):
 
         dev = self.devices.get(self.device)
 
-        print('Pinging...', end='')
+        try:
+            toast('Pinging...')
+        except:
+            print('Pinging...', end='')
         for retry in range(self.PING_RETRIES):
             print(".", end="")
             try:
@@ -66,23 +83,40 @@ class FWUpd(object):
                 continue
             break
         else:
-            print("Timed out !")
+            try:
+                toast("Timed out !")
+            except:
+                print("Timed out !")
             return False
         print("OK")
 
         if self.interface != 'fleet':
-            print('Locking...')
+            try:
+                toast('Locking...')
+            except:
+                print('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
-            print('Not Locking...')
+            try:
+                toast('Not Locking...')
+            except:
+                print('Not Locking...')
 
-        print('Starting...')
+        try:
+            toast('Starting...')
+        except:
+            print('Starting...')
         tran.execute(StartUpdate(dev, fw_size))
 
-        print('Writing...')
+        try:
+            toast('Writing...')
+        except:
+            print('Writing...')
         page = 0
         chk = 0
         while fw_size:
+            self.maxprogress = fw_size//fw_page_size+1
+            self.progress = page
             chunk_sz = min(fw_size, fw_page_size)
             data = fwfile.read(chunk_sz)
             chk = self.checksum(chk, data)
@@ -90,12 +124,22 @@ class FWUpd(object):
             page += 1
             fw_size -= chunk_sz
 
-        print('Finalizing...')
+        try:
+            toast('Finalizing...')
+        except:
+            print('Finalizing...')
         tran.execute(FinishUpdate(dev, chk ^ 0xFFFFFFFF))
 
-        print('Reboot')
+        try:
+            toast('Reboot')
+        except:
+            print('Reboot')
         tran.execute(RebootUpdate(dev))
         print('Done')
+        try:
+            toast('update finished')
+        except:
+            print('update finished')
         return True
 
     def Flash(self, fwfilep):

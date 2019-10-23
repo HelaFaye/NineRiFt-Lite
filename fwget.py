@@ -4,7 +4,10 @@ import requests
 from kivy.utils import platform
 import hashlib
 import threading
-
+try:
+	from kivymd.toast import toast
+except:
+	print('no toast for you')
 
 class FWGet():
     def __init__(self, cache):
@@ -36,6 +39,10 @@ class FWGet():
             return m.hexdigest()
 
     def getFile(self, FWtype, version):
+        try:
+            toast('download started')
+        except:
+            print('download started')
         if (self.repoURL == "http://null" or self.dirname == "null"):
             print("You need to load a valid repo first.")
             return(False)
@@ -86,6 +93,10 @@ class FWGet():
                     f.write(r.content)
                 if (r.status_code == 200):
                     print(filename + " downloaded successfully.")
+                    try:
+                        toast('download finished')
+                    except:
+                        print('download finished')
                     return(True, completePath)
                 else:
                     print("Server couldn't respond to download request. Local files aren't available. Aborting.")
@@ -138,3 +149,4 @@ class FWGet():
     def Gimme(self, firm, ver):
         gimmeit = threading.Thread(target=self.getFile(firm,ver))
         gimmeit.start()
+

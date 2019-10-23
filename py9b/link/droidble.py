@@ -19,9 +19,12 @@ try:
 except ImportError:
     import Queue as queue
 
-from time import sleep
-
 from threading import Event
+
+try:
+    from kivymd.toast import toast
+except:
+    print('no toast for you')
 
 
 identity = bytearray(
@@ -90,7 +93,10 @@ class BLE(BluetoothDispatcher):
     def discover(self, timeout):
         self.start_scan()
         self.state = "scan"
-        print(self.state)
+        try:
+            toast(self.state)
+        except:
+            print(self.state)
         self.connected.wait(timeout)
         self.stop_scan()
 
@@ -101,7 +107,7 @@ class BLE(BluetoothDispatcher):
         Logger.debug("on_device event {}".format(list(advertisement)))
         address = device.getAddress()
         if self.addr and address.startswith(self.addr):
-            print(self.addr)
+            print(address)
             self.ble_device = device
             self.scoot_found = True
             self.stop_scan()
@@ -117,7 +123,10 @@ class BLE(BluetoothDispatcher):
                     name = str(ad.data)
         if self.scoot_found:
             self.state = "found"
-            print(self.state)
+            try:
+                toast(self.state)
+            except:
+                print(self.state)
             self.ble_device = device
             Logger.debug("Scooter detected: {}".format(name))
             self.stop_scan()
@@ -146,7 +155,10 @@ class BLE(BluetoothDispatcher):
         if self.tx_characteristic and self.rx_characteristic:
             self.connected.set()
             self.state = "connected"
-            print(self.state)
+            try:
+                toast(self.state)
+            except:
+                print(self.state)
         else:
             return
 
@@ -171,7 +183,10 @@ class BLE(BluetoothDispatcher):
         self.tx_characteristic = None
         self.connected.clear()
         self.state = "close"
-        print(self.state)
+        try:
+            toast(self.state)
+        except:
+            print(self.state)
 
     def read(self, size):
         if self.ble_device and self.state == 'connected':

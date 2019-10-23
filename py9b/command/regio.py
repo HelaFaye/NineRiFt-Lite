@@ -50,14 +50,25 @@ class WriteRegs(BaseCommand):
                     "WriteRegs {0:X}:{1:X}".format(self.dev, self.reg)
                 )
         elif response.cmd == 0x05:  # ninebot style
-            if len(response.data) != 0:
-                raise InvalidResponse(
-                    "WriteRegs {0:X}:{1:X}".format(self.dev, self.reg)
-                )
-            if response.arg != 0:
-                raise WriteProtectError(
-                    "WriteRegs {0:X}:{1:X}".format(self.dev, self.reg)
-                )
+            if len(response.data) == 0:
+                # firmware < 0401
+                if response.arg != 0:
+                    raise WriteProtectError(
+                        "WriteRegs {0:X}:{1:X}".format(self.dev, self.reg)
+                    )
+            elif len(response.data) == 1:
+                # firmware >= 0401
+                if response.arg != self.reg:
+                    raise InvalidResponse(
+                        "WriteRegs {0:X}:{1:X}".format(self.dev, self.reg)
+                    )
+                if response.data[0] != 0:
+                    raise WriteProtectError(
+                        "WriteRegs {0:X}:{1:X}".format(self.dev, self.reg)
+                    )
+            else:
+                raise InvalidResponse("WriteRegs {0:X}:{1:X}".format(self.dev, self.reg))
+
         else:
             raise InvalidResponse("WriteRegs {0:X}:{1:X}".format(self.dev, self.reg))
         return True
