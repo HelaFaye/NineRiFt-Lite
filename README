@@ -3,14 +3,15 @@ THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!!
 
 This application is written in Python3. To install required libraries, run the following in pip:
 
-'''pip install -r requirements.txt'''
+
+pip install -r requirements.txt
+
 
 After that, you can either run NineRiFt on your Windows, Mac, or Linux machine by opening main.py using your Python3 interpreter or you can use a prebuilt APK for Android (you could also compile a build if you want).
 
 On Android, BLE and TCP-Serial is supported.
 
 On, Windows, Mac, and Linux, BLE, Serial, and TCP is supported.
-
 
 
 The Download screen is for downloading firmware:
@@ -20,7 +21,6 @@ The Download screen is for downloading firmware:
 2. Select the firmware version you need
 
 3. Click "Download it!" and wait for download to complete
-
 
 
 The Flash screen is for flashing firmware:
@@ -44,4 +44,4 @@ SNSC dashboards cannot be flashed without either TCP-Serial or Serial interface.
 
 
 
-If you appreciate my work, be sure to donate: https://PayPal.com/dilsha21 or any of the other options listed on my GitHub.
+If you appreciate my work, be sure to donate at https://PayPal.com/dilsha21 or any of the other options listed on my GitHub.
