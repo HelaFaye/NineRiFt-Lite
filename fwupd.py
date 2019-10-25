@@ -49,6 +49,9 @@ class FWUpd(object):
     def getprog(self):
         return self.progress
 
+    def getmaxprog(self):
+        return self.maxprogress
+
     def checksum(self, s, data):
         for c in data:
             s += c
@@ -68,11 +71,12 @@ class FWUpd(object):
 
         dev = self.devices.get(self.device)
 
-        try:
-            toast('Pinging...')
-        except:
-            print('Pinging...', end='')
+
         for retry in range(self.PING_RETRIES):
+            try:
+                toast('Pinging...')
+            except:
+                print('Pinging...', end='')
             print(".", end="")
             try:
                 if dev == BT.BLE:
@@ -90,7 +94,7 @@ class FWUpd(object):
             return False
         print("OK")
 
-        if self.interface != 'fleet':
+        if not self.interface.endswith('fleet'):
             try:
                 toast('Locking...')
             except:

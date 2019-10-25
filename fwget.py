@@ -17,6 +17,8 @@ class FWGet():
         if not os.path.exists(self.cachePath):
             os.makedirs(self.cachePath)
             print("Created NineRiFt cache directory")
+        #self.progress = 0
+        #self.maxprogress = 100
 
     def setRepo(self, repo):
         self.repoURL = repo
