@@ -1,5 +1,5 @@
 This is an Open-Source Ninebot (and soon Xiaomi too) scooter programming interface (and diagnostics info soon too).
-THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!!
+THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!! It is still being added to but is in a functional state.
 
 This application is written in Python3. To install required libraries, run the following in pip:
 
