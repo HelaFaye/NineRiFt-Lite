@@ -1,5 +1,5 @@
 import os
-from threading import Thread, Event
+import threading
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -39,11 +39,12 @@ class NineRiFt(App):
 
 
     def fwget_func(self, dev, ver):
-        getting = Event()
-        fwget_thread = Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
-        if not getting.is_set():
-            getting.set()
+        fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
+        if fwget_thread.is_alive() is False:
             fwget_thread.start()
+            fwget_thread.join()
+            while threading.activeCount() > 1:
+                time.sleep(1)
         else:
             try:
                 toast('already downloading')
@@ -52,11 +53,12 @@ class NineRiFt(App):
 
 
     def fwupd_func(self, sel):
-        flashing = Event()
-        fwupd_thread = Thread(target=self.fwupd.Flash, kwargs=dict(fwfilep=sel))
-        if not flashing.is_set():
-            flashing.set()
+        fwupd_thread = threading.Thread(target=self.fwupd.Flash, kwargs=dict(fwfilep=sel))
+        if fwupd_thread.is_alive() is False:
             fwupd_thread.start()
+            fwupd_thread.join()
+            while threading.activeCount() > 1:
+                time.sleep(1)
         else:
             try:
                 toast('already flashing')
