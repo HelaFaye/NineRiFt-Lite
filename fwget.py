@@ -1,13 +1,10 @@
 import os
-from os import path
 import requests
-from kivy.utils import platform
 import hashlib
-import threading
 try:
-	from kivymd.toast import toast
+    from kivymd.toast import toast
 except:
-	print('no toast for you')
+    print('no toast for you')
 
 class FWGet():
     def __init__(self, cache):
@@ -17,8 +14,8 @@ class FWGet():
         if not os.path.exists(self.cachePath):
             os.makedirs(self.cachePath)
             print("Created NineRiFt cache directory")
-        #self.progress = 0
-        #self.maxprogress = 100
+        self.progress = 0
+        self.maxprogress = 100
 
     def setRepo(self, repo):
         self.repoURL = repo
@@ -149,6 +146,13 @@ class FWGet():
         return(True, self.dirname, self.repoURL, name, self.DRV, self.BMS, self.BLE)
 
     def Gimme(self, firm, ver):
-        gimmeit = threading.Thread(target=self.getFile(firm,ver))
-        gimmeit.start()
+        try:
+            toast('download started')
+        except:
+            print('download started')
+        self.getFile(firm,ver)
+        try:
+            toast('download finished')
+        except:
+            print('download finished')
 
