@@ -1,4 +1,5 @@
 import os
+from time import sleep
 import threading
 
 from kivy.app import App
@@ -40,30 +41,39 @@ class NineRiFt(App):
 
     def fwget_func(self, dev, ver):
         fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
-        if fwget_thread.is_alive() is False:
+        getting = threading.Event()
+        if getting.is_set() is False:
+            getting.set()
             fwget_thread.start()
+            # while threading.activeCount() > 1:
+            #     sleep(1)
             fwget_thread.join()
-            while threading.activeCount() > 1:
-                time.sleep(1)
+            getting.clear()
         else:
             try:
                 toast('already downloading')
             except:
                 print('already downloading')
+        return
 
 
     def fwupd_func(self, sel):
         fwupd_thread = threading.Thread(target=self.fwupd.Flash, kwargs=dict(fwfilep=sel))
-        if fwupd_thread.is_alive() is False:
+        flashing = threading.Event()
+        if flashing.is_set() is False:
+            flashing.set()
             fwupd_thread.start()
+            # while threading.activeCount() > 1:
+            #     sleep(1)
             fwupd_thread.join()
-            while threading.activeCount() > 1:
-                time.sleep(1)
+            flashing.clear()
         else:
             try:
                 toast('already flashing')
             except:
                 print('already flashing')
+        return
+
 
     def build(self):
         self.initilize_global_vars()

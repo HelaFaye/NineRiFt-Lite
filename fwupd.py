@@ -8,10 +8,6 @@ from py9b.command.update import *
 from kivy.utils import platform
 import os
 
-try:
-    from kivymd.toast import toast
-except:
-    print('no toast for you')
 
 class FWUpd(object):
     def __init__(self):
@@ -58,10 +54,7 @@ class FWUpd(object):
         return (s & 0xFFFFFFFF)
 
     def UpdateFirmware(self, link, tran, dev, fwfile):
-        try:
-            toast('update started')
-        except:
-            print('update started')
+        print('update started')
 
         print('flashing '+self.fwfilep+' to ' + self.device)
         fwfile.seek(0, os.SEEK_END)
@@ -73,10 +66,7 @@ class FWUpd(object):
 
 
         for retry in range(self.PING_RETRIES):
-            try:
-                toast('Pinging...')
-            except:
-                print('Pinging...', end='')
+            print('Pinging...', end='')
             print(".", end="")
             try:
                 if dev == BT.BLE:
@@ -87,35 +77,20 @@ class FWUpd(object):
                 continue
             break
         else:
-            try:
-                toast("Timed out !")
-            except:
-                print("Timed out !")
+            print("Timed out !")
             return False
         print("OK")
 
         if not self.interface.endswith('fleet'):
-            try:
-                toast('Locking...')
-            except:
-                print('Locking...')
+            print('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
-            try:
-                toast('Not Locking...')
-            except:
-                print('Not Locking...')
+            print('Not Locking...')
 
-        try:
-            toast('Starting...')
-        except:
-            print('Starting...')
+        print('Starting...')
         tran.execute(StartUpdate(dev, fw_size))
 
-        try:
-            toast('Writing...')
-        except:
-            print('Writing...')
+        print('Writing...')
         page = 0
         chk = 0
         while fw_size:
@@ -128,22 +103,13 @@ class FWUpd(object):
             page += 1
             fw_size -= chunk_sz
 
-        try:
-            toast('Finalizing...')
-        except:
-            print('Finalizing...')
+        print('Finalizing...')
         tran.execute(FinishUpdate(dev, chk ^ 0xFFFFFFFF))
 
-        try:
-            toast('Reboot')
-        except:
-            print('Reboot')
+        print('Reboot')
         tran.execute(RebootUpdate(dev))
         print('Done')
-        try:
-            toast('update finished')
-        except:
-            print('update finished')
+        print('update finished')
         return True
 
     def Flash(self, fwfilep):
