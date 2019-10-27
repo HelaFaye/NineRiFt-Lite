@@ -8,6 +8,10 @@ from py9b.command.update import *
 from kivy.utils import platform
 import os
 
+try:
+    from kivymd.toast import toast
+except:
+    print('no toast for you')
 
 class FWUpd(object):
     def __init__(self):
@@ -21,6 +25,7 @@ class FWUpd(object):
         self.address = ''
         self.progress = 0
         self.maxprogress = 100
+        self.nolock = False
 
     def setaddr(self, a):
         self.address = a
@@ -41,6 +46,10 @@ class FWUpd(object):
     def setproto(self, p):
         self.protocol = p.lower()
         print(self.protocol+' selected as protocol')
+
+    def setnl(self, b):
+        self.nolock = b
+        print('no-lock set to'+self.nolock)
 
     def getprog(self):
         return self.progress
@@ -66,7 +75,10 @@ class FWUpd(object):
 
 
         for retry in range(self.PING_RETRIES):
-            print('Pinging...', end='')
+            try:
+                toast('Pinging...')
+            except:
+                print('Pinging...', end='')
             print(".", end="")
             try:
                 if dev == BT.BLE:
@@ -77,20 +89,33 @@ class FWUpd(object):
                 continue
             break
         else:
-            print("Timed out !")
+            try:
+                toast('TIMED OUT!!!'
+            except:
+                print("Timed out !")
             return False
         print("OK")
 
-        if not self.interface.endswith('fleet'):
-            print('Locking...')
+        if self.nolock is False:
+            try:
+                toast('Locking...')
+            except:
+                print('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
-            print('Not Locking...')
+            try:
+                toast('Not Locking...')
+            except:
+                print('Not Locking...')
 
         print('Starting...')
         tran.execute(StartUpdate(dev, fw_size))
 
-        print('Writing...')
+        try:
+            toast('Writing...')
+        except:
+            print('Writing...')
+
         page = 0
         chk = 0
         while fw_size:
@@ -103,12 +128,18 @@ class FWUpd(object):
             page += 1
             fw_size -= chunk_sz
 
-        print('Finalizing...')
+        try:
+            toast('Finalizing...')
+        except:
+            print('Finalizing...')
         tran.execute(FinishUpdate(dev, chk ^ 0xFFFFFFFF))
 
         print('Reboot')
         tran.execute(RebootUpdate(dev))
-        print('Done')
+        try:
+            toast('Done')
+        except:
+            print('Done')
         print('update finished')
         return True
 

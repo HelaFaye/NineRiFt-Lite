@@ -1,6 +1,6 @@
 import os
-from time import sleep
-import threading
+#from time import sleep
+#import threading
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -39,40 +39,46 @@ class NineRiFt(App):
         self.fwget.loadRepo(self.fwget.repoURL)
 
 
-    def fwget_func(self, dev, ver):
-        fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
-        getting = threading.Event()
-        if getting.is_set() is False:
-            getting.set()
-            fwget_thread.start()
-            # while threading.activeCount() > 1:
-            #     sleep(1)
-            fwget_thread.join()
-            getting.clear()
-        else:
-            try:
-                toast('already downloading')
-            except:
-                print('already downloading')
-        return
+    # def fwget_func(self, dev, ver):
+    #     fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
+    #     getting = threading.Event()
+    #     if getting.is_set() is False:
+    #         getting.set()
+    #         fwget_thread.start()
+    #         # while threading.activeCount() > 1:
+    #         #     sleep(1)
+    #         fwget_thread.join()
+    #         getting.clear()
+    #     else:
+    #         try:
+    #             toast('already downloading')
+    #         except:
+    #             print('already downloading')
+    #     return
 
+    def fwget_func(self, dev, ver):
+        self.fwget.Gimme(dev, ver)
+
+
+    # def fwupd_func(self, sel):
+    #     fwupd_thread = threading.Thread(target=self.fwupd.Flash, kwargs=dict(fwfilep=sel))
+    #     flashing = threading.Event()
+    #     if flashing.is_set() is False:
+    #         flashing.set()
+    #         fwupd_thread.start()
+    #         # while threading.activeCount() > 1:
+    #         #     sleep(1)
+    #         fwupd_thread.join()
+    #         flashing.clear()
+    #     else:
+    #         try:
+    #             toast('already flashing')
+    #         except:
+    #             print('already flashing')
+    #     return
 
     def fwupd_func(self, sel):
-        fwupd_thread = threading.Thread(target=self.fwupd.Flash, kwargs=dict(fwfilep=sel))
-        flashing = threading.Event()
-        if flashing.is_set() is False:
-            flashing.set()
-            fwupd_thread.start()
-            # while threading.activeCount() > 1:
-            #     sleep(1)
-            fwupd_thread.join()
-            flashing.clear()
-        else:
-            try:
-                toast('already flashing')
-            except:
-                print('already flashing')
-        return
+        self.fwupd.Flash(sel)
 
 
     def build(self):
