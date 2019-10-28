@@ -40,7 +40,7 @@ def run_worker(loop):
     loop.run_forever()
 
 
-class BleakLink(BaseLink):
+class BLELink(BaseLink):
     def __init__(self, device="hci0", loop=None, *args, **kwargs):
         self.device = device
         self.timeout = 5
