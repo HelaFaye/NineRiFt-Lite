@@ -48,8 +48,11 @@ class FWUpd(object):
         print(self.protocol+' selected as protocol')
 
     def setnl(self, b):
-        self.nolock = b
-        print('no-lock set to'+self.nolock)
+        if b=='nolock':
+            self.nolock = True
+        else:
+            self.nolock = False
+        print('no-lock set to '+str(self.nolock))
 
     def getprog(self):
         return self.progress
@@ -90,9 +93,9 @@ class FWUpd(object):
             break
         else:
             try:
-                toast('TIMED OUT!!!'
+                toast('TIMED OUT!')
             except:
-                print("Timed out !")
+                print("Timed out!")
             return False
         print("OK")
 

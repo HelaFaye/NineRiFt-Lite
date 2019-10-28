@@ -111,6 +111,9 @@ class NineRiFt(App):
         height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
         seladdr_input.bind(on_text_validate=lambda x: self.fwupd.setaddr(seladdr_input.text))
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
+        protoselspin = Spinner(text='Model', values=('xiaomi','ninebot'),
+                               font_size='12sp',height='14sp', sync_height=True)
+        protoselspin.bind(text=lambda x, y: self.fwupd.setproto(protoselspin.text))
         if platform != 'android':
             ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
@@ -118,9 +121,13 @@ class NineRiFt(App):
             ifaceselspin = Spinner(text='Interface', values=('TCP', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: self.fwupd.setiface(ifaceselspin.text))
-        devselspin = Spinner(text='Device', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
+        devselspin = Spinner(text='Part', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
                              sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: self.fwupd.setdev(devselspin.text))
+        lockselspin = Spinner(text='Lock', values=('lock', 'nolock'),
+                               font_size='12sp',height='14sp', size_hint_y=.15, sync_height=True)
+        lockselspin.bind(text=lambda x, y: self.fwupd.setnl(lockselspin.text))
+
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
         flashpb.bind(max=lambda x: self.fwupd.getmaxprog())
         flashpb.bind(value=lambda x: self.fwupd.getprog())
@@ -129,31 +136,29 @@ class NineRiFt(App):
                               on_press=lambda x: self.fwupd_func(selfile.selection[0]))
 
 
-        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
-                                  on_press=lambda x: switch_screen('Flash'))
         fwget_devselspin = Spinner(text='Device', values=('BLE', 'DRV', 'BMS'),
                                    sync_height=True, font_size='12sp', height='14sp')
         fwget_verselspin = Spinner(text='Version', sync_height=True,
                                    font_size='12sp', height='14sp', values=[], text_autoupdate=True)
-
         self.fwget_preload()
-
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
                                        on_press=lambda x: self.fwget_func(fwget_devselspin.text, fwget_verselspin.text))
+
+        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
+                                  on_press=lambda x: switch_screen('Flash'))
         fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
                                   on_press=lambda x: switch_screen('Download'))
 
 
-        switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
         flashtoplayout = GridLayout(rows=2, size_hint_y=.2)
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         flashaddrlayout.add_widget(seladdr_label)
         flashaddrlayout.add_widget(seladdr_input)
-        flashtopbtnlayout = GridLayout(cols=2, size_hint_y=.7)
+        flashtopbtnlayout = GridLayout(cols=3, size_hint_y=.7)
         flashtopbtnlayout.add_widget(ifaceselspin)
         flashtopbtnlayout.add_widget(devselspin)
-        #flashtopbtnlayout.add_widget()
+        flashtopbtnlayout.add_widget(lockselspin)
         flashtoplayout.add_widget(flashaddrlayout)
         flashtoplayout.add_widget(flashtopbtnlayout)
         flashmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
@@ -183,7 +188,7 @@ class NineRiFt(App):
         downloadlayout.add_widget(fwget_midlayout)
         downloadlayout.add_widget(fwget_botlayout)
 
-
+        switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
         switcherlayout.add_widget(fwupd_screen_btn)
         switcherlayout.add_widget(fwget_screen_btn)
 
