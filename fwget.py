@@ -16,6 +16,10 @@ class FWGet():
             print("Created NineRiFt cache directory")
         self.progress = 0
         self.maxprogress = 100
+        self.model = 'ninebot'
+
+    def setModel(self, model):
+        self.model = model
 
     def setRepo(self, repo):
         self.repoURL = repo
@@ -155,4 +159,3 @@ class FWGet():
             toast('download finished')
         except:
             print('download finished')
-

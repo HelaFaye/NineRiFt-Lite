@@ -29,15 +29,20 @@ class NineRiFt(App):
         self.cache_folder = os.path.join(self.root_folder, 'cache')
         self.fwget = FWGet(self.cache_folder)
         self.fwupd = FWUpd()
+        self.model = 'esx'
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
 
 
     def fwget_preload(self):
-        self.fwget.setRepo("https://files.scooterhacking.org/esx/fw/repo.json")
+        self.fwget.setRepo("https://files.scooterhacking.org/"+self.model+"/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
 
+
+    def fwget_reload(self):
+
+        fwget_preload()
 
     # def fwget_func(self, dev, ver):
     #     fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
@@ -125,7 +130,7 @@ class NineRiFt(App):
                              sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: self.fwupd.setdev(devselspin.text))
         lockselspin = Spinner(text='Lock', values=('lock', 'nolock'),
-                               font_size='12sp',height='14sp', size_hint_y=.15, sync_height=True)
+                               font_size='12sp',height='14sp', sync_height=True)
         lockselspin.bind(text=lambda x, y: self.fwupd.setnl(lockselspin.text))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
@@ -135,11 +140,15 @@ class NineRiFt(App):
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
                               on_press=lambda x: self.fwupd_func(selfile.selection[0]))
 
-
-        fwget_devselspin = Spinner(text='Device', values=('BLE', 'DRV', 'BMS'),
+        fwget_modelselspin = Spinner(text='Model', values=('esx', 'm365', ''),
+                                   sync_height=True, font_size='12sp', height='14sp')
+        fwget_modelselspin.bind(text=lambda x, y: self.fwget.setModel(fwget_modelselspin.text))
+        fwget_devselspin = Spinner(text='Part', values=('BLE', 'DRV', 'BMS'),
                                    sync_height=True, font_size='12sp', height='14sp')
         fwget_verselspin = Spinner(text='Version', sync_height=True,
                                    font_size='12sp', height='14sp', values=[], text_autoupdate=True)
+
+
         self.fwget_preload()
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
@@ -179,6 +188,7 @@ class NineRiFt(App):
         fwget_topbtnlayout = GridLayout(cols=2)
         fwget_topbtnlayout.add_widget(fwget_devselspin)
         fwget_topbtnlayout.add_widget(fwget_verselspin)
+        fwget_topbtnlayout.add_widget(fwget_modelselspin)
         fwget_toplayout.add_widget(fwget_topbtnlayout)
         fwget_midlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
         fwget_botlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
