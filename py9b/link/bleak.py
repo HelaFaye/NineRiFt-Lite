@@ -105,7 +105,7 @@ class BLELink(BaseLink):
 
     def write(self, data):
         fut = asyncio.run_coroutine_threadsafe(
-            self._client.write_gatt_char(_rx_char_uuid, bytearray(data), False),
+            self._client.write_gatt_char(_rx_char_uuid, bytearray(data), True),
             self.loop,
         )
         return fut.result(3)
