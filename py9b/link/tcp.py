@@ -32,7 +32,7 @@ class TCPLink(BaseLink):
         self.close()
 
     def scan(self):
-        res = [("Android UART Bridge", HOST + ":" + str(PORT))]
+        res = [("TCP UART Bridge", "HOST" + ":" + "PORT")]
         return res
 
     def open(self, port):

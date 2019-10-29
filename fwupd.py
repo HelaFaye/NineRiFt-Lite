@@ -185,8 +185,9 @@ class FWUpd(object):
                     addr = self.address
                     ports = None
                     print('Scanning...')
-                    if self.interface != 'ble':
-                        ports = link.scan()
+                    if self.interface != 'tcp':
+                        if self.interface != 'ble':
+                            ports = link.scan()
                     if self.interface == 'ble':
                         link.scan()
                     if not self.interface=='ble' and not ports:
