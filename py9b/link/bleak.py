@@ -40,7 +40,7 @@ def run_worker(loop):
     loop.run_forever()
 
 
-class BLELink(BaseLink):
+class BleakLink(BaseLink):
     def __init__(self, device="hci0", loop=None, *args, **kwargs):
         self.device = device
         self.timeout = 5
@@ -92,7 +92,9 @@ class BLELink(BaseLink):
         fut.result(10)
 
     async def _connect(self, port):
-        self._client = BleakClient(port[1], device=self.device)
+        if isinstance(port, tuple):
+            port = port[1]
+        self._client = BleakClient(port, device=self.device)
         await self._client.connect()
         print("connected")
         await self._client.start_notify(_tx_char_uuid, self._data_received)
