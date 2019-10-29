@@ -52,16 +52,15 @@ class NineRiFt(App):
 
 
     def fwupd_func(self, sel):
-        # global thread
-        # if thread.isAlive() == False:
-            # thread = Thread(target = self.fwupd.Flash, args = (sel, ))
-        self.fwupd.Flash(sel)
-        #     thread.start()
-        # else:
-        #     try:
-        #         toast("Firmware update already in progress!")
-        #     except:
-        #         print("Firmware update already in progress!")
+        global thread
+        if thread.isAlive() == False:
+            thread = Thread(target = self.fwupd.Flash, args = (sel, ))
+            thread.start()
+        else:
+            try:
+                toast("Firmware update already in progress!")
+            except:
+                print("Firmware update already in progress!")
 
 
     def build(self):
