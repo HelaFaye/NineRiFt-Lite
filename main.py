@@ -177,10 +177,9 @@ class NineRiFt(App):
             if vers=='<141':
                 sf = ['*.bin']
                 selfile.filters = sf
-            elif self.model is 'esx':
+            else:
                 sf = ['*.enc']
                 selfile.filters = sf
-
             flashmidlayout.remove_widget(selfile)
             flashmidlayout.add_widget(selfile)
             flashmidlayout.do_layout()
@@ -188,14 +187,17 @@ class NineRiFt(App):
 
         def mod_ver(mod):
             if mod is 'm365':
+                selfile_filter(None)
                 self.fwupd.setproto('xiaomi')
                 flashtopbtnlayout.add_widget(flash_verselspin)
                 self.versel = True
             if mod is 'm365pro':
+                selfile_filter(None)
                 self.fwupd.setproto('xiaomi')
                 if self.versel:
                     flashtopbtnlayout.add_widget(flash_verselspin)
             if mod is 'esx':
+                selfile_filter(None)
                 self.fwupd.setproto('ninebot')
                 if self.versel:
                     flashtopbtnlayout.remove_widget(flash_verselspin)
