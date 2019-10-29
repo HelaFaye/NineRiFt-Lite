@@ -29,6 +29,7 @@ class NineRiFt(App):
         self.fwget = FWGet(self.cache_folder)
         self.fwupd = FWUpd()
         self.model = 'esx'
+        self.versel = False
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
@@ -51,15 +52,16 @@ class NineRiFt(App):
 
 
     def fwupd_func(self, sel):
-        global thread
-        if thread.isAlive() == False:
-            thread = Thread(target = self.fwupd.Flash, args = (sel, ))
-            thread.start()
-        else:
-            try:
-                toast("Firmware update already in progress!")
-            except:
-                print("Firmware update already in progress!")
+        # global thread
+        # if thread.isAlive() == False:
+            # thread = Thread(target = self.fwupd.Flash, args = (sel, ))
+        self.fwupd.Flash(sel)
+        #     thread.start()
+        # else:
+        #     try:
+        #         toast("Firmware update already in progress!")
+        #     except:
+        #         print("Firmware update already in progress!")
 
 
     def build(self):
@@ -175,6 +177,10 @@ class NineRiFt(App):
             if vers=='<141':
                 sf = ['*.bin']
                 selfile.filters = sf
+            elif self.model is 'esx':
+                sf = ['*.enc']
+                selfile.filters = sf
+
             flashmidlayout.remove_widget(selfile)
             flashmidlayout.add_widget(selfile)
             flashmidlayout.do_layout()
@@ -182,12 +188,17 @@ class NineRiFt(App):
 
         def mod_ver(mod):
             if mod is 'm365':
-                flashtopbtnlayout.add_widget(flash_verselspin)
-            if mod is 'm365' or 'm365pro':
                 self.fwupd.setproto('xiaomi')
-            else:
+                flashtopbtnlayout.add_widget(flash_verselspin)
+                self.versel = True
+            if mod is 'm365pro':
+                self.fwupd.setproto('xiaomi')
+                if self.versel:
+                    flashtopbtnlayout.add_widget(flash_verselspin)
+            if mod is 'esx':
                 self.fwupd.setproto('ninebot')
-                flashtopbtnlayout.remove_widget(flash_verselspin)
+                if self.versel:
+                    flashtopbtnlayout.remove_widget(flash_verselspin)
             flashtopbtnlayout.do_layout()
 
 
