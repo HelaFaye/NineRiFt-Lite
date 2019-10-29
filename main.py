@@ -21,6 +21,7 @@ except:
 from fwupd import FWUpd
 from fwget import FWGet
 
+thread = Thread()
 
 class NineRiFt(App):
 
@@ -46,46 +47,21 @@ class NineRiFt(App):
         self.fwget.setRepo("https://files.scooterhacking.org/" + self.model + "/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
 
-    # def fwget_func(self, dev, ver):
-    #     fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
-    #     getting = threading.Event()
-    #     if getting.is_set() is False:
-    #         getting.set()
-    #         fwget_thread.start()
-    #         # while threading.activeCount() > 1:
-    #         #     sleep(1)
-    #         fwget_thread.join()
-    #         getting.clear()
-    #     else:
-    #         try:
-    #             toast('already downloading')
-    #         except:
-    #             print('already downloading')
-    #     return
 
     def fwget_func(self, dev, ver):
         self.fwget.Gimme(dev, ver)
 
 
-    # def fwupd_func(self, sel):
-    #     fwupd_thread = threading.Thread(target=self.fwupd.Flash, kwargs=dict(fwfilep=sel))
-    #     flashing = threading.Event()
-    #     if flashing.is_set() is False:
-    #         flashing.set()
-    #         fwupd_thread.start()
-    #         # while threading.activeCount() > 1:
-    #         #     sleep(1)
-    #         fwupd_thread.join()
-    #         flashing.clear()
-    #     else:
-    #         try:
-    #             toast('already flashing')
-    #         except:
-    #             print('already flashing')
-    #     return
-
     def fwupd_func(self, sel):
-        self.fwupd.Flash(sel)
+        global thread
+        if thread.isAlive() == False:
+            thread = Thread(target = self.fwupd.Flash, args = (sel, ))
+            thread.start()
+        else:
+            try:
+                toast("Firmware update already in progress!")
+            except:
+                print("Firmware update already in progress!")
 
 
     def build(self):
