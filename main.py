@@ -186,6 +186,7 @@ class NineRiFt(App):
             if mod is 'm365' or 'm365pro':
                 self.fwupd.setproto('xiaomi')
             else:
+                self.fwupd.setproto('ninebot')
                 flashtopbtnlayout.remove_widget(flash_verselspin)
             flashtopbtnlayout.do_layout()
 
