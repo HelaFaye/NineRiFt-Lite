@@ -193,8 +193,13 @@ class FWUpd(object):
                         exit("No ports found !")
                         print('Connecting to', ports[0][0])
                         addr = ports[0][1]
+                        print (addr)
                 except:
-                    raise LinkOpenException
+                    try:
+                        toast('Open failed! (LinkOpenException)')
+                    except:
+                        print('Open failed! (LinkOpenException)', end='')
+                    return
             try:
                 if self.interface=='ble' and platform != 'android':
                     devs = link.scan()
@@ -203,8 +208,11 @@ class FWUpd(object):
                 else:
                     link.open(addr)
             except:
-                print('failed to open link')
-                raise LinkOpenException
+                try:
+                    toast('Open failed! (LinkOpenException)')
+                except:
+                    print('Open failed! (LinkOpenException)', end='')
+                return
             print('Connected')
             try:
                 self.UpdateFirmware(link, tran, dev, file)
