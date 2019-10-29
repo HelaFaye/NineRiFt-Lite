@@ -163,8 +163,7 @@ class FWGet():
         except:
             print('download started')
         self.getFile(firm,ver)
-        if self.getboth is True:
-            self.getFile(firm, ver)
+        self.getFile(firm, ver)
         try:
             toast('download finished')
         except:
