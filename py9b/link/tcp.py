@@ -4,19 +4,17 @@ import socket
 from binascii import hexlify
 from .base import BaseLink, LinkTimeoutException, LinkOpenException
 
-HOST, PORT = "127.0.0.1", 6000
-
 _write_chunk_size = 20  # 20 as in android dumps
 
 
 def recvall(sock, size):
-    data = ""
+    data = bytearray()
     while len(data) < size:
         try:
             pkt = sock.recv(size - len(data))
         except socket.timeout:
             raise LinkTimeoutException()
-        data += pkt
+        data.append(pkt)
     return data
 
 

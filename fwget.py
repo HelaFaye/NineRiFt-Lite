@@ -16,7 +16,8 @@ class FWGet():
             print("Created NineRiFt cache directory")
         self.progress = 0
         self.maxprogress = 100
-        self.model = 'ninebot'
+        self.model = 'esx'
+        self.getboth = False
 
     def setModel(self, model):
         self.model = model
@@ -42,10 +43,6 @@ class FWGet():
             return m.hexdigest()
 
     def getFile(self, FWtype, version):
-        try:
-            toast('download started')
-        except:
-            print('download started')
         if (self.repoURL == "http://null" or self.dirname == "null"):
             print("You need to load a valid repo first.")
             return(False)
@@ -61,7 +58,14 @@ class FWGet():
         except requests.ConnectionError:
             print("Failed to connect to the repo, using local files if available (requests.ConnectionError)")
             noInternet = True
-        filename = FWtype.upper() + version + ".bin.enc"
+        if self.model is 'm365':
+            if FWtype.upper is 'DRV' and self.getboth is False:
+                filename = FWtype.upper() + version + ".bin.enc"
+                self.getboth = True
+            else:
+                filename = FWtype.upper() + version + ".bin"
+        else:
+            filename = FWtype.upper() + version + ".bin.enc"
         completePath = self.cachePath + "/" + self.dirname + "/" + filename
         isFilePresent = os.path.isfile(completePath)
         if noInternet == False:
@@ -84,6 +88,10 @@ class FWGet():
         else:
             url = self.repoURL + FWtype.lower() + "/" + filename
             try:
+                try:
+                    toast('download started')
+                except:
+                    print('download started')
                 r = requests.head(url)
                 if (r.status_code == 404):
                     print("Failed to fetch " + filename + " (Error 404 file not found)")
@@ -155,6 +163,8 @@ class FWGet():
         except:
             print('download started')
         self.getFile(firm,ver)
+        if self.getboth is True:
+            self.getFile(firm, ver)
         try:
             toast('download finished')
         except:

@@ -40,9 +40,11 @@ class NineRiFt(App):
         self.fwget.loadRepo(self.fwget.repoURL)
 
 
-    def fwget_reload(self):
-
-        fwget_preload()
+    def fwget_reload(self, mod):
+        self.model = mod
+        self.fwget.setModel(mod)
+        self.fwget.setRepo("https://files.scooterhacking.org/" + self.model + "/fw/repo.json")
+        self.fwget.loadRepo(self.fwget.repoURL)
 
     # def fwget_func(self, dev, ver):
     #     fwget_thread = threading.Thread(target=self.fwget.Gimme, kwargs=dict(firm=dev, ver=ver))
@@ -132,17 +134,24 @@ class NineRiFt(App):
         lockselspin = Spinner(text='Lock', values=('lock', 'nolock'),
                                font_size='12sp',height='14sp', sync_height=True)
         lockselspin.bind(text=lambda x, y: self.fwupd.setnl(lockselspin.text))
+        flash_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),
+                                     sync_height=True, font_size = '12sp', height = '14sp')
+        flash_modelselspin.bind(text=lambda x, y: mod_ver(flash_modelselspin.text))
+        flash_verselspin = Spinner(text='Version', values=('<141', '>=141'),
+                                    sync_height=True, font_size = '12sp', height = '14sp')
+        flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
         flashpb.bind(max=lambda x: self.fwupd.getmaxprog())
         flashpb.bind(value=lambda x: self.fwupd.getprog())
         selfile = FileChooserListView(path=self.cache_folder)
+
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
                               on_press=lambda x: self.fwupd_func(selfile.selection[0]))
 
-        fwget_modelselspin = Spinner(text='Model', values=('esx', 'm365', ''),
+        fwget_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),
                                    sync_height=True, font_size='12sp', height='14sp')
-        fwget_modelselspin.bind(text=lambda x, y: self.fwget.setModel(fwget_modelselspin.text))
+        fwget_modelselspin.bind(text=lambda x, y: self.fwget_reload(fwget_modelselspin.text))
         fwget_devselspin = Spinner(text='Part', values=('BLE', 'DRV', 'BMS'),
                                    sync_height=True, font_size='12sp', height='14sp')
         fwget_verselspin = Spinner(text='Version', sync_height=True,
@@ -164,7 +173,8 @@ class NineRiFt(App):
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         flashaddrlayout.add_widget(seladdr_label)
         flashaddrlayout.add_widget(seladdr_input)
-        flashtopbtnlayout = GridLayout(cols=3, size_hint_y=.7)
+        flashtopbtnlayout = GridLayout(cols=4, size_hint_y=.7)
+        flashtopbtnlayout.add_widget(flash_modelselspin)
         flashtopbtnlayout.add_widget(ifaceselspin)
         flashtopbtnlayout.add_widget(devselspin)
         flashtopbtnlayout.add_widget(lockselspin)
@@ -184,19 +194,42 @@ class NineRiFt(App):
         flashlayout.add_widget(flashbotlayout)
 
 
+        def selfile_filter(vers):
+            if vers=='>=141':
+                sf = ['*.enc']
+                selfile.filters = sf
+            if vers=='<141':
+                sf = ['*.bin']
+                selfile.filters = sf
+            flashmidlayout.remove_widget(selfile)
+            flashmidlayout.add_widget(selfile)
+            flashmidlayout.do_layout()
+
+
+        def mod_ver(mod):
+            if mod is 'm365':
+                flashtopbtnlayout.add_widget(flash_verselspin)
+            else:
+                flashtopbtnlayout.remove_widget(flash_verselspin)
+            flashtopbtnlayout.do_layout()
+
+
         fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
-        fwget_topbtnlayout = GridLayout(cols=2)
+        fwget_topbtnlayout = GridLayout(cols=3)
+        fwget_topbtnlayout.add_widget(fwget_modelselspin)
         fwget_topbtnlayout.add_widget(fwget_devselspin)
         fwget_topbtnlayout.add_widget(fwget_verselspin)
-        fwget_topbtnlayout.add_widget(fwget_modelselspin)
         fwget_toplayout.add_widget(fwget_topbtnlayout)
         fwget_midlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
         fwget_botlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
         fwget_botlayout.add_widget(fwget_download_button)
+
+
         downloadlayout = GridLayout(cols=1, rows=3)
         downloadlayout.add_widget(fwget_toplayout)
         downloadlayout.add_widget(fwget_midlayout)
         downloadlayout.add_widget(fwget_botlayout)
+
 
         switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
         switcherlayout.add_widget(fwupd_screen_btn)
