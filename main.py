@@ -48,8 +48,15 @@ class NineRiFt(App):
 
 
     def fwget_func(self, dev, ver):
-        self.fwget.Gimme(dev, ver)
-
+        global thread
+        if thread.isAlive() == False:
+            thread = Thread(target = self.fwget.Gimme, args(dev, ver))
+            thread.start()
+        else:
+            try:
+                toast("download already in progress!")
+            except:
+                print("download already in progress!")
 
     def fwupd_func(self, sel):
         global thread
