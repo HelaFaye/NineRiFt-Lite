@@ -18,10 +18,10 @@ class FWUpd(object):
         self.devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
         self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
         self.PING_RETRIES = 5
-        self.device = 'esc'
+        self.device = ''
         self.fwfilep = ''
-        self.interface = 'ble'
-        self.protocol = 'ninebot'
+        self.interface = ''
+        self.protocol = ''
         self.address = ''
         self.progress = 0
         self.maxprogress = 100

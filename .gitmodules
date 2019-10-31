@@ -1,3 +1,6 @@
 [submodule ".android/able"]
 	path = .android/able
 	url = https://github.com/b3b/able
+[submodule "vendor/py9b"]
+	path = vendor/py9b
+	url = https://github.com/Slinger360/py9b
