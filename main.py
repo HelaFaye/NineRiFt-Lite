@@ -43,6 +43,7 @@ class NineRiFt(App):
         self.flashprog = self.fwupd.getprog()
         self.flashmaxprog = self.fwupd.getmaxprog()
 
+
     def fwget_preload(self):
         self.fwget.setRepo("https://files.scooterhacking.org/"+self.model+"/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
@@ -136,8 +137,8 @@ class NineRiFt(App):
         flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
-        flashpb.bind(max=lambda x: self.fwupd.getmaxprog())
-        flashpb.bind(value=lambda x: self.fwupd.getprog())
+        flashpb.bind(max=self.flashmaxprog)
+        flashpb.bind(value=self.flashprog)
         selfile = FileChooserListView(path=self.cache_folder)
 
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
