@@ -131,14 +131,14 @@ class NineRiFt(App):
         lockselspin.bind(text=lambda x, y: self.fwupd.setnl(lockselspin.text))
         flash_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),
                                      sync_height=True, font_size = '12sp', height = '14sp')
-        flash_modelselspin.bind(text=lambda x, y: mod_ver(flash_modelselspin.text))
+        flash_modelselspin.bind(text=lambda x, y: modsel_func(flash_modelselspin.text))
         flash_verselspin = Spinner(text='Version', values=('<141', '>=141'),
                                     sync_height=True, font_size = '12sp', height = '14sp')
         flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
-        flashpb.bind(max=self.flashmaxprog)
-        flashpb.bind(value=self.flashprog)
+        flashpb.bind(max=lambda x: self.fwupd.getmaxprog())
+        flashpb.bind(value=lambda x: self.fwupd.getprog())
         selfile = FileChooserListView(path=self.cache_folder)
 
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
@@ -190,36 +190,41 @@ class NineRiFt(App):
 
 # flash screen file filters
         def selfile_filter(vers):
-            if vers=='>=141':
-                sf = ['*.enc']
-                selfile.filters = sf
-            if vers=='<141':
-                sf = ['*.bin']
+            if self.model is 'm365':
+                if vers=='>=141' and dev is 'DRV':
+                    sf = ['DRV*.enc']
+                    selfile.filters = sf
+                if vers=='<141' and dev is 'DRV':
+                    sf = ['DRV*.bin']
+                    selfile.filters = sf
+                else:
+                    sf = [dev+'*.bin']
+                    selfile.filters = sf
+            elif self.model is 'm365pro':
+                sf = ['DRV*.bin']
                 selfile.filters = sf
             else:
-                sf = ['*.enc']
+                sf = [dev+'*.enc']
                 selfile.filters = sf
             flashmidlayout.remove_widget(selfile)
             flashmidlayout.add_widget(selfile)
             flashmidlayout.do_layout()
 
 # model selection function that updates UI and protocol based on selected vehicle model
-        def mod_ver(mod):
-            if mod is 'm365':
-                selfile_filter(None)
+        def modsel_func(mod):
+            if self.versel is True:
+                flashtopbtnlayout.remove_widget(flash_verselspin)
+            if mod.startswith('m365'):
                 self.fwupd.setproto('xiaomi')
-                flashtopbtnlayout.add_widget(flash_verselspin)
-                self.versel = True
-            if mod is 'm365pro':
-                selfile_filter(None)
-                self.fwupd.setproto('xiaomi')
-                if self.versel:
-                    flashtopbtnlayout.add_widget(flash_verselspin)
-            if mod is 'esx':
-                selfile_filter(None)
+                if mod is 'm365':
+                    self.versel = True
+                elif mod is 'm365pro':
+                    self.versel = False
+            else:
                 self.fwupd.setproto('ninebot')
-                if self.versel:
-                    flashtopbtnlayout.remove_widget(flash_verselspin)
+                self.versel = False
+            if self.versel is True:
+                flashtopbtnlayout.add_widget(flash_verselspin)
             flashtopbtnlayout.do_layout()
 
 # piece together download screen contents
