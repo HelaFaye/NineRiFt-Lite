@@ -1,11 +1,13 @@
 This is an Open-Source Ninebot (and soon Xiaomi too) scooter programming interface (and diagnostics info soon too).
 THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!! It is still being added to but is in a functional state.
 
-This application is written in Python3. To install required libraries, run the following in pip:
 
+This application is written in Python3. To install required libraries, run the following two commands:
 
+git clone --recursive https://github.com/slinger360/NineRiFt-kivy.git
 pip install -r requirements.txt
 
+To build for Android read up on Buildozer.
 
 After that, you can either run NineRiFt on your Windows, Mac, or Linux machine by opening main.py using your Python3 interpreter or you can use a prebuilt APK for Android (you could also compile a build if you want).
 
