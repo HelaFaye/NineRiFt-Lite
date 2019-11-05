@@ -1,6 +1,7 @@
 import os
 from threading import Thread
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
@@ -31,10 +32,16 @@ class NineRiFt(App):
         self.fwupd = FWUpd()
         self.model = 'esx'
         self.versel = False
+        self.flashprog = 0
+        self.flashmaxprog = 100
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
 
+
+    def update_progress(self):
+        self.flashprog = self.fwupd.getprog()
+        self.flashmaxprog = self.fwupd.getmaxprog()
 
     def fwget_preload(self):
         self.fwget.setRepo("https://files.scooterhacking.org/"+self.model+"/fw/repo.json")
@@ -51,7 +58,7 @@ class NineRiFt(App):
     def fwget_func(self, dev, ver):
         global thread
         if thread.isAlive() == False:
-            thread = Thread(target = self.fwget.Gimme, args(dev, ver))
+            thread = Thread(target=self.fwget.Gimme, args=(dev, ver))
             thread.start()
         else:
             try:
@@ -59,16 +66,20 @@ class NineRiFt(App):
             except:
                 print("download already in progress!")
 
+
     def fwupd_func(self, sel):
         global thread
         if thread.isAlive() == False:
-            thread = Thread(target = self.fwupd.Flash, args = (sel, ))
+            thread = Thread(target=self.fwupd.Flash, args=(sel,))
             thread.start()
+            while thread.isAlive() == True and self.flashprog < self.flashmaxprog:
+                Clock.schedule_once(update_progress())
         else:
             try:
                 toast("Firmware update already in progress!")
             except:
                 print("Firmware update already in progress!")
+
 
 # define build for Kivy UI
     def build(self):
