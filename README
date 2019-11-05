@@ -1,4 +1,4 @@
-This is an Open-Source Ninebot (and soon Xiaomi too) scooter programming interface (and diagnostics info soon too).
+This is an Open-Source Ninebot and Xiaomi compatible scooter interface app.
 THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!! It is still being added to but is in a functional state.
 
 
@@ -39,7 +39,7 @@ The Flash screen is for flashing firmware:
 
 
 
-At the moment only Segway-Ninebot SNSC, ES1, ES2, and ES4 are the only supported vehicles but, Xiaomi support will be added soon.
+At the moment only Segway-Ninebot SNSC, ES1, ES2, and ES4 and Xiaomi M365 and M365 Pro are supported.
 
 
 SNSC dashboards cannot be flashed without either TCP-Serial or Serial interface.
