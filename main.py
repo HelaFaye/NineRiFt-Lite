@@ -23,6 +23,7 @@ thread = Thread()
 
 class NineRiFt(App):
 
+# define helper functions
     def initilize_global_vars(self):
         self.root_folder = self.user_data_dir
         self.cache_folder = os.path.join(self.root_folder, 'cache')
@@ -69,7 +70,7 @@ class NineRiFt(App):
             except:
                 print("Firmware update already in progress!")
 
-
+# define build for Kivy UI
     def build(self):
         self.initilize_global_vars()
         sm = ScreenManager()
@@ -93,7 +94,7 @@ class NineRiFt(App):
         flashscreen = Screen(name='Flash')
         downloadscreen = Screen(name='Download')
 
-
+# define all  the UI elements
         seladdr_label = Label(text="Addr:", font_size='12sp', height='15sp',
          size_hint_y=1, size_hint_x=.08)
         seladdr_input = TextInput(multiline=False, text='',
@@ -150,7 +151,7 @@ class NineRiFt(App):
         fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
                                   on_press=lambda x: switch_screen('Download'))
 
-
+# piece together flash screen contents
         flashtoplayout = GridLayout(rows=2, size_hint_y=.2)
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         flashaddrlayout.add_widget(seladdr_label)
@@ -175,7 +176,7 @@ class NineRiFt(App):
         flashlayout.add_widget(flashmidlayout)
         flashlayout.add_widget(flashbotlayout)
 
-
+# flash screen file filters
         def selfile_filter(vers):
             if vers=='>=141':
                 sf = ['*.enc']
@@ -190,7 +191,7 @@ class NineRiFt(App):
             flashmidlayout.add_widget(selfile)
             flashmidlayout.do_layout()
 
-
+# model selection function that updates UI and protocol based on selected vehicle model
         def mod_ver(mod):
             if mod is 'm365':
                 selfile_filter(None)
@@ -209,7 +210,7 @@ class NineRiFt(App):
                     flashtopbtnlayout.remove_widget(flash_verselspin)
             flashtopbtnlayout.do_layout()
 
-
+# piece together download screen contents
         fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
         fwget_topbtnlayout = GridLayout(cols=3)
         fwget_topbtnlayout.add_widget(fwget_modelselspin)
@@ -226,24 +227,24 @@ class NineRiFt(App):
         downloadlayout.add_widget(fwget_midlayout)
         downloadlayout.add_widget(fwget_botlayout)
 
-
+# make switcher layout that stays at the top of the mainlayout
         switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
         switcherlayout.add_widget(fwupd_screen_btn)
         switcherlayout.add_widget(fwget_screen_btn)
 
-
+# piece together the mainlayout
         mainlayout = GridLayout(cols=1, rows=2)
         mainlayout.add_widget(switcherlayout)
 
-
+# add the layouts to the screens
         flashscreen.add_widget(flashlayout)
         downloadscreen.add_widget(downloadlayout)
 
-
+# add the screens to the screen manager
         sm.add_widget(flashscreen)
         sm.add_widget(downloadscreen)
 
-
+# add the screen manager to the mainlayout and return the constructed UI
         mainlayout.add_widget(sm)
         return mainlayout
 
