@@ -75,8 +75,6 @@ class NineRiFt(App):
         if thread.isAlive() == False:
             thread = Thread(target=self.fwupd.Flash, args=(sel,))
             thread.start()
-            while thread.isAlive() == True and self.flashprog < self.flashmaxprog:
-                Clock.schedule_once(update_progress())
         else:
             try:
                 toast("Firmware update already in progress!")

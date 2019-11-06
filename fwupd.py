@@ -15,7 +15,7 @@ except:
 
 class FWUpd(object):
     def __init__(self):
-        self.devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
+        self.devices = {'ble': BT.BLE, 'drv': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
         self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
         self.PING_RETRIES = 5
         self.device = ''
