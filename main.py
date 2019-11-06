@@ -207,6 +207,7 @@ class NineRiFt(App):
         flashpb.bind(value=lambda x: self.fwupd.getprog())
         selfile = FileChooserListView(path=self.cache_folder)
 
+
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
                               on_press=lambda x: self.fwupd_func(selfile.selection[0]))
 
@@ -246,6 +247,8 @@ class NineRiFt(App):
         flashmidlabelbox.add_widget(selfile_label)
         flashmidlayout.add_widget(flashmidlabelbox)
         flashmidlayout.add_widget(selfile)
+# run file filter function to hide md5 files
+        selfile_filter(None, None)
         flashbotlayout = GridLayout(rows=2, size_hint_y=.15)
         flashbotlayout.add_widget(flash_button)
         flashbotlayout.add_widget(flashpb)
