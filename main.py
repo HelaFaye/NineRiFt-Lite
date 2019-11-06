@@ -32,8 +32,10 @@ class NineRiFt(App):
         self.fwupd = FWUpd()
         self.model = 'esx'
         self.versel = False
+        self.hasextbms = False
         self.flashprog = 0
         self.flashmaxprog = 100
+        self.part = ''
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
@@ -103,6 +105,70 @@ class NineRiFt(App):
             return fwget_verselspin.values
 
 
+# flash screen file filters
+        def selfile_filter(vers, dev):
+            check = ['!.md5']
+            if self.model is 'm365':
+                if dev is 'DRV':
+                    if vers=='>=141':
+                        sf = ['*.bin.enc']
+                        selfile.filters = sf+check
+                    if vers=='<141':
+                        sf = ['*.bin']
+                        selfile.filters = sf+check
+                    else:
+                        sf = ['*.bin']
+                        selfile.filters = sf+check
+            elif self.model is 'm365pro':
+                sf = ['*.bin.enc']
+                selfile.filters = sf+check
+            else:
+                sf = ['*.bin.enc']
+                selfile.filters = sf+check
+            flashmidlayout.remove_widget(selfile)
+            flashmidlayout.add_widget(selfile)
+            flashmidlayout.do_layout()
+
+
+# model selection function that updates UI and protocol based on selected vehicle model
+        def modsel_func(mod):
+            if self.versel is True:
+                flashtopbtnlayout.remove_widget(flash_verselspin)
+            if mod.startswith('m365'):
+                self.hasextbms = False
+                self.fwupd.setproto('xiaomi')
+                if mod is 'm365':
+                    self.versel = True
+                elif mod is 'm365pro':
+                    self.versel = False
+            else:
+                self.fwupd.setproto('ninebot')
+                self.versel = False
+                if mod is 'esx':
+                    self.hasextbms = True
+                    selfile_filter(flash_verselspin.text, self.part)
+            if self.hasextbms is True:
+                try:
+                    devselspin.values.append('ExtBMS')
+                except:
+                    print('ExtBMS entry already present')
+            if self.hasextbms is False:
+                try:
+                    devselspin.values.remove('ExtBMS')
+                except:
+                    print('no ExtBMS entry to remove')
+            if self.versel is True:
+                flashtopbtnlayout.add_widget(flash_verselspin)
+            self.model = mod
+            selfile_filter(flash_verselspin.text, self.part)
+            flashtopbtnlayout.do_layout()
+
+        def setdevice(dev):
+            self.part = dev
+            self.fwupd.setdev(self.part)
+            selfile_filter(flash_verselspin.text, self.part)
+
+
         flashscreen = Screen(name='Flash')
         downloadscreen = Screen(name='Download')
 
@@ -123,9 +189,9 @@ class NineRiFt(App):
             ifaceselspin = Spinner(text='Interface', values=('TCP', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: self.fwupd.setiface(ifaceselspin.text))
-        devselspin = Spinner(text='Part', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
+        devselspin = Spinner(text='Part', values=('BLE', 'DRV', 'BMS'),
                              sync_height=True, font_size='12sp', height='14sp')
-        devselspin.bind(text=lambda x, y: self.fwupd.setdev(devselspin.text))
+        devselspin.bind(text=lambda x, y: setdevice(devselspin.text))
         lockselspin = Spinner(text='Lock', values=('lock', 'nolock'),
                                font_size='12sp',height='14sp', sync_height=True)
         lockselspin.bind(text=lambda x, y: self.fwupd.setnl(lockselspin.text))
@@ -134,7 +200,7 @@ class NineRiFt(App):
         flash_modelselspin.bind(text=lambda x, y: modsel_func(flash_modelselspin.text))
         flash_verselspin = Spinner(text='Version', values=('<141', '>=141'),
                                     sync_height=True, font_size = '12sp', height = '14sp')
-        flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text))
+        flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text, self.part))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
         flashpb.bind(max=lambda x: self.fwupd.getmaxprog())
@@ -188,44 +254,6 @@ class NineRiFt(App):
         flashlayout.add_widget(flashmidlayout)
         flashlayout.add_widget(flashbotlayout)
 
-# flash screen file filters
-        def selfile_filter(vers):
-            if self.model is 'm365':
-                if vers=='>=141' and dev is 'DRV':
-                    sf = ['DRV*.enc']
-                    selfile.filters = sf
-                if vers=='<141' and dev is 'DRV':
-                    sf = ['DRV*.bin']
-                    selfile.filters = sf
-                else:
-                    sf = [dev+'*.bin']
-                    selfile.filters = sf
-            elif self.model is 'm365pro':
-                sf = ['DRV*.bin']
-                selfile.filters = sf
-            else:
-                sf = [dev+'*.enc']
-                selfile.filters = sf
-            flashmidlayout.remove_widget(selfile)
-            flashmidlayout.add_widget(selfile)
-            flashmidlayout.do_layout()
-
-# model selection function that updates UI and protocol based on selected vehicle model
-        def modsel_func(mod):
-            if self.versel is True:
-                flashtopbtnlayout.remove_widget(flash_verselspin)
-            if mod.startswith('m365'):
-                self.fwupd.setproto('xiaomi')
-                if mod is 'm365':
-                    self.versel = True
-                elif mod is 'm365pro':
-                    self.versel = False
-            else:
-                self.fwupd.setproto('ninebot')
-                self.versel = False
-            if self.versel is True:
-                flashtopbtnlayout.add_widget(flash_verselspin)
-            flashtopbtnlayout.do_layout()
 
 # piece together download screen contents
         fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
