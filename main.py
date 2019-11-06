@@ -180,11 +180,7 @@ class NineRiFt(App):
         protoselspin = Spinner(text='Model', values=('xiaomi','ninebot'),
                                font_size='12sp',height='14sp', sync_height=True)
         protoselspin.bind(text=lambda x, y: self.fwupd.setproto(protoselspin.text))
-        if platform != 'android':
-            ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE'),
-                                   font_size='12sp',height='14sp', sync_height=True)
-        elif platform == 'android':
-            ifaceselspin = Spinner(text='Interface', values=('TCP', 'BLE'),
+        ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
         ifaceselspin.bind(text=lambda x, y: self.fwupd.setiface(ifaceselspin.text))
         devselspin = Spinner(text='Part', values=('BLE', 'DRV', 'BMS'),
