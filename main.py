@@ -40,11 +40,14 @@ class NineRiFt(App):
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
 
-
-    def update_progress(self):
+    @mainthread
+    def update_flash_progress(self, var):
         self.flashprog = self.fwupd.getprog()
         self.flashmaxprog = self.fwupd.getmaxprog()
-
+        if var is 'prog':
+            return self.flashprog
+        if var is 'max':
+            return self.flashmaxprog
 
     def fwget_preload(self):
         self.fwget.setRepo("https://files.scooterhacking.org/"+self.model+"/fw/repo.json")
@@ -197,8 +200,8 @@ class NineRiFt(App):
         flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text, self.part))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
-        flashpb.bind(max=lambda x: self.fwupd.getmaxprog())
-        flashpb.bind(value=lambda x: self.fwupd.getprog())
+        flashpb.bind(max=lambda x: update_flash_progress('max'))
+        flashpb.bind(value=lambda x: update_flash_progress('prog'))
         selfile = FileChooserListView(path=self.cache_folder)
 
 
