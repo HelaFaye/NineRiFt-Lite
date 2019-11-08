@@ -118,15 +118,20 @@ class NineRiFt(App):
                     if vers=='<141':
                         sf = ['*.bin']
                         selfile.filters = sf+check
-                    else:
-                        sf = ['*.bin']
-                        selfile.filters = sf+check
+                else:
+                    sf = ['*.bin']
+                    selfile.filters = sf+check
             elif self.model is 'm365pro':
-                sf = ['*.bin.enc']
-                selfile.filters = sf+check
+                if dev is 'DRV':
+                    sf = ['*.bin.enc']
+                    selfile.filters = sf+check
+                else:
+                    sf = ['*.bin']
+                    selfile.filters = sf+check
             else:
                 sf = ['*.bin.enc']
                 selfile.filters = sf+check
+            print('selfile_filter set to %s' % selfile.filters)
             return selfile.filters
             flashmidlayout.do_layout()
 
@@ -203,7 +208,6 @@ class NineRiFt(App):
         flashpb.bind(max=lambda x: update_flash_progress('max'))
         flashpb.bind(value=lambda x: update_flash_progress('prog'))
         selfile = FileChooserListView(path=self.cache_folder)
-        selfile.bind(filters=lambda x,y: selfile_filter(flash_verselspin.text, self.part))
 
 
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
