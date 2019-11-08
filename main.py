@@ -40,6 +40,8 @@ class NineRiFt(App):
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
 
+
+# hopefully update the progress bar on mainthread
     @mainthread
     def update_flash_progress(self, var):
         self.flashprog = self.fwupd.getprog()
@@ -50,11 +52,14 @@ class NineRiFt(App):
         if var is 'max':
             return self.flashmaxprog
 
+
+# preload firmware repo
     def fwget_preload(self):
         self.fwget.setRepo("https://files.scooterhacking.org/"+self.model+"/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
 
 
+# reload firmware repo after changing model
     def fwget_reload(self, mod):
         self.model = mod
         self.fwget.setModel(mod)
@@ -62,6 +67,7 @@ class NineRiFt(App):
         self.fwget.loadRepo(self.fwget.repoURL)
 
 
+# threaded firmware downloading function
     def fwget_func(self, dev, ver):
         global thread
         if thread.isAlive() == False:
@@ -74,11 +80,16 @@ class NineRiFt(App):
                 print("download already in progress!")
 
 
+# threaded firmware flashing function
     def fwupd_func(self, sel):
         global thread
         if thread.isAlive() == False:
             thread = Thread(target=self.fwupd.Flash, args=(sel,))
             thread.start()
+            try:
+                toast("Firmware update started")
+            except:
+                print("Firmware update started")
         else:
             try:
                 toast("Firmware update already in progress!")
@@ -169,16 +180,19 @@ class NineRiFt(App):
             selfile_filter(flash_verselspin.text, self.part)
             flashtopbtnlayout.do_layout()
 
+
+# device (DRV,BMS, etc.) selection function
         def setdevice(dev):
             self.part = dev
             self.fwupd.setdev(self.part)
             selfile_filter(flash_verselspin.text, self.part)
 
 
+# define screens
         flashscreen = Screen(name='Flash')
         downloadscreen = Screen(name='Download')
 
-# define all  the UI elements
+# define all  the UI elements for every screen
         seladdr_label = Label(text="Addr:", font_size='12sp', height='15sp',
          size_hint_y=1, size_hint_x=.08)
         seladdr_input = TextInput(multiline=False, text='',
