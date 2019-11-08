@@ -90,7 +90,7 @@ android.permissions = INTERNET, READ_EXTERNAL_STORAGE, BLUETOOTH, BLUETOOTH_ADMI
 android.api = 29
 
 # (int) Minimum API your APK will support.
-#android.minapi = 18
+android.minapi = 21
 
 # (int) Android SDK version to use
 #android.sdk = 28
