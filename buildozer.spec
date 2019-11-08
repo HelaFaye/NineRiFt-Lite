@@ -36,7 +36,7 @@ version = 0.7
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = libffi,python3,kivy,android,requests,openssl,kivymd,able, pyjnius, pyserial, usb4a, usbserial4a
+requirements = libffi, python3, kivy, android, requests, openssl, kivymd, able, pyjnius, pyserial, usb4a, usbserial4a
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -128,10 +128,7 @@ android.accept_sdk_license = True
 #android.entrypoint = org.renpy.android.PythonActivity
 
 # (list) Pattern to whitelist for the whole project
-#android.whitelist =
-
-# (list) python-for-android whitelist
-android.p4a_whitelist = lib-dynload/termios.so
+android.whitelist = lib-dynload/termios.so
 
 # (str) Path to a custom whitelist file
 #android.whitelist_src =
@@ -220,8 +217,6 @@ p4a.local_recipes = ./.android/able/recipes
 
 # (int) port number to specify an explicit --port= p4a argument (eg for bootstrap flask)
 #p4a.port =
-
-android.whitelist = lib-dynload/termios.so
 
 
 #
