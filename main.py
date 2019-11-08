@@ -20,7 +20,8 @@ except:
 from fwupd import FWUpd
 from fwget import FWGet
 
-thread = Thread()
+thread0 = Thread()
+thread1 = Thread()
 
 class NineRiFt(App):
 
@@ -65,14 +66,21 @@ class NineRiFt(App):
         self.fwget.setModel(mod)
         self.fwget.setRepo("https://files.scooterhacking.org/" + self.model + "/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
-
+        try:
+            toast("Firmware repo loaded")
+        except:
+            print("Firmware repo loaded")
 
 # threaded firmware downloading function
     def fwget_func(self, dev, ver):
-        global thread
-        if thread.isAlive() == False:
-            thread = Thread(target=self.fwget.Gimme, args=(dev, ver))
-            thread.start()
+        global thread1
+        if thread1.isAlive() == False:
+            thread1 = Thread(target=self.fwget.Gimme, args=(dev, ver))
+            thread1.start()
+            try:
+                toast("Firmware download started")
+            except:
+                print("Firmware download started")
         else:
             try:
                 toast("download already in progress!")
@@ -82,10 +90,10 @@ class NineRiFt(App):
 
 # threaded firmware flashing function
     def fwupd_func(self, sel):
-        global thread
-        if thread.isAlive() == False:
-            thread = Thread(target=self.fwupd.Flash, args=(sel,))
-            thread.start()
+        global thread0
+        if thread0.isAlive() == False:
+            thread0 = Thread(target=self.fwupd.Flash, args=(sel,))
+            thread0.start()
             try:
                 toast("Firmware update started")
             except:
@@ -115,6 +123,7 @@ class NineRiFt(App):
                 dev = self.fwget.DRV
             for i in dev:
                 fwget_verselspin.values.append(str(i))
+            print('FWGet Vers. available: '+str(fwget_verselspin.values))
             return fwget_verselspin.values
 
 
@@ -132,14 +141,14 @@ class NineRiFt(App):
                 else:
                     sf = ['*.bin']
                     selfile.filters = sf+check
-            elif self.model is 'm365pro':
+            if self.model is 'm365pro':
                 if dev is 'DRV':
                     sf = ['*.bin.enc']
                     selfile.filters = sf+check
                 else:
                     sf = ['*.bin']
                     selfile.filters = sf+check
-            else:
+            if self.model is 'esx':
                 sf = ['*.bin.enc']
                 selfile.filters = sf+check
             print('selfile_filter set to %s' % selfile.filters)
@@ -163,7 +172,7 @@ class NineRiFt(App):
                 self.versel = False
                 if mod is 'esx':
                     self.hasextbms = True
-                    selfile_filter(flash_verselspin.text, self.part)
+                    selfile_filter(None, self.part)
             if self.hasextbms is True:
                 try:
                     devselspin.values.append('ExtBMS')
@@ -177,6 +186,7 @@ class NineRiFt(App):
             if self.versel is True:
                 flashtopbtnlayout.add_widget(flash_verselspin)
             self.model = mod
+            self.fwget_reload(mod)
             selfile_filter(flash_verselspin.text, self.part)
             flashtopbtnlayout.do_layout()
 
@@ -186,6 +196,7 @@ class NineRiFt(App):
             self.part = dev
             self.fwupd.setdev(self.part)
             selfile_filter(flash_verselspin.text, self.part)
+            flashtopbtnlayout.do_layout()
 
 
 # define screens
