@@ -1,7 +1,7 @@
 import os
 from threading import Thread
 from kivy.app import App
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
@@ -44,6 +44,7 @@ class NineRiFt(App):
     def update_flash_progress(self, var):
         self.flashprog = self.fwupd.getprog()
         self.flashmaxprog = self.fwupd.getmaxprog()
+        print('progress bar updated to max %s and value %s' % self.flashmaxprog, self.flashprog)
         if var is 'prog':
             return self.flashprog
         if var is 'max':
@@ -126,8 +127,7 @@ class NineRiFt(App):
             else:
                 sf = ['*.bin.enc']
                 selfile.filters = sf+check
-            flashmidlayout.remove_widget(selfile)
-            flashmidlayout.add_widget(selfile)
+            return selfile.filters
             flashmidlayout.do_layout()
 
 
@@ -203,6 +203,7 @@ class NineRiFt(App):
         flashpb.bind(max=lambda x: update_flash_progress('max'))
         flashpb.bind(value=lambda x: update_flash_progress('prog'))
         selfile = FileChooserListView(path=self.cache_folder)
+        selfile.bind(filters=lambda x,y: selfile_filter(flash_verselspin.text, self.part))
 
 
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
