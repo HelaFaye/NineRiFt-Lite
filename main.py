@@ -19,7 +19,7 @@ except:
     print('no toast for you')
 from fwupd import FWUpd
 from fwget import FWGet
-import nbcmd
+from nbcmd import Command, Connection
 
 thread0 = Thread()
 thread1 = Thread()
@@ -41,7 +41,7 @@ class NineRiFt(App):
         self.cache_folder = os.path.join(self.root_folder, 'cache')
         self.fwget = FWGet(self.cache_folder)
         self.fwupd = FWUpd()
-        self.cm = nbcmd.Command()
+        self.cm = Command()
         self.versel = False
         self.hasextbms = False
         self.command = None
