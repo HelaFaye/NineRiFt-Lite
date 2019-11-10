@@ -44,6 +44,7 @@ class NineRiFt(App):
         self.cmd = Command()
         self.versel = False
         self.hasextbms = False
+        self.command = None
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
@@ -245,17 +246,23 @@ class NineRiFt(App):
         cmd_seladdr_input = TextInput(multiline=False, text='',
         height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
         cmd_seladdr_input.bind(on_text_validate=lambda x: self.cmd.setaddr(cmd_seladdr_input.text))
-        cmd_protoselspin = Spinner(text='Model', values=('xiaomi','ninebot'),
+        cmd_protoselspin = Spinner(text='protocol', values=('xiaomi','ninebot'),
                                font_size='12sp',height='14sp', sync_height=True)
         cmd_protoselspin.bind(text=lambda x, y: self.cmd.setproto(cmd_protoselspin.text))
-        cmd_ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE'),
+        cmd_ifaceselspin = Spinner(text='interface', values=('TCP', 'Serial', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
         cmd_ifaceselspin.bind(text=lambda x, y: self.cmd.setproto(cmd_protoselspin.text))
-        cmd_output = Label(text="")
+        cmd_cmdselspin = Spinner(text='cmd', values=('lock','unlock','dump','sniff',
+                                    'powerdown', 'reboot', 'print_reg', 'bms_info',
+                                     'info', 'changesn'), font_size='12sp',height='14sp',
+                                      sync_height=True)
+        cmd_arglabel = Label(text="")
+        cmd_argument = TextInput(multiline=False, text='',
+        height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
         cmd_execute_btn = Button(text="Execute", font_size='12sp', height='14sp',
-                                       on_press=lambda x: self.cmd_run())
+                                       on_press=lambda x: cmd_run(cmd_cmdselspin.text))
 # piece together flash screen contents
-        flashtoplayout = GridLayout(rows=2, size_hint_y=.2)
+        flashtoplayout = GridLayout(rows=2, size_hint_y=.25)
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         flashaddrlayout.add_widget(seladdr_label)
         flashaddrlayout.add_widget(seladdr_input)
@@ -266,14 +273,14 @@ class NineRiFt(App):
         flashtopbtnlayout.add_widget(lockselspin)
         flashtoplayout.add_widget(flashaddrlayout)
         flashtoplayout.add_widget(flashtopbtnlayout)
-        flashmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
+        flashmidlayout = BoxLayout(orientation='vertical', size_hint_y=.65)
         flashmidlabelbox = AnchorLayout(anchor_y='top', size_hint_y=.1)
         flashmidlabelbox.add_widget(selfile_label)
         flashmidlayout.add_widget(flashmidlabelbox)
         flashmidlayout.add_widget(selfile)
 # run file filter function to hide md5 files
         selfile_filter(None, None, None)
-        flashbotlayout = GridLayout(rows=2, size_hint_y=.15)
+        flashbotlayout = GridLayout(rows=2, size_hint_y=.10)
         flashbotlayout.add_widget(flash_button)
         flashbotlayout.add_widget(flashpb)
         flashlayout = GridLayout(cols=1, rows=3)
@@ -286,14 +293,14 @@ class NineRiFt(App):
                                   on_press=lambda x: switch_screen('Flash'))
 
 # piece together download screen contents
-        fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
+        fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.25)
         fwget_topbtnlayout = GridLayout(cols=3)
         fwget_topbtnlayout.add_widget(fwget_modelselspin)
         fwget_topbtnlayout.add_widget(fwget_devselspin)
         fwget_topbtnlayout.add_widget(fwget_verselspin)
         fwget_toplayout.add_widget(fwget_topbtnlayout)
-        fwget_midlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
-        fwget_botlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
+        fwget_midlayout = BoxLayout(orientation='vertical', size_hint_y=.65)
+        fwget_botlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.10)
         fwget_botlayout.add_widget(fwget_download_button)
         downloadlayout = GridLayout(cols=1, rows=3)
         downloadlayout.add_widget(fwget_toplayout)
@@ -308,14 +315,19 @@ class NineRiFt(App):
         cmdaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         cmdaddrlayout.add_widget(cmd_seladdr_label)
         cmdaddrlayout.add_widget(cmd_seladdr_input)
-        cmdtopbtnlayout = GridLayout(cols=3, size_hint_y=.7)
+        cmdtopbtnlayout = GridLayout(cols=2, size_hint_y=.7)
         cmdtopbtnlayout.add_widget(cmd_protoselspin)
         cmdtopbtnlayout.add_widget(cmd_ifaceselspin)
-        cmdtoplayout = GridLayout(rows=2, size_hint_y=.2)
+        cmdtoplayout = GridLayout(rows=3, size_hint_y=.25)
         cmdtoplayout.add_widget(cmdaddrlayout)
         cmdtoplayout.add_widget(cmdtopbtnlayout)
-        cmdmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
-        cmdbotlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
+        cmdsellayout = BoxLayout(orientation='vertical', size_hint_y=.2)
+        cmdsellayout.add_widget(cmd_cmdselspin)
+
+        cmdmidlayout = BoxLayout(orientation='vertical', size_hint_y=.65)
+        cmdmidlayout.add_widget(cmdsellayout)
+        cmdmidlayout.add_widget(cmd_arglabel)
+        cmdbotlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.10)
         cmdbotlayout.add_widget(cmd_execute_btn)
         commandlayout = GridLayout(cols=1, rows=3)
         commandlayout.add_widget(cmdtoplayout)
