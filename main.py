@@ -40,12 +40,8 @@ class NineRiFt(App):
         self.cache_folder = os.path.join(self.root_folder, 'cache')
         self.fwget = FWGet(self.cache_folder)
         self.fwupd = FWUpd()
-        self.model = 'esx'
         self.versel = False
         self.hasextbms = False
-        self.flashprog = 0
-        self.flashmaxprog = 100
-        self.part = ''
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
@@ -53,20 +49,17 @@ class NineRiFt(App):
 
 # hopefully update the progress bar
     def update_flash_progress(self, var):
-        self.flashprog = self.fwupd.getprog()
-        self.flashmaxprog = self.fwupd.getmaxprog()
         if var is 'prog':
-            return self.flashprog
+            return self.fwupd.getprog()
         if var is 'max':
-            return self.flashmaxprog
+            return self.fwupd.getmaxprog()
 
 
 # load firmware repo
     def fwget_load(self, mod):
         tprint("loading Firmware repo")
-        self.model = mod
         self.fwget.setModel(mod)
-        self.fwget.setRepo("https://files.scooterhacking.org/" + self.model + "/fw/repo.json")
+        self.fwget.setRepo("https://files.scooterhacking.org/" + mod + "/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
         tprint("Firmware repo loaded")
 
@@ -118,9 +111,9 @@ class NineRiFt(App):
 
 
 # flash screen file filters for hiding md5 and showing encoded or not based on model and version of DRV
-        def selfile_filter(vers, dev):
+        def selfile_filter(mod, vers, dev):
             check = ['!.md5']
-            if self.model is 'm365':
+            if mod is 'm365':
                 if dev is 'DRV':
                     if vers=='>=141':
                         sf = ['*.bin.enc']
@@ -131,14 +124,14 @@ class NineRiFt(App):
                 else:
                     sf = ['*.bin']
                     selfile.filters = sf+check
-            if self.model is 'm365pro':
+            if mod is 'm365pro':
                 if dev is 'DRV':
                     sf = ['*.bin.enc']
                     selfile.filters = sf+check
                 else:
                     sf = ['*.bin']
                     selfile.filters = sf+check
-            if self.model is 'esx':
+            if mod is 'esx':
                 sf = ['*.bin.enc']
                 selfile.filters = sf+check
             tprint('selfile_filter set to %s' % selfile.filters)
@@ -157,35 +150,31 @@ class NineRiFt(App):
                     self.versel = True
                 elif mod is 'm365pro':
                     self.versel = False
-            else:
+                selfile_filter(mod, flash_verselspin.text, devselspin.text)
+            if mod is 'esx':
                 self.fwupd.setproto('ninebot')
                 self.versel = False
-                if mod is 'esx':
-                    self.hasextbms = True
-                    selfile_filter(None, self.part)
+                self.hasextbms = True
+                selfile_filter(mod, None, devselspin.text)
             if self.hasextbms is True:
                 try:
                     devselspin.values.append('ExtBMS')
                 except:
-                    tprint('ExtBMS entry already present')
+                    print('ExtBMS entry already present')
             if self.hasextbms is False:
                 try:
                     devselspin.values.remove('ExtBMS')
                 except:
-                    tprint('no ExtBMS entry to remove')
+                    print('no ExtBMS entry to remove')
             if self.versel is True:
                 flashtopbtnlayout.add_widget(flash_verselspin)
-            self.model = mod
-            self.fwget_load(mod)
-            selfile_filter(flash_verselspin.text, self.part)
             flashtopbtnlayout.do_layout()
 
 
 # device (DRV,BMS, etc.) selection function
         def setdevice(dev):
-            self.part = dev
-            self.fwupd.setdev(self.part)
-            selfile_filter(flash_verselspin.text, self.part)
+            self.fwupd.setdev(dev)
+            selfile_filter(flash_modelselspin.text, flash_verselspin.text, dev)
             flashtopbtnlayout.do_layout()
 
 
@@ -219,7 +208,7 @@ class NineRiFt(App):
         flash_modelselspin.bind(text=lambda x, y: modsel_func(flash_modelselspin.text))
         flash_verselspin = Spinner(text='Version', values=('<141', '>=141'),
                                     sync_height=True, font_size = '12sp', height = '14sp')
-        flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_verselspin.text, self.part))
+        flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_modelselspin.text, flash_verselspin.text, devselspin.text))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
         flashpb.bind(max=lambda x: update_flash_progress('max'))
@@ -240,7 +229,7 @@ class NineRiFt(App):
                                    font_size='12sp', height='14sp', values=[], text_autoupdate=True)
 
 
-        self.fwget_load(self.model)
+        self.fwget_load('esx')
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
                                        on_press=lambda x: self.fwget_func(fwget_devselspin.text, fwget_verselspin.text))
@@ -266,7 +255,7 @@ class NineRiFt(App):
         flashmidlayout.add_widget(flashmidlabelbox)
         flashmidlayout.add_widget(selfile)
 # run file filter function to hide md5 files
-        selfile_filter(None, None)
+        selfile_filter(None, None, None)
         flashbotlayout = GridLayout(rows=2, size_hint_y=.15)
         flashbotlayout.add_widget(flash_button)
         flashbotlayout.add_widget(flashpb)

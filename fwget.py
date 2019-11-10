@@ -56,7 +56,7 @@ class FWGet():
         noInternet = False
         if not os.path.exists(self.cachePath + "/" + self.dirname + "/"):
             os.makedirs(self.cachePath + "/" + self.dirname + "/")
-            tprint("Created repo cache directory")
+            print("Created repo cache directory")
         try:
             r = requests.head(self.repoURL)
             if (r.status_code != 200):
@@ -90,25 +90,25 @@ class FWGet():
                     checksum = md5cached.read()
                     match = self.md5Checksum(completePath, None) == checksum
         if (isFilePresent and match):
-            tprint(filename + ' was cached; moving on')
+            print(filename + ' was cached; moving on')
             return(True, completePath)
         else:
             url = self.repoURL + FWtype.lower() + "/" + filename
             try:
-                tprint('download started')
+                print('download started')
                 r = requests.head(url)
                 if (r.status_code == 404):
                     tprint("Failed to fetch " + filename + " (Error 404 file not found)")
                     return(False, completePath)
-                tprint('Beginning file download; writing to ' + completePath)
+                print('Beginning file download; writing to ' + completePath)
                 url = self.repoURL + FWtype.lower() + "/" + filename
-                tprint("URL: " + url)
+                print("URL: " + url)
                 r = requests.get(url)
                 with open(completePath, 'wb') as f:
                     f.write(r.content)
                 if (r.status_code == 200):
-                    tprint(filename + " downloaded successfully.")
-                    tprint('download finished')
+                    print(filename + " downloaded successfully.")
+                    print('download finished')
                     return(True, completePath)
                 else:
                     tprint("Server couldn't respond to download request. Local files aren't available. Aborting.")
@@ -136,7 +136,7 @@ class FWGet():
                     f.write(r.content)
                 with open(self.cachePath + hashedName + ".json") as f:
                     d = eval(f.read())
-                    tprint("Fetched repo JSON.")
+                    print("Fetched repo JSON.")
             except requests.ConnectionError:
                 tprint("Failed to grab JSON! (requests.ConnectionError)")
                 return(False)
@@ -144,7 +144,7 @@ class FWGet():
         elif os.path.isfile(self.cachePath + hashedName + ".json"):
             with open(self.cachePath + hashedName + ".json") as f:
                 d = eval(f.read())
-            tprint("Fetched cached repo JSON.")
+            print("Fetched cached repo JSON.")
         else:
             tprint("Couldn't download file and couldn't load from cache. Aborting.")
             return(False)
@@ -154,7 +154,7 @@ class FWGet():
         self.DRV = d["repo"]["files"]["DRV"]
         self.BMS = d["repo"]["files"]["BMS"]
         self.BLE = d["repo"]["files"]["BLE"]
-        tprint("Loaded the repo \"" + name+ "\" hosted at " +  self.repoURL + ". DRV:"
+        print("Loaded the repo \"" + name+ "\" hosted at " +  self.repoURL + ". DRV:"
          + str(self.DRV) + " BMS:" + str(self.BMS) + " BLE:" + str(self.BLE))
         return(True, self.dirname, self.repoURL, name, self.DRV, self.BMS, self.BLE)
 

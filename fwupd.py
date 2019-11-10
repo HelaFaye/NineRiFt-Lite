@@ -87,8 +87,7 @@ class FWUpd(object):
 
 
         for retry in range(self.PING_RETRIES):
-            tprint('Pinging...', end='')
-            tprint(".", end="")
+            tprint('Pinging...')
             try:
                 if dev == BT.BLE:
                     tran.execute(ReadRegs(dev, 0, "13s"))
@@ -184,7 +183,7 @@ class FWUpd(object):
                         addr = ports[0][1]
                         tprint (addr)
                 except:
-                    tprint('Open failed! (LinkOpenException)', end='')
+                    tprint('Open failed! (LinkOpenException)')
                     return
             try:
                 if self.interface=='ble' and platform != 'android':
@@ -194,11 +193,11 @@ class FWUpd(object):
                 else:
                     link.open(addr)
             except:
-                tprint('Open failed! (LinkOpenException)', end='')
+                tprint('Open failed! (LinkOpenException)')
                 return
             tprint('Connected')
             try:
                 self.UpdateFirmware(link, tran, dev, file)
             except Exception as e:
-                tprint('Error:', e)
+                print('Error:', e)
                 raise
