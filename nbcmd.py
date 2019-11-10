@@ -32,6 +32,7 @@ class Connection:
                 from py9b.link.bleak import BLELink
             elif platform == 'android':
                 from py9b.link.droidble import BLELink
+            link = BLELink()
         elif self.link == 'tcp':
             from py9b.link.tcp import TCPLink
             link = TCPLink()
@@ -42,13 +43,14 @@ class Connection:
         link.__enter__()
 
         if not self.address:
-            ports = link.scan()
-            if not ports:
-                raise Exception('No devices found')
-            self.address = ports[0]
-
-        link.open(self.address)
-
+            if platform!='android':
+                ports = link.scan()
+                if not ports:
+                    raise Exception('No devices found')
+                self.address = ports[0]
+                link.open(self.address)
+            elif platform=='android':
+                link.open()
         transport = None
         if self.transport == 'ninebot':
             from py9b.transport.ninebot import NinebotTransport
@@ -100,8 +102,17 @@ class Command:
         self.new_sn = p.lower()
         tprint(self.new_sn+' selected as protocol')
 
+    def open(self):
+        if self.c is None:
+            self.c = Connection(self.transport, self.link, self.address)
+        else:
+            tprint('device connection already established')
+
+    def close(self):
+        self.c = None
+        tprint('device connection closed')
+
     def dump(self, device):
-        self.c = Connection(self.transport, self.link, self.address)
         dev = {
             'esc': BT.ESC,
             'ble': BT.BLE,
@@ -116,7 +127,6 @@ class Command:
                     tprint('0x%02x: %s' % (offset, exc))
 
     def sniff(self):
-        self.c = Connection(self.transport, self.link, self.address)
         with self.c as tran:
             while True:
                 try:
@@ -127,25 +137,21 @@ class Command:
                     tprint(exc)
 
     def powerdown(self):
-        self.c = Connection(self.transport, self.link, self.address)
         with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
             tprint('Done')
 
     def lock(self):
-        self.c = Connection(self.transport, self.link, self.address)
         with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
             tprint('Done')
 
     def unlock(self):
-        self.c = Connection(self.transport, self.link, self.address)
         with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
             tprint('Done')
 
     def reboot(self):
-        self.c = Connection(self.transport, self.link, self.address)
         with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
             tprint('Done')
@@ -168,7 +174,6 @@ class Command:
         tprint('BMS voltage:     %.2fV' % (tran.execute(ReadRegs(dev, 0x34, "<h"))[0] / 100.0,))
 
     def info(self):
-        self.c = Connection(self.transport, self.link, self.address)
         with self.c as tran:
             tprint('ESC S/N:       %s' % tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode())
             tprint('ESC PIN:       %s' % tran.execute(ReadRegs(BT.ESC, 0x17, "6s"))[0].decode())
@@ -200,7 +205,6 @@ class Command:
                 tprint('No external BMS found', repr(exc))
 
     def changesn(self, new_sn):
-        self.c = Connection(self.transport, self.link, self.address)
         from py9b.command.mfg import WriteSN, CalcSNAuth
 
         with self.c as tran:

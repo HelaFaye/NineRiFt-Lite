@@ -19,7 +19,7 @@ except:
     print('no toast for you')
 from fwupd import FWUpd
 from fwget import FWGet
-from nbcmd import Command
+import nbcmd
 
 thread0 = Thread()
 thread1 = Thread()
@@ -41,10 +41,12 @@ class NineRiFt(App):
         self.cache_folder = os.path.join(self.root_folder, 'cache')
         self.fwget = FWGet(self.cache_folder)
         self.fwupd = FWUpd()
-        self.cmd = Command()
+        self.cm = nbcmd.Command()
         self.versel = False
         self.hasextbms = False
         self.command = None
+        self.cmdarg = None
+        self.connected = False
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
@@ -89,6 +91,12 @@ class NineRiFt(App):
         else:
             tprint("Firmware update already in progress!")
 
+    def cmd_connection_toggle(self):
+        tprint(self.connected)
+        if self.connected is False:
+            self.cm.open()
+        else:
+            self.cm.close()
 
 # define build for Kivy UI
     def build(self):
@@ -113,8 +121,32 @@ class NineRiFt(App):
             tprint('FWGet Vers. available: '+str(fwget_verselspin.values))
             return fwget_verselspin.values
 # cmd function that executes known commands
-        def cmd_run(cmd):
-            print(cmd)
+        def cmd_sel_func(cmd):
+            self.command = cmd
+            if cmd is 'changesn':
+                tprint(cmd)
+            if cmd is 'lock':
+                tprint(cmd)
+            if cmd is 'unlock':
+                tprint(cmd)
+            if cmd is 'dump':
+                tprint(cmd)
+            if cmd is 'sniff':
+                tprint(cmd)
+            if cmd is 'powerdown':
+                tprint(cmd)
+            if cmd is 'reboot':
+                tprint(cmd)
+            if cmd is 'info':
+                tprint(cmd)
+
+        def cmd_arg_func(carg):
+            self.cmdarg = carg
+            tprint(carg)
+
+        def cmd_run(cmd, carg):
+            tprint(str(cmd)+''+str(carg))
+
 # flash screen file filters for hiding md5 and showing encoded or not based on model and version of DRV
         def selfile_filter(mod, vers, dev):
             check = ['!.md5']
@@ -139,7 +171,7 @@ class NineRiFt(App):
             if mod is 'esx':
                 sf = ['*.bin.enc']
                 selfile.filters = sf+check
-            tprint('selfile_filter set to %s' % selfile.filters)
+            print('selfile_filter set to %s' % selfile.filters)
             return selfile.filters
             flashmidlayout.do_layout()
 
@@ -245,22 +277,25 @@ class NineRiFt(App):
          size_hint_y=1, size_hint_x=.08)
         cmd_seladdr_input = TextInput(multiline=False, text='',
         height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
-        cmd_seladdr_input.bind(on_text_validate=lambda x: self.cmd.setaddr(cmd_seladdr_input.text))
+        cmd_seladdr_input.bind(on_text_validate=lambda x: self.cm.setaddr(cmd_seladdr_input.text))
         cmd_protoselspin = Spinner(text='protocol', values=('xiaomi','ninebot'),
                                font_size='12sp',height='14sp', sync_height=True)
-        cmd_protoselspin.bind(text=lambda x, y: self.cmd.setproto(cmd_protoselspin.text))
+        cmd_protoselspin.bind(text=lambda x, y: self.cm.setproto(cmd_protoselspin.text))
         cmd_ifaceselspin = Spinner(text='interface', values=('TCP', 'Serial', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
-        cmd_ifaceselspin.bind(text=lambda x, y: self.cmd.setproto(cmd_protoselspin.text))
+        cmd_ifaceselspin.bind(text=lambda x, y: self.cm.setproto(cmd_protoselspin.text))
         cmd_cmdselspin = Spinner(text='cmd', values=('lock','unlock','dump','sniff',
-                                    'powerdown', 'reboot', 'print_reg', 'bms_info',
-                                     'info', 'changesn'), font_size='12sp',height='14sp',
-                                      sync_height=True)
-        cmd_arglabel = Label(text="")
-        cmd_argument = TextInput(multiline=False, text='',
-        height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
+                                    'powerdown', 'reboot', 'info', 'changesn'),
+                                    font_size='12sp',height='14sp', sync_height=True)
+        cmd_cmdselspin.bind(text=lambda x, y: cmd_sel_func(cmd_cmdselspin.text))
+        cmd_arglabel = Label(text="Argument:")
+        cmd_argument = TextInput(multiline=False, text='', height='15sp', font_size='12sp', size_hint_y=1)
+        cmd_argument.bind(on_text_validate=lambda x: cmd_arg_func(cmd_argument.text))
+        cmd_connect_btn = Button(text="Connect", font_size='12sp', height='14sp',
+                                       on_press=lambda x: self.cmd_connection_toggle())
+        cmd_output = Label(text="")
         cmd_execute_btn = Button(text="Execute", font_size='12sp', height='14sp',
-                                       on_press=lambda x: cmd_run(cmd_cmdselspin.text))
+                                       on_press=lambda x: cmd_run(self.command, self.cmdarg))
 # piece together flash screen contents
         flashtoplayout = GridLayout(rows=2, size_hint_y=.25)
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
@@ -315,18 +350,20 @@ class NineRiFt(App):
         cmdaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
         cmdaddrlayout.add_widget(cmd_seladdr_label)
         cmdaddrlayout.add_widget(cmd_seladdr_input)
-        cmdtopbtnlayout = GridLayout(cols=2, size_hint_y=.7)
+        cmdtopbtnlayout = GridLayout(cols=3, size_hint_y=.7)
         cmdtopbtnlayout.add_widget(cmd_protoselspin)
         cmdtopbtnlayout.add_widget(cmd_ifaceselspin)
+        cmdtopbtnlayout.add_widget(cmd_connect_btn)
         cmdtoplayout = GridLayout(rows=3, size_hint_y=.25)
         cmdtoplayout.add_widget(cmdaddrlayout)
         cmdtoplayout.add_widget(cmdtopbtnlayout)
-        cmdsellayout = BoxLayout(orientation='vertical', size_hint_y=.2)
+        cmdsellayout = BoxLayout(orientation='vertical', size_hint_y=.5)
         cmdsellayout.add_widget(cmd_cmdselspin)
-
+        cmdsellayout.add_widget(cmd_arglabel)
+        cmdsellayout.add_widget(cmd_argument)
         cmdmidlayout = BoxLayout(orientation='vertical', size_hint_y=.65)
         cmdmidlayout.add_widget(cmdsellayout)
-        cmdmidlayout.add_widget(cmd_arglabel)
+        cmdmidlayout.add_widget(cmd_output)
         cmdbotlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.10)
         cmdbotlayout.add_widget(cmd_execute_btn)
         commandlayout = GridLayout(cols=1, rows=3)
