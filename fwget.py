@@ -6,6 +6,13 @@ try:
 except:
     print('no toast for you')
 
+# toast or print
+def tprint(msg):
+    try:
+        toast(msg)
+    except:
+        print(msg)
+
 class FWGet():
     def __init__(self, cache):
         self.cachePath = cache
@@ -13,7 +20,7 @@ class FWGet():
         self.dirname = "null"
         if not os.path.exists(self.cachePath):
             os.makedirs(self.cachePath)
-            print("Created NineRiFt cache directory")
+            tprint("Created NineRiFt cache directory")
         self.progress = 0
         self.maxprogress = 100
         self.model = 'esx'
@@ -44,19 +51,19 @@ class FWGet():
 
     def getFile(self, FWtype, version):
         if (self.repoURL == "http://null" or self.dirname == "null"):
-            print("You need to load a valid repo first.")
+            tprint("You need to load a valid repo first.")
             return(False)
         noInternet = False
         if not os.path.exists(self.cachePath + "/" + self.dirname + "/"):
             os.makedirs(self.cachePath + "/" + self.dirname + "/")
-            print("Created repo cache directory")
+            tprint("Created repo cache directory")
         try:
             r = requests.head(self.repoURL)
             if (r.status_code != 200):
                 noInternet = True
-                print("Failed to connect to the repo, using local files if available (Server response not 200)")
+                tprint("Failed to connect to the repo, using local files if available (Server response not 200)")
         except requests.ConnectionError:
-            print("Failed to connect to the repo, using local files if available (requests.ConnectionError)")
+            tprint("Failed to connect to the repo, using local files if available (requests.ConnectionError)")
             noInternet = True
         if self.model.startswith('m365'):
             if FWtype is 'DRV' and self.getboth is False:
@@ -83,37 +90,31 @@ class FWGet():
                     checksum = md5cached.read()
                     match = self.md5Checksum(completePath, None) == checksum
         if (isFilePresent and match):
-            print(filename + ' was cached; moving on')
+            tprint(filename + ' was cached; moving on')
             return(True, completePath)
         else:
             url = self.repoURL + FWtype.lower() + "/" + filename
             try:
-                try:
-                    toast('download started')
-                except:
-                    print('download started')
+                tprint('download started')
                 r = requests.head(url)
                 if (r.status_code == 404):
-                    print("Failed to fetch " + filename + " (Error 404 file not found)")
+                    tprint("Failed to fetch " + filename + " (Error 404 file not found)")
                     return(False, completePath)
-                print('Beginning file download; writing to ' + completePath)
+                tprint('Beginning file download; writing to ' + completePath)
                 url = self.repoURL + FWtype.lower() + "/" + filename
-                print("URL: " + url)
+                tprint("URL: " + url)
                 r = requests.get(url)
                 with open(completePath, 'wb') as f:
                     f.write(r.content)
                 if (r.status_code == 200):
-                    print(filename + " downloaded successfully.")
-                    try:
-                        toast('download finished')
-                    except:
-                        print('download finished')
+                    tprint(filename + " downloaded successfully.")
+                    tprint('download finished')
                     return(True, completePath)
                 else:
-                    print("Server couldn't respond to download request. Local files aren't available. Aborting.")
+                    tprint("Server couldn't respond to download request. Local files aren't available. Aborting.")
                     return(False, completePath)
             except requests.ConnectionError:
-                print("Connection error. Local files aren't available. Aborting.")
+                tprint("Connection error. Local files aren't available. Aborting.")
                 return(False, completePath)
 
     def loadRepo(self, jsonURL):
@@ -124,9 +125,9 @@ class FWGet():
             r = requests.head(jsonURL)
             if (r.status_code != 200):
                 noInternet = True
-                print("Failed to fetch JSON! Will use cached if available. (Server response not 200)")
+                tprint("Failed to fetch JSON! Will use cached if available. (Server response not 200)")
         except requests.ConnectionError:
-            print("Failed to fetch JSON! Will use cached if available. (requests.ConnectionError)")
+            tprint("Failed to fetch JSON! Will use cached if available. (requests.ConnectionError)")
             noInternet = True
         if noInternet == False:
             try:
@@ -135,17 +136,17 @@ class FWGet():
                     f.write(r.content)
                 with open(self.cachePath + hashedName + ".json") as f:
                     d = eval(f.read())
-                    print("Fetched repo JSON.")
+                    tprint("Fetched repo JSON.")
             except requests.ConnectionError:
-                print("Failed to grab JSON! (requests.ConnectionError)")
+                tprint("Failed to grab JSON! (requests.ConnectionError)")
                 return(False)
 
         elif os.path.isfile(self.cachePath + hashedName + ".json"):
             with open(self.cachePath + hashedName + ".json") as f:
                 d = eval(f.read())
-            print("Fetched cached repo JSON.")
+            tprint("Fetched cached repo JSON.")
         else:
-            print("Couldn't download file and couldn't load from cache. Aborting.")
+            tprint("Couldn't download file and couldn't load from cache. Aborting.")
             return(False)
         self.dirname = str(d["repo"]["infos"]["dirname"])
         self.repoURL = str(d["repo"]["infos"]["files_URL"])
@@ -153,18 +154,12 @@ class FWGet():
         self.DRV = d["repo"]["files"]["DRV"]
         self.BMS = d["repo"]["files"]["BMS"]
         self.BLE = d["repo"]["files"]["BLE"]
-        print("Loaded the repo \"" + name+ "\" hosted at " +  self.repoURL + ". DRV:"
+        tprint("Loaded the repo \"" + name+ "\" hosted at " +  self.repoURL + ". DRV:"
          + str(self.DRV) + " BMS:" + str(self.BMS) + " BLE:" + str(self.BLE))
         return(True, self.dirname, self.repoURL, name, self.DRV, self.BMS, self.BLE)
 
     def Gimme(self, firm, ver):
-        try:
-            toast('download started')
-        except:
-            print('download started')
+        tprint('download started')
         self.getFile(firm,ver)
         self.getFile(firm, ver)
-        try:
-            toast('download finished')
-        except:
-            print('download finished')
+        tprint('download finished')

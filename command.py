@@ -6,7 +6,17 @@ from py9b.command.regio import ReadRegs, WriteRegs
 try:
     from kivymd.toast import toast
 except:
-    print('no toast for you')
+    tprint('no toast for you')
+
+
+# toast or print
+def tprint(msg):
+    try:
+        toast(msg)
+    except:
+        print(msg)
+
+
 
 class Connection:
     def __init__(self, transport, link, address):
@@ -47,7 +57,7 @@ class Connection:
             if transport.execute(ReadRegs(BT.ESC, 0x68, "<H"))[0] > 0x081 and self.link.startswith('ble'):
                 transport.keys = link.fetch_keys()
                 transport.recover_keys()
-                print('Keys recovered')
+                tprint('Keys recovered')
 
         self._transport = transport
         self._link = link
@@ -78,114 +88,114 @@ class Command:
         with ctx.obj as tran:
             for offset in range(256):
                 try:
-                    print('0x%02x: %04x' % (offset, tran.execute(ReadRegs(dev, offset, "<H"))[0]))
+                    tprint('0x%02x: %04x' % (offset, tran.execute(ReadRegs(dev, offset, "<H"))[0]))
                 except Exception as exc:
-                    print('0x%02x: %s' % (offset, exc))
+                    tprint('0x%02x: %s' % (offset, exc))
 
     def sniff(ctx):
         with ctx.obj as tran:
             while True:
                 try:
-                    print(tran.recv())
+                    tprint(tran.recv())
                 except LinkTimeoutException as exc:
                     pass
                 except Exception as exc:
-                    print(exc)
+                    tprint(exc)
 
     def powerdown(ctx):
         with ctx.obj as tran:
             tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
-            print('Done')
+            tprint('Done')
 
     def lock(ctx):
         with ctx.obj as tran:
             tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
-            print('Done')
+            tprint('Done')
 
     def unlock(ctx):
         with ctx.obj as tran:
             tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
-            print('Done')
+            tprint('Done')
 
     def reboot(ctx):
         with ctx.obj as tran:
             tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
-            print('Done')
+            tprint('Done')
 
-    def print_reg(tran, desc, reg, format, dev=BT.ESC):
+    def tprint_reg(tran, desc, reg, format, dev=BT.ESC):
         try:
             data = tran.execute(ReadRegs(dev, reg, format))
-            print(desc % data)
+            tprint(desc % data)
         except Exception as exc:
-            print(desc, repr(exc))
+            tprint(desc, repr(exc))
 
     def bms_info(tran, dev):
-        print('BMS S/N:         %s' % tran.execute(ReadRegs(dev, 0x10, "14s"))[0].decode())
-        print_reg(tran, 'BMS Version:     %04x', 0x17, "<H", dev=dev)
-        print_reg(tran, 'BMS charge:      %d%%', 0x32, "<H", dev=dev)
-        print_reg(tran, 'BMS full cycles: %d', 0x1b, "<H", dev=dev)
-        print_reg(tran, 'BMS charges:     %d', 0x1c, "<H", dev=dev)
-        print_reg(tran, 'BMS health:      %d%%', 0x3b, "<H", dev=dev)
-        print('BMS current:     %.2fA' % (tran.execute(ReadRegs(dev, 0x33, "<h"))[0] / 100.0,))
-        print('BMS voltage:     %.2fV' % (tran.execute(ReadRegs(dev, 0x34, "<h"))[0] / 100.0,))
+        tprint('BMS S/N:         %s' % tran.execute(ReadRegs(dev, 0x10, "14s"))[0].decode())
+        tprint_reg(tran, 'BMS Version:     %04x', 0x17, "<H", dev=dev)
+        tprint_reg(tran, 'BMS charge:      %d%%', 0x32, "<H", dev=dev)
+        tprint_reg(tran, 'BMS full cycles: %d', 0x1b, "<H", dev=dev)
+        tprint_reg(tran, 'BMS charges:     %d', 0x1c, "<H", dev=dev)
+        tprint_reg(tran, 'BMS health:      %d%%', 0x3b, "<H", dev=dev)
+        tprint('BMS current:     %.2fA' % (tran.execute(ReadRegs(dev, 0x33, "<h"))[0] / 100.0,))
+        tprint('BMS voltage:     %.2fV' % (tran.execute(ReadRegs(dev, 0x34, "<h"))[0] / 100.0,))
 
     def info(ctx):
         with ctx.obj as tran:
-            print('ESC S/N:       %s' % tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode())
-            print('ESC PIN:       %s' % tran.execute(ReadRegs(BT.ESC, 0x17, "6s"))[0].decode())
-            print()
-            print_reg(tran, 'BLE Version:   %04x', 0x68, "<H")
-            print_reg(tran, 'ESC Version:   %04x', 0x1A, "<H")
-            print()
-            print_reg(tran, 'Error code:    %d', 0x1B, "<H")
-            print_reg(tran, 'Warning code:  %d', 0x1C, "<H")
-            print()
-            print('Total mileage: %s' % pp_distance(tran.execute(ReadRegs(BT.ESC, 0x29, "<L"))[0]))
-            print('Total runtime: %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x32, "<L"))[0]))
-            print('Total riding:  %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x34, "<L"))[0]))
-            print('Chassis temp:  %d°C' % (tran.execute(ReadRegs(BT.ESC, 0x3e, "<H"))[0] / 10.0,))
-            print()
+            tprint('ESC S/N:       %s' % tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode())
+            tprint('ESC PIN:       %s' % tran.execute(ReadRegs(BT.ESC, 0x17, "6s"))[0].decode())
+            tprint()
+            tprint_reg(tran, 'BLE Version:   %04x', 0x68, "<H")
+            tprint_reg(tran, 'ESC Version:   %04x', 0x1A, "<H")
+            tprint()
+            tprint_reg(tran, 'Error code:    %d', 0x1B, "<H")
+            tprint_reg(tran, 'Warning code:  %d', 0x1C, "<H")
+            tprint()
+            tprint('Total mileage: %s' % pp_distance(tran.execute(ReadRegs(BT.ESC, 0x29, "<L"))[0]))
+            tprint('Total runtime: %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x32, "<L"))[0]))
+            tprint('Total riding:  %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x34, "<L"))[0]))
+            tprint('Chassis temp:  %d°C' % (tran.execute(ReadRegs(BT.ESC, 0x3e, "<H"))[0] / 10.0,))
+            tprint()
 
             try:
-                print(' *** Internal BMS ***')
+                tprint(' *** Internal BMS ***')
                 bms_info(tran, BT.BMS)
             except Exception as exc:
-                print('No internal BMS found', repr(exc))
+                tprint('No internal BMS found', repr(exc))
 
-            print()
+            tprint()
 
             try:
-                print(' *** External BMS ***')
+                tprint(' *** External BMS ***')
                 bms_info(tran, BT.EXTBMS)
             except Exception as exc:
-                print('No external BMS found', repr(exc))
+                tprint('No external BMS found', repr(exc))
 
     def changesn(ctx, new_sn):
         from py9b.command.mfg import WriteSN, CalcSNAuth
 
         with ctx.obj as tran:
             old_sn = tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode()
-            print("Old S/N:", old_sn)
+            tprint("Old S/N:", old_sn)
 
             uid3 = tran.execute(ReadRegs(BT.ESC, 0xDE, "<L"))[0]
-            print("UID3: %08X" % (uid3))
+            tprint("UID3: %08X" % (uid3))
 
             auth = CalcSnAuth(old_sn, new_sn, uid3)
             # auth = 0
-            print("Auth: %08X" % (auth))
+            tprint("Auth: %08X" % (auth))
 
             try:
                 tran.execute(WriteSN(BT.ESC, new_sn.encode('utf-8'), auth))
-                print("OK")
+                tprint("OK")
             except LinkTimeoutException:
-                print("Timeout !")
+                tprint("Timeout !")
 
             # save config and restart
             tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x01))
             time.sleep(3)
 
             old_sn = tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0]
-            print("Current S/N:", old_sn)
+            tprint("Current S/N:", old_sn)
 
     def pp_distance(dist):
         if dist < 1000:

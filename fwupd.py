@@ -13,6 +13,15 @@ try:
 except:
     print('no toast for you')
 
+# toast or print
+def tprint(msg):
+    try:
+        toast(msg)
+    except:
+        print(msg)
+
+
+
 class FWUpd(object):
     def __init__(self):
         self.devices = {'ble': BT.BLE, 'drv': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
@@ -29,30 +38,30 @@ class FWUpd(object):
 
     def setaddr(self, a):
         self.address = a
-        print(self.address+' selected as address')
+        tprint(self.address+' selected as address')
 
     def setdev(self, d):
         self.device = d.lower()
-        print(self.device+' selected as device')
+        tprint(self.device+' selected as device')
 
     def setfwfilep(self, f):
         self.fwfilep = f
-        print(self.fwfilep+' selected as fwfile')
+        tprint(self.fwfilep+' selected as fwfile')
 
     def setiface(self, i):
         self.interface = i.lower()
-        print(self.interface+' selected as interface')
+        tprint(self.interface+' selected as interface')
 
     def setproto(self, p):
         self.protocol = p.lower()
-        print(self.protocol+' selected as protocol')
+        tprint(self.protocol+' selected as protocol')
 
     def setnl(self, b):
         if b=='nolock':
             self.nolock = True
         else:
             self.nolock = False
-        print('no-lock set to '+str(self.nolock))
+        tprint('no-lock set to '+str(self.nolock))
 
     def getprog(self):
         return self.progress
@@ -66,9 +75,9 @@ class FWUpd(object):
         return (s & 0xFFFFFFFF)
 
     def UpdateFirmware(self, link, tran, dev, fwfile):
-        print('update started')
+        tprint('update started')
 
-        print('flashing '+self.fwfilep+' to ' + self.device)
+        tprint('flashing '+self.fwfilep+' to ' + self.device)
         fwfile.seek(0, os.SEEK_END)
         fw_size = fwfile.tell()
         fwfile.seek(0)
@@ -78,11 +87,8 @@ class FWUpd(object):
 
 
         for retry in range(self.PING_RETRIES):
-            try:
-                toast('Pinging...')
-            except:
-                print('Pinging...', end='')
-            print(".", end="")
+            tprint('Pinging...', end='')
+            tprint(".", end="")
             try:
                 if dev == BT.BLE:
                     tran.execute(ReadRegs(dev, 0, "13s"))
@@ -92,32 +98,20 @@ class FWUpd(object):
                 continue
             break
         else:
-            try:
-                toast('TIMED OUT!')
-            except:
-                print("Timed out!")
+            tprint("Timed out!")
             return False
-        print("OK")
+        tprint("OK")
 
         if self.nolock is False:
-            try:
-                toast('Locking...')
-            except:
-                print('Locking...')
+            tprint('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
-            try:
-                toast('Not Locking...')
-            except:
-                print('Not Locking...')
+            tprint('Not Locking...')
 
-        print('Starting...')
+        tprint('Starting...')
         tran.execute(StartUpdate(dev, fw_size))
 
-        try:
-            toast('Writing...')
-        except:
-            print('Writing...')
+        tprint('Writing...')
 
         page = 0
         chk = 0
@@ -131,19 +125,13 @@ class FWUpd(object):
             page += 1
             fw_size -= chunk_sz
 
-        try:
-            toast('Finalizing...')
-        except:
-            print('Finalizing...')
+        tprint('Finalizing...')
         tran.execute(FinishUpdate(dev, chk ^ 0xFFFFFFFF))
 
-        print('Reboot')
+        tprint('Reboot')
         tran.execute(RebootUpdate(dev))
-        try:
-            toast('Done')
-        except:
-            print('Done')
-        print('update finished')
+        tprint('Done')
+        tprint('update finished')
         return True
 
     def Flash(self, fwfilep):
@@ -179,12 +167,12 @@ class FWUpd(object):
 
             if self.address:
                 addr = self.address
-                print('link address assigned')
+                tprint('link address assigned')
             else:
                 try:
                     addr = self.address
                     ports = None
-                    print('Scanning...')
+                    tprint('Scanning...')
                     if self.interface != 'tcp':
                         if self.interface != 'ble':
                             ports = link.scan()
@@ -192,31 +180,25 @@ class FWUpd(object):
                         link.scan()
                     if not self.interface=='ble' and not ports:
                         exit("No ports found !")
-                        print('Connecting to', ports[0][0])
+                        tprint('Connecting to', ports[0][0])
                         addr = ports[0][1]
-                        print (addr)
+                        tprint (addr)
                 except:
-                    try:
-                        toast('Open failed! (LinkOpenException)')
-                    except:
-                        print('Open failed! (LinkOpenException)', end='')
+                    tprint('Open failed! (LinkOpenException)', end='')
                     return
             try:
                 if self.interface=='ble' and platform != 'android':
                     devs = link.scan()
-                    print(devs)
+                    tprint(devs)
                     link.open(devs[0])
                 else:
                     link.open(addr)
             except:
-                try:
-                    toast('Open failed! (LinkOpenException)')
-                except:
-                    print('Open failed! (LinkOpenException)', end='')
+                tprint('Open failed! (LinkOpenException)', end='')
                 return
-            print('Connected')
+            tprint('Connected')
             try:
                 self.UpdateFirmware(link, tran, dev, file)
             except Exception as e:
-                print('Error:', e)
+                tprint('Error:', e)
                 raise

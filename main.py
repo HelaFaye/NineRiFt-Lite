@@ -23,6 +23,15 @@ from fwget import FWGet
 thread0 = Thread()
 thread1 = Thread()
 
+# toast or print
+def tprint(msg):
+    try:
+        toast(msg)
+    except:
+        print(msg)
+
+
+
 class NineRiFt(App):
 
 # define helper functions
@@ -42,12 +51,10 @@ class NineRiFt(App):
             os.makedirs(self.cache_folder)
 
 
-# hopefully update the progress bar on mainthread
-    @mainthread
+# hopefully update the progress bar
     def update_flash_progress(self, var):
         self.flashprog = self.fwupd.getprog()
         self.flashmaxprog = self.fwupd.getmaxprog()
-        print('progress bar updated to max %s and value %s' % self.flashmaxprog, self.flashprog)
         if var is 'prog':
             return self.flashprog
         if var is 'max':
@@ -56,30 +63,23 @@ class NineRiFt(App):
 
 # load firmware repo
     def fwget_load(self, mod):
+        tprint("loading Firmware repo")
         self.model = mod
         self.fwget.setModel(mod)
         self.fwget.setRepo("https://files.scooterhacking.org/" + self.model + "/fw/repo.json")
         self.fwget.loadRepo(self.fwget.repoURL)
-        try:
-            toast("Firmware repo loaded")
-        except:
-            print("Firmware repo loaded")
+        tprint("Firmware repo loaded")
 
 # threaded firmware downloading function
     def fwget_func(self, dev, ver):
         global thread1
         if thread1.isAlive() == False:
+            tprint("starting firmware download")
             thread1 = Thread(target=self.fwget.Gimme, args=(dev, ver))
             thread1.start()
-            try:
-                toast("Firmware download started")
-            except:
-                print("Firmware download started")
+            tprint("Firmware download started")
         else:
-            try:
-                toast("download already in progress!")
-            except:
-                print("download already in progress!")
+            tprint("download already in progress!")
 
 
 # threaded firmware flashing function
@@ -88,15 +88,9 @@ class NineRiFt(App):
         if thread0.isAlive() == False:
             thread0 = Thread(target=self.fwupd.Flash, args=(sel,))
             thread0.start()
-            try:
-                toast("Firmware update started")
-            except:
-                print("Firmware update started")
+            tprint("Firmware update started")
         else:
-            try:
-                toast("Firmware update already in progress!")
-            except:
-                print("Firmware update already in progress!")
+            tprint("Firmware update already in progress!")
 
 
 # define build for Kivy UI
@@ -119,7 +113,7 @@ class NineRiFt(App):
                 dev = self.fwget.DRV
             for i in dev:
                 fwget_verselspin.values.append(str(i))
-            print('FWGet Vers. available: '+str(fwget_verselspin.values))
+            tprint('FWGet Vers. available: '+str(fwget_verselspin.values))
             return fwget_verselspin.values
 
 
@@ -147,7 +141,7 @@ class NineRiFt(App):
             if self.model is 'esx':
                 sf = ['*.bin.enc']
                 selfile.filters = sf+check
-            print('selfile_filter set to %s' % selfile.filters)
+            tprint('selfile_filter set to %s' % selfile.filters)
             return selfile.filters
             flashmidlayout.do_layout()
 
@@ -173,12 +167,12 @@ class NineRiFt(App):
                 try:
                     devselspin.values.append('ExtBMS')
                 except:
-                    print('ExtBMS entry already present')
+                    tprint('ExtBMS entry already present')
             if self.hasextbms is False:
                 try:
                     devselspin.values.remove('ExtBMS')
                 except:
-                    print('no ExtBMS entry to remove')
+                    tprint('no ExtBMS entry to remove')
             if self.versel is True:
                 flashtopbtnlayout.add_widget(flash_verselspin)
             self.model = mod
