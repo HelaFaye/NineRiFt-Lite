@@ -75,7 +75,7 @@ class Command:
     self.new_sn = ''
     self.device = ''
 
-    def cli(self, ctx, transport, link, address):
+    def cli(ctx, transport, link, address):
         ctx.obj = Connection(transport, link, address)
 
     def dump(ctx, device):
@@ -122,7 +122,7 @@ class Command:
             tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
             tprint('Done')
 
-    def tprint_reg(tran, desc, reg, format, dev=BT.ESC):
+    def print_reg(tran, desc, reg, format, dev=BT.ESC):
         try:
             data = tran.execute(ReadRegs(dev, reg, format))
             tprint(desc % data)
@@ -131,11 +131,11 @@ class Command:
 
     def bms_info(tran, dev):
         tprint('BMS S/N:         %s' % tran.execute(ReadRegs(dev, 0x10, "14s"))[0].decode())
-        tprint_reg(tran, 'BMS Version:     %04x', 0x17, "<H", dev=dev)
-        tprint_reg(tran, 'BMS charge:      %d%%', 0x32, "<H", dev=dev)
-        tprint_reg(tran, 'BMS full cycles: %d', 0x1b, "<H", dev=dev)
-        tprint_reg(tran, 'BMS charges:     %d', 0x1c, "<H", dev=dev)
-        tprint_reg(tran, 'BMS health:      %d%%', 0x3b, "<H", dev=dev)
+        print_reg(tran, 'BMS Version:     %04x', 0x17, "<H", dev=dev)
+        print_reg(tran, 'BMS charge:      %d%%', 0x32, "<H", dev=dev)
+        print_reg(tran, 'BMS full cycles: %d', 0x1b, "<H", dev=dev)
+        print_reg(tran, 'BMS charges:     %d', 0x1c, "<H", dev=dev)
+        print_reg(tran, 'BMS health:      %d%%', 0x3b, "<H", dev=dev)
         tprint('BMS current:     %.2fA' % (tran.execute(ReadRegs(dev, 0x33, "<h"))[0] / 100.0,))
         tprint('BMS voltage:     %.2fV' % (tran.execute(ReadRegs(dev, 0x34, "<h"))[0] / 100.0,))
 
@@ -144,11 +144,11 @@ class Command:
             tprint('ESC S/N:       %s' % tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode())
             tprint('ESC PIN:       %s' % tran.execute(ReadRegs(BT.ESC, 0x17, "6s"))[0].decode())
             tprint()
-            tprint_reg(tran, 'BLE Version:   %04x', 0x68, "<H")
-            tprint_reg(tran, 'ESC Version:   %04x', 0x1A, "<H")
+            print_reg(tran, 'BLE Version:   %04x', 0x68, "<H")
+            print_reg(tran, 'ESC Version:   %04x', 0x1A, "<H")
             tprint()
-            tprint_reg(tran, 'Error code:    %d', 0x1B, "<H")
-            tprint_reg(tran, 'Warning code:  %d', 0x1C, "<H")
+            print_reg(tran, 'Error code:    %d', 0x1B, "<H")
+            print_reg(tran, 'Warning code:  %d', 0x1C, "<H")
             tprint()
             tprint('Total mileage: %s' % pp_distance(tran.execute(ReadRegs(BT.ESC, 0x29, "<L"))[0]))
             tprint('Total runtime: %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x32, "<L"))[0]))
@@ -220,6 +220,3 @@ class Command:
                 strings.append("%2s %s%s" % (period_value, period_name, has_s))
 
         return " ".join(strings)
-
-    if __name__ == '__main__':
-        cli()
