@@ -91,15 +91,6 @@ class NineRiFt(App):
         else:
             tprint("Firmware update already in progress!")
 
-    def cmd_connection_toggle(self):
-        tprint(self.connected)
-        if self.connected is False:
-            self.cm.open()
-            tprint(self.connected)
-        else:
-            self.cm.close()
-            tprint(self.connected)
-
 # define build for Kivy UI
     def build(self):
         self.initilize_global_vars()
@@ -122,6 +113,7 @@ class NineRiFt(App):
                 fwget_verselspin.values.append(str(i))
             tprint('FWGet Vers. available: '+str(fwget_verselspin.values))
             return fwget_verselspin.values
+
 # cmd function that executes known commands
         def cmd_sel_func(cmd):
             self.command = cmd
@@ -148,6 +140,18 @@ class NineRiFt(App):
 
         def cmd_run(cmd, carg):
             tprint(str(cmd)+''+str(carg))
+
+        def cmd_connection_toggle():
+            if self.connected is False:
+                self.cm.open()
+                self.connected = True
+                tprint(self.connected)
+                cmd_connect_btn.text = "Disconnect"
+            else:
+                self.cm.close()
+                self.connected = False
+                tprint(self.connected)
+                cmd_connect_btn.text = "Connect"
 
 # flash screen file filters for hiding md5 and showing encoded or not based on model and version of DRV
         def selfile_filter(mod, vers, dev):
@@ -294,7 +298,7 @@ class NineRiFt(App):
         cmd_argument = TextInput(multiline=False, text='', height='15sp', font_size='12sp', size_hint_y=1)
         cmd_argument.bind(on_text_validate=lambda x: cmd_arg_func(cmd_argument.text))
         cmd_connect_btn = Button(text="Connect", font_size='12sp', height='14sp',
-                                       on_press=lambda x: self.cmd_connection_toggle())
+                                       on_press=lambda x: cmd_connection_toggle())
         cmd_output = Label(text="")
         cmd_execute_btn = Button(text="Execute", font_size='12sp', height='14sp',
                                        on_press=lambda x: cmd_run(self.command, self.cmdarg))

@@ -9,7 +9,6 @@ try:
 except:
     tprint('no toast for you')
 
-
 # toast or print
 def tprint(msg):
     try:
