@@ -3,6 +3,7 @@ import time
 from py9b.link.base import LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
 from py9b.command.regio import ReadRegs, WriteRegs
+from kivy.utils import platform
 try:
     from kivymd.toast import toast
 except:
@@ -26,9 +27,11 @@ class Connection:
 
     def __enter__(self):
         link = None
-        if self.link == 'bleak':
-            from py9b.link.bleak import BleakLink
-            link = BleakLink()
+        if self.link == 'ble':
+            if platform != 'android':
+                from py9b.link.bleak import BLELink
+            elif platform == 'android':
+                from py9b.link.droidble import BLELink            
         elif self.link == 'tcp':
             from py9b.link.tcp import TCPLink
             link = TCPLink()
@@ -75,7 +78,7 @@ class Command:
     self.new_sn = ''
     self.device = ''
 
-    def cli(ctx, transport, link, address):
+    def connect(ctx, transport, link, address):
         ctx.obj = Connection(transport, link, address)
 
     def dump(ctx, device):
