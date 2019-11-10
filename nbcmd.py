@@ -10,7 +10,7 @@ try:
 except:
     print('no toast for you')
 
-import nbclient
+from nbclient import Client
 
 # toast or print
 def tprint(msg):
@@ -28,7 +28,7 @@ class Command:
         self.new_sn = ''
         self.device = ''
         self.c = None
-        self.client = nbclient.Client()
+        self.client = Client()
 
     def setaddr(self, a):
         self.address = a

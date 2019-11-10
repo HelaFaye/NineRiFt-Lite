@@ -285,7 +285,7 @@ class NineRiFt(App):
         cmd_protoselspin.bind(text=lambda x, y: self.cm.setproto(cmd_protoselspin.text))
         cmd_ifaceselspin = Spinner(text='interface', values=('TCP', 'Serial', 'BLE'),
                                    font_size='12sp',height='14sp', sync_height=True)
-        cmd_ifaceselspin.bind(text=lambda x, y: self.cm.setproto(cmd_protoselspin.text))
+        cmd_ifaceselspin.bind(text=lambda x, y: self.cm.setiface(cmd_ifaceselspin.text))
         cmd_cmdselspin = Spinner(text='cmd', values=('lock','unlock','dump','sniff',
                                     'powerdown', 'reboot', 'info', 'changesn'),
                                     font_size='12sp',height='14sp', sync_height=True)
