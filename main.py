@@ -54,14 +54,8 @@ class NineRiFt(App):
             return self.flashmaxprog
 
 
-# preload firmware repo
-    def fwget_preload(self):
-        self.fwget.setRepo("https://files.scooterhacking.org/"+self.model+"/fw/repo.json")
-        self.fwget.loadRepo(self.fwget.repoURL)
-
-
-# reload firmware repo after changing model
-    def fwget_reload(self, mod):
+# load firmware repo
+    def fwget_load(self, mod):
         self.model = mod
         self.fwget.setModel(mod)
         self.fwget.setRepo("https://files.scooterhacking.org/" + self.model + "/fw/repo.json")
@@ -113,6 +107,8 @@ class NineRiFt(App):
         def switch_screen(scrn):
             sm.current = scrn
 
+
+# fwget function for loading available firmware versions based on selected part/device
         def fwget_dynver(sel):
             fwget_verselspin.values = []
             if sel == 'BLE':
@@ -127,7 +123,7 @@ class NineRiFt(App):
             return fwget_verselspin.values
 
 
-# flash screen file filters
+# flash screen file filters for hiding md5 and showing encoded or not based on model and version of DRV
         def selfile_filter(vers, dev):
             check = ['!.md5']
             if self.model is 'm365':
@@ -156,7 +152,7 @@ class NineRiFt(App):
             flashmidlayout.do_layout()
 
 
-# model selection function that updates UI and protocol based on selected vehicle model
+# model selection (esx, m365, m365pro) function that updates UI and protocol based on selected vehicle model
         def modsel_func(mod):
             if self.versel is True:
                 flashtopbtnlayout.remove_widget(flash_verselspin)
@@ -186,7 +182,7 @@ class NineRiFt(App):
             if self.versel is True:
                 flashtopbtnlayout.add_widget(flash_verselspin)
             self.model = mod
-            self.fwget_reload(mod)
+            self.fwget_load(mod)
             selfile_filter(flash_verselspin.text, self.part)
             flashtopbtnlayout.do_layout()
 
@@ -202,8 +198,10 @@ class NineRiFt(App):
 # define screens
         flashscreen = Screen(name='Flash')
         downloadscreen = Screen(name='Download')
+        commandscreen = Screen(name='Command')
 
-# define all  the UI elements for every screen
+# define the UI elements for the screens
+# startig with the flash screen
         seladdr_label = Label(text="Addr:", font_size='12sp', height='15sp',
          size_hint_y=1, size_hint_x=.08)
         seladdr_input = TextInput(multiline=False, text='',
@@ -238,24 +236,23 @@ class NineRiFt(App):
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
                               on_press=lambda x: self.fwupd_func(selfile.selection[0]))
 
+#then define fwget/download screen elements
         fwget_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),
                                    sync_height=True, font_size='12sp', height='14sp')
-        fwget_modelselspin.bind(text=lambda x, y: self.fwget_reload(fwget_modelselspin.text))
+        fwget_modelselspin.bind(text=lambda x, y: self.fwget_load(fwget_modelselspin.text))
         fwget_devselspin = Spinner(text='Part', values=('BLE', 'DRV', 'BMS'),
                                    sync_height=True, font_size='12sp', height='14sp')
         fwget_verselspin = Spinner(text='Version', sync_height=True,
                                    font_size='12sp', height='14sp', values=[], text_autoupdate=True)
 
 
-        self.fwget_preload()
+        self.fwget_load(self.model)
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
                                        on_press=lambda x: self.fwget_func(fwget_devselspin.text, fwget_verselspin.text))
 
-        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
-                                  on_press=lambda x: switch_screen('Flash'))
-        fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
-                                  on_press=lambda x: switch_screen('Download'))
+
+# TODO define command screen contents
 
 # piece together flash screen contents
         flashtoplayout = GridLayout(rows=2, size_hint_y=.2)
@@ -284,6 +281,9 @@ class NineRiFt(App):
         flashlayout.add_widget(flashmidlayout)
         flashlayout.add_widget(flashbotlayout)
 
+#define screen switcher button
+        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
+                                  on_press=lambda x: switch_screen('Flash'))
 
 # piece together download screen contents
         fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
@@ -295,17 +295,27 @@ class NineRiFt(App):
         fwget_midlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
         fwget_botlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
         fwget_botlayout.add_widget(fwget_download_button)
-
-
         downloadlayout = GridLayout(cols=1, rows=3)
         downloadlayout.add_widget(fwget_toplayout)
         downloadlayout.add_widget(fwget_midlayout)
         downloadlayout.add_widget(fwget_botlayout)
 
+#define screen switcher button
+        fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
+                                  on_press=lambda x: switch_screen('Download'))
+
+# TODO piece together command screen contents
+        commandlayout = GridLayout(cols=1, rows=3)
+
+#define screen switcher button
+        cmd_screen_btn = Button(text="Command", font_size='12sp', height='14sp',
+                              on_press=lambda x: switch_screen('Command'))
+
 # make switcher layout that stays at the top of the mainlayout
         switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
         switcherlayout.add_widget(fwupd_screen_btn)
         switcherlayout.add_widget(fwget_screen_btn)
+        switcherlayout.add_widget(cmd_screen_btn)
 
 # piece together the mainlayout
         mainlayout = GridLayout(cols=1, rows=2)
@@ -314,10 +324,12 @@ class NineRiFt(App):
 # add the layouts to the screens
         flashscreen.add_widget(flashlayout)
         downloadscreen.add_widget(downloadlayout)
+        commandscreen.add_widget(commandlayout)
 
 # add the screens to the screen manager
         sm.add_widget(flashscreen)
         sm.add_widget(downloadscreen)
+        sm.add_widget(commandscreen)
 
 # add the screen manager to the mainlayout and return the constructed UI
         mainlayout.add_widget(sm)
