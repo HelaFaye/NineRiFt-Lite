@@ -19,6 +19,7 @@ except:
     print('no toast for you')
 from fwupd import FWUpd
 from fwget import FWGet
+from nbcmd import Command
 
 thread0 = Thread()
 thread1 = Thread()
@@ -40,6 +41,7 @@ class NineRiFt(App):
         self.cache_folder = os.path.join(self.root_folder, 'cache')
         self.fwget = FWGet(self.cache_folder)
         self.fwupd = FWUpd()
+        self.cmd = Command()
         self.versel = False
         self.hasextbms = False
 
@@ -48,6 +50,7 @@ class NineRiFt(App):
 
 
 # hopefully update the progress bar
+    @mainthread
     def update_flash_progress(self, var):
         if var is 'prog':
             return self.fwupd.getprog()
@@ -108,8 +111,9 @@ class NineRiFt(App):
                 fwget_verselspin.values.append(str(i))
             tprint('FWGet Vers. available: '+str(fwget_verselspin.values))
             return fwget_verselspin.values
-
-
+# cmd function that executes known commands
+        def cmd_run(cmd):
+            print(cmd)
 # flash screen file filters for hiding md5 and showing encoded or not based on model and version of DRV
         def selfile_filter(mod, vers, dev):
             check = ['!.md5']
@@ -189,7 +193,7 @@ class NineRiFt(App):
          size_hint_y=1, size_hint_x=.08)
         seladdr_input = TextInput(multiline=False, text='',
         height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
-        seladdr_input.bind(on_text_validate=lambda x: self.fwupd.setaddr(seladdr_input.text))
+        seladdr_input.bind(on_text_validate=lambda x, y: self.fwupd.setaddr(seladdr_input.text))
         selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
         protoselspin = Spinner(text='Model', values=('xiaomi','ninebot'),
                                font_size='12sp',height='14sp', sync_height=True)
@@ -201,7 +205,7 @@ class NineRiFt(App):
                              sync_height=True, font_size='12sp', height='14sp')
         devselspin.bind(text=lambda x, y: setdevice(devselspin.text))
         lockselspin = Spinner(text='Lock', values=('lock', 'nolock'),
-                               font_size='12sp',height='14sp', sync_height=True)
+                               font_size='12sp',height='14sp', sync_height=True, size_hint_x=.30)
         lockselspin.bind(text=lambda x, y: self.fwupd.setnl(lockselspin.text))
         flash_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),
                                      sync_height=True, font_size = '12sp', height = '14sp')
@@ -211,13 +215,13 @@ class NineRiFt(App):
         flash_verselspin.bind(text=lambda x, y: selfile_filter(flash_modelselspin.text, flash_verselspin.text, devselspin.text))
 
         flashpb = ProgressBar(size_hint_x=0.35, value=0, max=100)
-        flashpb.bind(max=lambda x: update_flash_progress('max'))
-        flashpb.bind(value=lambda x: update_flash_progress('prog'))
+        flashpb.bind(max=lambda x, y: update_flash_progress('max'))
+        flashpb.bind(value=lambda x, y: update_flash_progress('prog'))
         selfile = FileChooserListView(path=self.cache_folder)
 
 
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
-                              on_press=lambda x: self.fwupd_func(selfile.selection[0]))
+                              on_press=lambda x, y: self.fwupd_func(selfile.selection[0]))
 
 #then define fwget/download screen elements
         fwget_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),
@@ -232,11 +236,24 @@ class NineRiFt(App):
         self.fwget_load('esx')
         fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
         fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
-                                       on_press=lambda x: self.fwget_func(fwget_devselspin.text, fwget_verselspin.text))
+                                       on_press=lambda x, y: self.fwget_func(fwget_devselspin.text, fwget_verselspin.text))
 
 
-# TODO define command screen contents
-
+# TODO define command screen elements
+        cmd_seladdr_label = Label(text="Addr:", font_size='12sp', height='15sp',
+         size_hint_y=1, size_hint_x=.08)
+        cmd_seladdr_input = TextInput(multiline=False, text='',
+        height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
+        cmd_seladdr_input.bind(on_text_validate=lambda x: self.cmd.setaddr(cmd_seladdr_input.text))
+        cmd_protoselspin = Spinner(text='Model', values=('xiaomi','ninebot'),
+                               font_size='12sp',height='14sp', sync_height=True)
+        cmd_protoselspin.bind(text=lambda x, y: self.cmd.setproto(cmd_protoselspin.text))
+        cmd_ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE'),
+                                   font_size='12sp',height='14sp', sync_height=True)
+        cmd_ifaceselspin.bind(text=lambda x, y: self.cmd.setproto(cmd_protoselspin.text))
+        cmd_output = Label(text="")
+        cmd_execute_btn = Button(text="Execute", font_size='12sp', height='14sp',
+                                       on_press=lambda x: self.cmd_run())
 # piece together flash screen contents
         flashtoplayout = GridLayout(rows=2, size_hint_y=.2)
         flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
@@ -288,7 +305,22 @@ class NineRiFt(App):
                                   on_press=lambda x: switch_screen('Download'))
 
 # TODO piece together command screen contents
+        cmdaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
+        cmdaddrlayout.add_widget(cmd_seladdr_label)
+        cmdaddrlayout.add_widget(cmd_seladdr_input)
+        cmdtopbtnlayout = GridLayout(cols=3, size_hint_y=.7)
+        cmdtopbtnlayout.add_widget(cmd_protoselspin)
+        cmdtopbtnlayout.add_widget(cmd_ifaceselspin)
+        cmdtoplayout = GridLayout(rows=2, size_hint_y=.2)
+        cmdtoplayout.add_widget(cmdaddrlayout)
+        cmdtoplayout.add_widget(cmdtopbtnlayout)
+        cmdmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
+        cmdbotlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
+        cmdbotlayout.add_widget(cmd_execute_btn)
         commandlayout = GridLayout(cols=1, rows=3)
+        commandlayout.add_widget(cmdtoplayout)
+        commandlayout.add_widget(cmdmidlayout)
+        commandlayout.add_widget(cmdbotlayout)
 
 #define screen switcher button
         cmd_screen_btn = Button(text="Command", font_size='12sp', height='14sp',

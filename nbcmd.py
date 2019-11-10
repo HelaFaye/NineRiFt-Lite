@@ -80,6 +80,26 @@ class Command:
         self.device = ''
         self.c = None
 
+    def setaddr(self, a):
+        self.address = a
+        tprint(self.address+' selected as address')
+
+    def setdev(self, d):
+        self.device = d.lower()
+        tprint(self.device+' selected as device')
+
+    def setiface(self, i):
+        self.link = i.lower()
+        tprint(self.link+' selected as interface')
+
+    def setproto(self, p):
+        self.transport = p.lower()
+        tprint(self.transport+' selected as protocol')
+
+    def setnewsn(self, p):
+        self.new_sn = p.lower()
+        tprint(self.new_sn+' selected as protocol')
+
     def dump(self, device):
         self.c = Connection(self.transport, self.link, self.address)
         dev = {
