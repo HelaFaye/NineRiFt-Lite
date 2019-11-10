@@ -18,7 +18,7 @@ def tprint(msg):
         print(msg)
 
 class Client:
-    def __init__:
+    def __init__(self):
         self.transport = None
         self.link = None
         self.address = None
@@ -35,7 +35,8 @@ class Client:
         self.transport = p.lower()
         tprint(self.transport+' selected as protocol')
 
-    def linkstart(self):
+
+    def connect(self):
         link = None
         if self.link == 'ble':
             if platform != 'android':
@@ -49,21 +50,20 @@ class Client:
         elif self.link == 'serial':
             from py9b.link.serial import SerialLink
             link = SerialLink(timeout=1.0)
-        return link
 
-    def connect(self):
-        link = self.linkstart()
+        link.__enter__()
+
         if not self.address:
             if platform!='android':
                 ports = link.scan()
                 if not ports:
                     raise Exception('No devices found')
                 self.address = ports[0]
-                link.open(self.address)
             elif platform=='android':
                 link.open()
         elif self.address:
             link.open(self.address)
+
         transport = None
         if self.transport == 'ninebot':
             from py9b.transport.ninebot import NinebotTransport
@@ -86,3 +86,4 @@ class Client:
         if transport is not None:
             link.close()
             transport = None
+            link = None

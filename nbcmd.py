@@ -3,12 +3,14 @@ import time
 from py9b.link.base import LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
 from py9b.command.regio import ReadRegs, WriteRegs
+
 from kivy.utils import platform
 try:
     from kivymd.toast import toast
 except:
-    tprint('no toast for you')
+    print('no toast for you')
 
+import nbclient
 
 # toast or print
 def tprint(msg):
@@ -16,61 +18,6 @@ def tprint(msg):
         toast(msg)
     except:
         print(msg)
-
-
-
-class Connection:
-    def __init__(self, transport, link, address):
-        self.transport = transport
-        self.link = link
-        self.address = address
-
-    def __enter__(self):
-        link = None
-        if self.link == 'ble':
-            if platform != 'android':
-                from py9b.link.bleak import BLELink
-            elif platform == 'android':
-                from py9b.link.droidble import BLELink
-            link = BLELink()
-        elif self.link == 'tcp':
-            from py9b.link.tcp import TCPLink
-            link = TCPLink()
-        elif self.link == 'serial':
-            from py9b.link.serial import SerialLink
-            link = SerialLink(timeout=1.0)
-
-        link.__enter__()
-
-        if not self.address:
-            if platform!='android':
-                ports = link.scan()
-                if not ports:
-                    raise Exception('No devices found')
-                self.address = ports[0]
-                link.open(self.address)
-            elif platform=='android':
-                link.open()
-        transport = None
-        if self.transport == 'ninebot':
-            from py9b.transport.ninebot import NinebotTransport
-            transport = NinebotTransport(link)
-        elif self.transport == 'xiaomi':
-            from py9b.transport.xiaomi import XiaomiTransport
-            transport = XiaomiTransport(link)
-
-            if transport.execute(ReadRegs(BT.ESC, 0x68, "<H"))[0] > 0x081 and self.link is ('ble'):
-                transport.keys = link.fetch_keys()
-                transport.recover_keys()
-                tprint('Keys recovered')
-
-        self._transport = transport
-        self._link = link
-
-        return transport
-
-    def __exit__(self, a, b, c):
-        self._link.__exit__(a, b, c)
 
 
 class Command:
@@ -81,9 +28,11 @@ class Command:
         self.new_sn = ''
         self.device = ''
         self.c = None
+        self.client = nbclient.Client()
 
     def setaddr(self, a):
         self.address = a
+        self.client.setaddr(self.address)
         tprint(self.address+' selected as address')
 
     def setdev(self, d):
@@ -92,23 +41,27 @@ class Command:
 
     def setiface(self, i):
         self.link = i.lower()
+        self.client.setiface(self.link)
         tprint(self.link+' selected as interface')
 
     def setproto(self, p):
         self.transport = p.lower()
+        self.client.setproto(self.transport)
         tprint(self.transport+' selected as protocol')
 
     def setnewsn(self, p):
-        self.new_sn = p.lower()
-        tprint(self.new_sn+' selected as protocol')
+        self.new_sn = p
+        tprint(self.new_sn+' input for newsn')
 
     def open(self):
         if self.c is None:
-            self.c = Connection(self.transport, self.link, self.address)
+            self.c = self.client.connect()
         else:
             tprint('device connection already established')
 
     def close(self):
+        if self.c is None:
+            self.c = self.client.disconnect()
         self.c = None
         tprint('device connection closed')
 

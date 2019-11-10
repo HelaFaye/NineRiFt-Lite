@@ -19,7 +19,7 @@ except:
     print('no toast for you')
 from fwupd import FWUpd
 from fwget import FWGet
-from nbcmd import Command, Connection
+from nbcmd import Command
 
 thread0 = Thread()
 thread1 = Thread()
