@@ -72,31 +72,32 @@ class Connection:
 
 
 class Command:
-    self.transport = ''
-    self.link = ''
-    self.address = ''
-    self.new_sn = ''
-    self.device = ''
+    def __init__(self):
+        self.transport = ''
+        self.link = ''
+        self.address = ''
+        self.new_sn = ''
+        self.device = ''
+        self.c = None
 
-    def connect(ctx, transport, link, address):
-        ctx.obj = Connection(transport, link, address)
-
-    def dump(ctx, device):
+    def dump(self, device):
+        self.c = Connection(self.transport, self.link, self.address)
         dev = {
             'esc': BT.ESC,
             'ble': BT.BLE,
             'bms': BT.BMS,
             'extbms': BT.EXTBMS,
         }[device]
-        with ctx.obj as tran:
+        with self.c as tran:
             for offset in range(256):
                 try:
                     tprint('0x%02x: %04x' % (offset, tran.execute(ReadRegs(dev, offset, "<H"))[0]))
                 except Exception as exc:
                     tprint('0x%02x: %s' % (offset, exc))
 
-    def sniff(ctx):
-        with ctx.obj as tran:
+    def sniff(self):
+        self.c = Connection(self.transport, self.link, self.address)
+        with self.c as tran:
             while True:
                 try:
                     tprint(tran.recv())
@@ -105,34 +106,38 @@ class Command:
                 except Exception as exc:
                     tprint(exc)
 
-    def powerdown(ctx):
-        with ctx.obj as tran:
+    def powerdown(self):
+        self.c = Connection(self.transport, self.link, self.address)
+        with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
             tprint('Done')
 
-    def lock(ctx):
-        with ctx.obj as tran:
+    def lock(self):
+        self.c = Connection(self.transport, self.link, self.address)
+        with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
             tprint('Done')
 
-    def unlock(ctx):
-        with ctx.obj as tran:
+    def unlock(self):
+        self.c = Connection(self.transport, self.link, self.address)
+        with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
             tprint('Done')
 
-    def reboot(ctx):
-        with ctx.obj as tran:
+    def reboot(self):
+        self.c = Connection(self.transport, self.link, self.address)
+        with self.c as tran:
             tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
             tprint('Done')
 
-    def print_reg(tran, desc, reg, format, dev=BT.ESC):
+    def print_reg(self, tran, desc, reg, format, dev=BT.ESC):
         try:
             data = tran.execute(ReadRegs(dev, reg, format))
             tprint(desc % data)
         except Exception as exc:
             tprint(desc, repr(exc))
 
-    def bms_info(tran, dev):
+    def bms_info(self, tran, dev):
         tprint('BMS S/N:         %s' % tran.execute(ReadRegs(dev, 0x10, "14s"))[0].decode())
         print_reg(tran, 'BMS Version:     %04x', 0x17, "<H", dev=dev)
         print_reg(tran, 'BMS charge:      %d%%', 0x32, "<H", dev=dev)
@@ -142,8 +147,9 @@ class Command:
         tprint('BMS current:     %.2fA' % (tran.execute(ReadRegs(dev, 0x33, "<h"))[0] / 100.0,))
         tprint('BMS voltage:     %.2fV' % (tran.execute(ReadRegs(dev, 0x34, "<h"))[0] / 100.0,))
 
-    def info(ctx):
-        with ctx.obj as tran:
+    def info(self):
+        self.c = Connection(self.transport, self.link, self.address)
+        with self.c as tran:
             tprint('ESC S/N:       %s' % tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode())
             tprint('ESC PIN:       %s' % tran.execute(ReadRegs(BT.ESC, 0x17, "6s"))[0].decode())
             tprint('')
@@ -173,10 +179,11 @@ class Command:
             except Exception as exc:
                 tprint('No external BMS found', repr(exc))
 
-    def changesn(ctx, new_sn):
+    def changesn(self, new_sn):
+        self.c = Connection(self.transport, self.link, self.address)
         from py9b.command.mfg import WriteSN, CalcSNAuth
 
-        with ctx.obj as tran:
+        with self.c as tran:
             old_sn = tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode()
             tprint("Old S/N:", old_sn)
 
