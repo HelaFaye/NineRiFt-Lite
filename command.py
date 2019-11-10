@@ -31,7 +31,7 @@ class Connection:
             if platform != 'android':
                 from py9b.link.bleak import BLELink
             elif platform == 'android':
-                from py9b.link.droidble import BLELink            
+                from py9b.link.droidble import BLELink
         elif self.link == 'tcp':
             from py9b.link.tcp import TCPLink
             link = TCPLink()
@@ -146,18 +146,18 @@ class Command:
         with ctx.obj as tran:
             tprint('ESC S/N:       %s' % tran.execute(ReadRegs(BT.ESC, 0x10, "14s"))[0].decode())
             tprint('ESC PIN:       %s' % tran.execute(ReadRegs(BT.ESC, 0x17, "6s"))[0].decode())
-            tprint()
+            tprint('')
             print_reg(tran, 'BLE Version:   %04x', 0x68, "<H")
             print_reg(tran, 'ESC Version:   %04x', 0x1A, "<H")
-            tprint()
+            tprint('')
             print_reg(tran, 'Error code:    %d', 0x1B, "<H")
             print_reg(tran, 'Warning code:  %d', 0x1C, "<H")
-            tprint()
+            tprint('')
             tprint('Total mileage: %s' % pp_distance(tran.execute(ReadRegs(BT.ESC, 0x29, "<L"))[0]))
             tprint('Total runtime: %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x32, "<L"))[0]))
             tprint('Total riding:  %s' % pp_time(tran.execute(ReadRegs(BT.ESC, 0x34, "<L"))[0]))
             tprint('Chassis temp:  %d°C' % (tran.execute(ReadRegs(BT.ESC, 0x3e, "<H"))[0] / 10.0,))
-            tprint()
+            tprint('')
 
             try:
                 tprint(' *** Internal BMS ***')
@@ -165,7 +165,7 @@ class Command:
             except Exception as exc:
                 tprint('No internal BMS found', repr(exc))
 
-            tprint()
+            tprint('')
 
             try:
                 tprint(' *** External BMS ***')
