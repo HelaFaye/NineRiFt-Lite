@@ -95,8 +95,10 @@ class NineRiFt(App):
         tprint(self.connected)
         if self.connected is False:
             self.cm.open()
+            tprint(self.connected)
         else:
             self.cm.close()
+            tprint(self.connected)
 
 # define build for Kivy UI
     def build(self):
