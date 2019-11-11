@@ -256,7 +256,7 @@ class NineRiFt(App):
 
 
         flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
-                              on_press=lambda x, y: self.fwupd_func(selfile.selection[0]))
+                              on_press=lambda x: self.fwupd_func(selfile.selection[0]))
 
 #then define fwget/download screen elements
         fwget_modelselspin = Spinner(text='Model', values=('esx', 'm365', 'm365pro'),

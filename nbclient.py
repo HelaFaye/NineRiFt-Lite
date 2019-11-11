@@ -86,13 +86,13 @@ class Client:
 
         self._transport = transport
         self._link = link
-        
+
         return transport
         self.connected.set()
 
 
     def disconnect(self):
-        if transport is not None:
+        if self.connected.is_set():
             link.close()
             self.connected.clear()
             transport = None
