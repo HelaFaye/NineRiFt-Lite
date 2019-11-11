@@ -1,0 +1,156 @@
+<FormLabel@Label>:
+    size_hint_x: None
+    size: self.texture_size
+
+<FlashScreen@Screen>:
+    BoxLayout:
+        spacing: 10
+        orientation: "vertical"
+        GridLayout:
+            cols: 2
+            padding: 5
+            spacing: 10
+            row_force_default: True
+            row_default_height: 30
+
+            # FIXME why doesn't it fit automatically?
+            height: 40*len(self.children)/2
+            size_hint_y: None
+
+            FormLabel:
+                text: "Interface:"
+            Spinner:
+                values: ['BLE', 'TCP', 'Serial']
+                text_autoupdate: True
+            FormLabel:
+                text: "Address:"
+            TextInput:
+                multiline: False
+            FormLabel:
+                text: "Protocol:"
+            Spinner:
+                values: ['xiaomi', 'ninebot']
+                text_autoupdate: True
+            FormLabel:
+                text: "Part:"
+            Spinner:
+                values: ['BLE', 'DRV']
+                on_text: app.fwupd.device = self.text.lower()
+                text_autoupdate: True
+            FormLabel:
+                text: "Lock:"
+            Switch:
+                active: True
+                on_active: app.fwupd.lock = self.active
+
+        FileChooserListView:
+            id: filechooser
+            path: app.cache_folder
+
+        Label:
+            height: 10
+            size_hint_y: None
+            text: "Pending..."
+        ProgressBar:
+            height: 5
+            size_hint_y: None
+        Button:
+            height: 50
+            size_hint_y: None
+            text: "Start"
+            on_press: app.fwupd_flash(filechooser)
+
+<DownloadScreen@Screen>:
+    BoxLayout:
+        orientation: "vertical"
+        BoxLayout:
+            size_hint_y: 0.3
+            Spinner:
+                id: model
+                text: 'Model'
+                values: ['esx', 'm365', 'm365pro']
+                on_text: app.fwget_select_model(root, self.text); app.fwget_update_versions(root)
+                sync_height: True
+            Spinner:
+                id: part
+                text: 'Part'
+                values: ['BLE', 'DRV', 'BMS']
+                on_text: app.fwget_update_versions(root)
+                sync_height: True
+            Spinner:
+                id: version
+                text: 'Version'
+                values: []
+                text_autoupdate: True
+        AnchorLayout:
+            anchor_y: 'bottom'
+            Button:
+                text: 'Download it!'
+                on_press: app.fwget_download(part.text, version.text)
+
+<CommandScreen@Screen>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 5
+        GridLayout:
+            disabled: app.conn.state not in ('disconnected',)
+            cols: 2
+            padding: 5
+            spacing: 10
+            row_force_default: True
+            row_default_height: 30
+
+            # FIXME why doesn't it fit automatically?
+            height: 40*len(self.children)/2
+            size_hint_y: None
+
+            FormLabel:
+                text: "Interface:"
+            Spinner:
+                values: ['BLE', 'TCP', 'Serial']
+                on_text: app.conn.link = self.text.lower()
+                text_autoupdate: True
+            FormLabel:
+                text: "Address:"
+            TextInput:
+                multiline: False
+                on_text: app.conn.address = self.text
+            FormLabel:
+                text: "Protocol:"
+            Spinner:
+                values: ['xiaomi', 'ninebot']
+                on_text: app.conn.transport = self.text.lower()
+                text_autoupdate: True
+
+        Button:
+            size_hint_y: None
+            text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
+            disabled: app.conn.state not in ('connected', 'disconnected')
+            on_press: app.connect_pressed()
+        Label:
+            text: "%s: %r" % (app.conn.state, app.conn.address)
+
+<MainWindow>:
+    orientation: "vertical"
+    BoxLayout:
+        height: 40
+        size_hint_y: None
+        orientation: "horizontal"
+        Button:
+            text: "Flash"
+            on_press: manager.current = 'flash'
+        Button:
+            text: "Download"
+            on_press: manager.current = 'download'
+        Button:
+            text: "Command"
+            on_press: manager.current = 'command'
+
+    ScreenManager:
+        id: manager
+        FlashScreen:
+            name: "flash"
+        DownloadScreen:
+            name: "download"
+        CommandScreen:
+            name: "command"
