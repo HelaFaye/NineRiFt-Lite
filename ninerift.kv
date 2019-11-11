@@ -4,17 +4,17 @@
 
 <FlashScreen@Screen>:
     BoxLayout:
-        spacing: 10
+        spacing: "10dp"
         orientation: "vertical"
         GridLayout:
             cols: 2
-            padding: 5
-            spacing: 10
+            padding: "5dp"
+            spacing: "5dp"
             row_force_default: True
-            row_default_height: 30
+            row_default_height: "40dp"
 
             # FIXME why doesn't it fit automatically?
-            height: 40*len(self.children)/2
+            height: "%ddp" % (50*len(self.children)/2,)
             size_hint_y: None
 
             FormLabel:
@@ -48,14 +48,14 @@
             path: app.cache_folder
 
         Label:
-            height: 10
+            height: "10dp"
             size_hint_y: None
             text: "Pending..."
         ProgressBar:
-            height: 5
+            height: "5dp"
             size_hint_y: None
         Button:
-            height: 50
+            height: "50dp"
             size_hint_y: None
             text: "Start"
             on_press: app.fwupd_flash(filechooser)
@@ -91,17 +91,17 @@
 <CommandScreen@Screen>:
     BoxLayout:
         orientation: "vertical"
-        spacing: 5
+        spacing: "5dp"
         GridLayout:
             disabled: app.conn.state not in ('disconnected',)
             cols: 2
-            padding: 5
-            spacing: 10
+            padding: "5dp"
+            spacing: "5dp"
             row_force_default: True
-            row_default_height: 30
+            row_default_height: "40dp"
 
             # FIXME why doesn't it fit automatically?
-            height: 40*len(self.children)/2
+            height: "%ddp" % (50*len(self.children)/2,)
             size_hint_y: None
 
             FormLabel:
@@ -133,7 +133,7 @@
 <MainWindow>:
     orientation: "vertical"
     BoxLayout:
-        height: 40
+        height: "40dp"
         size_hint_y: None
         orientation: "horizontal"
         Button:

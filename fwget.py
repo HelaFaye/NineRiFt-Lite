@@ -25,6 +25,9 @@ class FWGet():
         self.maxprogress = 100
         self.model = 'esx'
         self.getboth = False
+        self.BLE = []
+        self.DRV = []
+        self.BMS = []
 
     def setModel(self, model):
         self.model = model

@@ -24,7 +24,7 @@ class Client(EventDispatcher):
         super(Client, self).__init__()
         self.loop = None
 
-    @sidethread
+    @mainthread
     def connect(self):
         self.update_state('connecting')
         try:
@@ -50,6 +50,17 @@ class Client(EventDispatcher):
 
             link.__enter__()
 
+            # This is split into two parts due to some link implementations
+            # (namely droidble) requiring some initalization in main thread...
+            self._connect_inner(link)
+        except Exception as exc:
+            self.update_state('disconnected')
+            self.dispatch('on_error', repr(exc))
+            raise exc
+
+    @sidethread
+    def _connect_inner(self, link):
+        try:
             if not self.address:
                 if platform!='android':
                     ports = link.scan()
