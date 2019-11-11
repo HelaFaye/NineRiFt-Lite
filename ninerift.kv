@@ -4,31 +4,26 @@
 
 <FlashScreen@Screen>:
     BoxLayout:
-        spacing: "10sp"
         orientation: "vertical"
         GridLayout:
             cols: 2
             padding: "5sp"
             spacing: "5sp"
             row_force_default: True
-            row_default_height: "40sp"
-
-            # FIXME why doesn't it fit automatically?
-            height: "%dsp" % (50*len(self.children)/2,)
             size_hint_y: None
 
             Spinner:
                 values: ['BLE', 'TCP', 'Serial']
-                text_autoupdate: True
+                font_size: '12sp'
+                height: '14sp'
+                sync_height: True
             TextInput:
                 multiline: False
             Spinner:
                 values: ['xiaomi', 'ninebot']
-                text_autoupdate: True
             Spinner:
-                values: ['BLE', 'DRV']
+                values: ['BLE', 'DRV', 'BMS']
                 on_text: app.fwupd.device = self.text.lower()
-                text_autoupdate: True
             Switch:
                 active: True
                 on_active: app.fwupd.lock = self.active
@@ -38,14 +33,11 @@
             path: app.cache_folder
 
         Label:
-            height: "10sp"
             size_hint_y: None
             text: "Pending..."
         ProgressBar:
-            height: "5sp"
             size_hint_y: None
         Button:
-            height: "50sp"
             size_hint_y: None
             text: "Start"
             on_press: app.fwupd_flash(filechooser)
@@ -113,7 +105,6 @@
 <MainWindow>:
     orientation: "vertical"
     BoxLayout:
-        height: "40sp"
         size_hint_y: None
         orientation: "horizontal"
         Button:
