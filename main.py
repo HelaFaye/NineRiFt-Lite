@@ -20,9 +20,6 @@ from fwget import FWGet
 from nbcmd import Command
 from nbclient import Client
 
-thread0 = Thread()
-thread1 = Thread()
-
 
 
 class MainWindow(BoxLayout):

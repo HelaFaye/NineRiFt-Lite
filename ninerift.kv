@@ -4,41 +4,31 @@
 
 <FlashScreen@Screen>:
     BoxLayout:
-        spacing: "10dp"
+        spacing: "10sp"
         orientation: "vertical"
         GridLayout:
             cols: 2
-            padding: "5dp"
-            spacing: "5dp"
+            padding: "5sp"
+            spacing: "5sp"
             row_force_default: True
-            row_default_height: "40dp"
+            row_default_height: "40sp"
 
             # FIXME why doesn't it fit automatically?
-            height: "%ddp" % (50*len(self.children)/2,)
+            height: "%dsp" % (50*len(self.children)/2,)
             size_hint_y: None
 
-            FormLabel:
-                text: "Interface:"
             Spinner:
                 values: ['BLE', 'TCP', 'Serial']
                 text_autoupdate: True
-            FormLabel:
-                text: "Address:"
             TextInput:
                 multiline: False
-            FormLabel:
-                text: "Protocol:"
             Spinner:
                 values: ['xiaomi', 'ninebot']
                 text_autoupdate: True
-            FormLabel:
-                text: "Part:"
             Spinner:
                 values: ['BLE', 'DRV']
                 on_text: app.fwupd.device = self.text.lower()
                 text_autoupdate: True
-            FormLabel:
-                text: "Lock:"
             Switch:
                 active: True
                 on_active: app.fwupd.lock = self.active
@@ -48,14 +38,14 @@
             path: app.cache_folder
 
         Label:
-            height: "10dp"
+            height: "10sp"
             size_hint_y: None
             text: "Pending..."
         ProgressBar:
-            height: "5dp"
+            height: "5sp"
             size_hint_y: None
         Button:
-            height: "50dp"
+            height: "50sp"
             size_hint_y: None
             text: "Start"
             on_press: app.fwupd_flash(filechooser)
@@ -91,32 +81,24 @@
 <CommandScreen@Screen>:
     BoxLayout:
         orientation: "vertical"
-        spacing: "5dp"
         GridLayout:
             disabled: app.conn.state not in ('disconnected',)
             cols: 2
-            padding: "5dp"
-            spacing: "5dp"
+            padding: "5sp"
+            spacing: "5sp"
             row_force_default: True
-            row_default_height: "40dp"
+            row_default_height: "40sp"
 
             # FIXME why doesn't it fit automatically?
-            height: "%ddp" % (50*len(self.children)/2,)
             size_hint_y: None
 
-            FormLabel:
-                text: "Interface:"
             Spinner:
                 values: ['BLE', 'TCP', 'Serial']
                 on_text: app.conn.link = self.text.lower()
                 text_autoupdate: True
-            FormLabel:
-                text: "Address:"
             TextInput:
                 multiline: False
                 on_text: app.conn.address = self.text
-            FormLabel:
-                text: "Protocol:"
             Spinner:
                 values: ['xiaomi', 'ninebot']
                 on_text: app.conn.transport = self.text.lower()
@@ -127,13 +109,11 @@
             text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
             disabled: app.conn.state not in ('connected', 'disconnected')
             on_press: app.connect_pressed()
-        Label:
-            text: "%s: %r" % (app.conn.state, app.conn.address)
 
 <MainWindow>:
     orientation: "vertical"
     BoxLayout:
-        height: "40dp"
+        height: "40sp"
         size_hint_y: None
         orientation: "horizontal"
         Button:
