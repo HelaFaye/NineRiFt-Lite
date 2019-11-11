@@ -57,7 +57,7 @@ class Command:
     def open(self):
         if self.c is None and self.client.connected.is_set() is False:
             self.c = self.client.connect()
-            self.client.connected.wait(5)
+            self.client.connected.wait(10)
             self.connected.set()
         else:
             tprint('device connection already established')

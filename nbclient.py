@@ -23,6 +23,8 @@ class Client:
         self.link = None
         self.address = None
         self.connected = Event()
+        self._transport = None
+        self._link = None
 
     def __enter__(self):
         return self
@@ -86,14 +88,21 @@ class Client:
 
         self._transport = transport
         self._link = link
+        if transport is not None:
+            self.connected.set()
+            return transport
+        else:
+            tprint('failed to connect')
 
-        return transport
-        self.connected.set()
+
 
 
     def disconnect(self):
         if self.connected.is_set():
-            link.close()
+            self._link.close()
             self.connected.clear()
             transport = None
             link = None
+        else:
+            tprint('not connected')
+        return transport

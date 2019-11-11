@@ -13,6 +13,8 @@ try:
 except:
     print('no toast for you')
 
+from nbclient import Client
+
 # toast or print
 def tprint(msg):
     try:
@@ -74,7 +76,7 @@ class FWUpd(object):
             s += c
         return (s & 0xFFFFFFFF)
 
-    def UpdateFirmware(self, link, tran, dev, fwfile):
+    def UpdateFirmware(self, tran, dev, fwfile):
         tprint('update started')
 
         tprint('flashing '+self.fwfilep+' to ' + self.device)
@@ -139,65 +141,9 @@ class FWUpd(object):
         self.setfwfilep(fwfilep)
         file = open(fwfilep, 'rb')
         dev = self.devices.get(self.device)
-        if self.interface == 'ble':
-            if platform != 'android':
-                from py9b.link.bleak import BLELink
-            elif platform == 'android':
-                try:
-                    from py9b.link.droidble import BLELink
-                except:
-                    exit('BLE on Android failed to import!')
-            else:
-                exit('BLE is not supported on your system !')
-            link = BLELink()
-        elif self.interface == 'tcp':
-            from py9b.link.tcp import TCPLink
-            link = TCPLink()
-        elif self.interface == 'serial':
-            if platform == 'android':
-                exit('Serial is not yet supported on Android !')
-            from py9b.link.serial import SerialLink
-            link = SerialLink()
-        else:
-            exit('!!! BUG !!! Unknown interface selected: '+self.interface)
-
-        with link:
-            tran = self.protocols.get(self.protocol)(link)
-
-            if self.address:
-                addr = self.address
-                tprint('link address assigned')
-            else:
-                try:
-                    addr = self.address
-                    ports = None
-                    tprint('Scanning...')
-                    if self.interface != 'tcp':
-                        if self.interface != 'ble':
-                            ports = link.scan()
-                    if self.interface == 'ble':
-                        link.scan()
-                    if not self.interface=='ble' and not ports:
-                        exit("No ports found !")
-                        tprint('Connecting to', ports[0][0])
-                        addr = ports[0][1]
-                        tprint (addr)
-                except:
-                    tprint('Open failed! (LinkOpenException)')
-                    return
-            try:
-                if self.interface=='ble' and platform != 'android':
-                    devs = link.scan()
-                    tprint(devs)
-                    link.open(devs[0])
-                else:
-                    link.open(addr)
-            except:
-                tprint('Open failed! (LinkOpenException)')
-                return
-            tprint('Connected')
-            try:
-                self.UpdateFirmware(link, tran, dev, file)
-            except Exception as e:
-                print('Error:', e)
-                raise
+        tran = Client.connect()
+        try:
+            self.UpdateFirmware(tran, dev, file)
+        except Exception as e:
+            tprint('Error:', e)
+            raise
