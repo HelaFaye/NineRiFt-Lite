@@ -1,5 +1,5 @@
 import time
-
+from threading import Event
 from py9b.link.base import LinkOpenException, LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
 from py9b.command.regio import ReadRegs, WriteRegs
@@ -18,9 +18,17 @@ def tprint(msg):
 
 class Client:
     def __init__(self):
+        super(Client, self).__init__()
         self.transport = None
         self.link = None
         self.address = None
+        self.connected = Event()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.disconnect()
 
     def setaddr(self, a):
         self.address = a
@@ -78,11 +86,14 @@ class Client:
 
         self._transport = transport
         self._link = link
-
+        
         return transport
+        self.connected.set()
+
 
     def disconnect(self):
         if transport is not None:
             link.close()
+            self.connected.clear()
             transport = None
             link = None

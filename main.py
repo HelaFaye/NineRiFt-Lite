@@ -20,6 +20,7 @@ except:
 from fwupd import FWUpd
 from fwget import FWGet
 from nbcmd import Command
+from nbclient import Client
 
 thread0 = Thread()
 thread1 = Thread()
@@ -46,7 +47,6 @@ class NineRiFt(App):
         self.hasextbms = False
         self.command = None
         self.cmdarg = None
-        self.connected = False
 
         if not os.path.exists(self.cache_folder):
             os.makedirs(self.cache_folder)
@@ -99,7 +99,6 @@ class NineRiFt(App):
         def switch_screen(scrn):
             sm.current = scrn
 
-
 # fwget function for loading available firmware versions based on selected part/device
         def fwget_dynver(sel):
             fwget_verselspin.values = []
@@ -142,15 +141,12 @@ class NineRiFt(App):
             tprint(str(cmd)+''+str(carg))
 
         def cmd_connection_toggle():
-            if self.connected is False:
+            if self.cm.connected.is_set() is False:
                 self.cm.open()
-                self.connected = True
-                tprint(self.connected)
+                self.cm.connected.wait(5)
                 cmd_connect_btn.text = "Disconnect"
             else:
                 self.cm.close()
-                self.connected = False
-                tprint(self.connected)
                 cmd_connect_btn.text = "Connect"
 
 # flash screen file filters for hiding md5 and showing encoded or not based on model and version of DRV

@@ -1,5 +1,5 @@
 import time
-
+from threading import Event
 from py9b.link.base import LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
 from py9b.command.regio import ReadRegs, WriteRegs
@@ -29,6 +29,7 @@ class Command:
         self.device = ''
         self.c = None
         self.client = Client()
+        self.connected = Event()
 
     def setaddr(self, a):
         self.address = a
@@ -54,14 +55,17 @@ class Command:
         tprint(self.new_sn+' input for newsn')
 
     def open(self):
-        if self.c is None:
+        if self.c is None and self.client.connected.is_set() is False:
             self.c = self.client.connect()
+            self.client.connected.wait(5)
+            self.connected.set()
         else:
             tprint('device connection already established')
 
     def close(self):
-        if self.c is None:
+        if self.c is not None:
             self.c = self.client.disconnect()
+            self.connected.clear()
         self.c = None
         tprint('device connection closed')
 
