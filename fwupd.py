@@ -1,3 +1,4 @@
+import os
 
 from py9b.link.base import LinkOpenException, LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
@@ -5,71 +6,26 @@ from py9b.transport.xiaomi import XiaomiTransport
 from py9b.transport.ninebot import NinebotTransport
 from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
+
 from kivy.utils import platform
-import os
-
-try:
-    from kivymd.toast import toast
-except:
-    print('no toast for you')
-
-from nbclient import Client
-
-# toast or print
-def tprint(msg):
-    try:
-        toast(msg)
-    except:
-        print(msg)
+from kivy.clock import mainthread
+from kivy.event import EventDispatcher
+from kivy.properties import NumericProperty, BooleanProperty, StringProperty, ObjectProperty
+from utils import tprint, sidethread
 
 
+class FWUpd(EventDispatcher):
+    maxprogress = NumericProperty(100)
+    progress = NumericProperty(0)
+    device = StringProperty('')
+    lock = BooleanProperty(True)
 
-class FWUpd(object):
-    def __init__(self):
+    def __init__(self, conn):
         self.devices = {'ble': BT.BLE, 'drv': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
         self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
         self.PING_RETRIES = 5
-        self.device = ''
-        self.fwfilep = ''
-        self.interface = ''
-        self.protocol = ''
-        self.address = ''
-        self.progress = 0
-        self.maxprogress = 100
         self.nolock = False
-
-    def setaddr(self, a):
-        self.address = a
-        tprint(self.address+' selected as address')
-
-    def setdev(self, d):
-        self.device = d.lower()
-        tprint(self.device+' selected as device')
-
-    def setfwfilep(self, f):
-        self.fwfilep = f
-        tprint(self.fwfilep+' selected as fwfile')
-
-    def setiface(self, i):
-        self.interface = i.lower()
-        tprint(self.interface+' selected as interface')
-
-    def setproto(self, p):
-        self.protocol = p.lower()
-        tprint(self.protocol+' selected as protocol')
-
-    def setnl(self, b):
-        if b=='nolock':
-            self.nolock = True
-        else:
-            self.nolock = False
-        tprint('no-lock set to '+str(self.nolock))
-
-    def getprog(self):
-        return self.progress
-
-    def getmaxprog(self):
-        return self.maxprogress
+        self.conn = conn
 
     def checksum(self, s, data):
         for c in data:
@@ -103,7 +59,7 @@ class FWUpd(object):
             return False
         tprint("OK")
 
-        if self.nolock is False:
+        if self.lock:
             tprint('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
@@ -117,8 +73,7 @@ class FWUpd(object):
         page = 0
         chk = 0
         while fw_size:
-            self.maxprogress = fw_size//fw_page_size+1
-            self.progress = page
+            self.update_progress(page, fw_size // fw_page_size + 1)
             chunk_sz = min(fw_size, fw_page_size)
             data = fwfile.read(chunk_sz)
             chk = self.checksum(chk, data)
@@ -135,15 +90,22 @@ class FWUpd(object):
         tprint('update finished')
         return True
 
+    @sidethread
     def Flash(self, fwfilep):
-        if self.device == 'extbms' and self.protocol != 'ninebot':
-            exit('Only Ninebot supports External BMS !')
-        self.setfwfilep(fwfilep)
+        if self.device == 'extbms' and self.conn.protocol != 'ninebot':
+            tprint('Only Ninebot supports External BMS !')
+            return
+        self.fwfilep = fwfilep
         file = open(fwfilep, 'rb')
         dev = self.devices.get(self.device)
-        tran = Client.connect()
+        tran = self.conn._tran
         try:
             self.UpdateFirmware(tran, dev, file)
         except Exception as e:
-            tprint('Error:', e)
+            tprint('Error: %r' % (e,))
             raise
+
+    @mainthread
+    def update_progress(self, progress, maxprogress):
+        self.progress = progress
+        self.maxprogress = maxprogress

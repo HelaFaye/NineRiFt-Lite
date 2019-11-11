@@ -94,24 +94,20 @@ class Command:
                     tprint(exc)
 
     def powerdown(self):
-        with self.c as tran:
-            tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
-            tprint('Done')
+        self.tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
+        tprint('Done')
 
     def lock(self):
-        with self.c as tran:
-            tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
-            tprint('Done')
+        self.tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
+        tprint('Done')
 
     def unlock(self):
-        with self.c as tran:
-            tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
-            tprint('Done')
+        self.tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
+        tprint('Done')
 
     def reboot(self):
-        with self.c as tran:
-            tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
-            tprint('Done')
+        self.tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
+        tprint('Done')
 
     def print_reg(self, tran, desc, reg, format, dev=BT.ESC):
         try:
