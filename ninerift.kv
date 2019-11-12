@@ -12,39 +12,27 @@
             GridLayout:
                 cols: 2
                 rows: 2
-                size_hint_x: .25
                 Spinner:
+                    size_hint_x: .5
                     id: fwumodel
                     text:'Model'
                     values: ['esx', 'm365', 'm365pro']
                     sync_height: True
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
                     on_text: app.select_model(self.text); app.selfile_filter(self.text, None, fwupart.text)
                 Spinner:
+                    size_hint_x: .5
                     id: fwupart
-                    size_hint_x: .30
                     text: 'Part'
                     values: ['BLE', 'DRV', 'BMS']
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
                     sync_height: True
                     on_text: app.fwupd.device = self.text.lower()
-                BoxLayout:
-                    id: verselhold
-                    size_hint_x: .15
-                    Spinner:
-                        disabled: app.versel in (False,)
-                        id: versel
-                        text: 'Vers.'
-                        font_size: '12sp'
-                        height: '14sp'
-                        sync_height: True
-                        values: ['<141', '>=141']
-                        on_text: app.selfile_filter(fwumodel.text, self.text, fwupart.text)
                 GridLayout:
                     cols: 2
-                    size_hint_x: .25
+                    size_hint_x: .5
                     FormLabel:
                         size_hint_x: .2
                         font_size: '12sp'
@@ -53,12 +41,25 @@
                         size_hint_x: .8
                         active: True
                         on_active: app.fwupd.lock = self.active
+                BoxLayout:
+                    size_hint_x: .5
+                    id: verselhold
+                    Spinner:
+                        disabled: fwumodel.text != 'm365'
+                        id: versel
+                        text: 'Vers.'
+                        font_size: '12sp'
+                        height: '12sp'
+                        sync_height: True
+                        values: ['<141', '>=141']
+                        on_text: app.selfile_filter(fwumodel.text, self.text, fwupart.text)
         BoxLayout:
             orientation: 'vertical'
             size_hint_y: .6
             FileChooserListView:
                 id: filechooser
                 path: app.cache_folder
+                filters: app.selfile_filter(fwumodel.text, versel.text, fwupart.text)
         GridLayout:
             rows: 2
             size_hint_y: .20
@@ -67,7 +68,7 @@
             Button:
                 size_hint_y: .7
                 font_size: '12sp'
-                height: '14sp'
+                height: '12sp'
                 text: "Start"
                 on_press: app.fwupd_func(filechooser)
 
@@ -86,7 +87,7 @@
                     values: ['esx', 'm365', 'm365pro']
                     on_text: app.fwget_select_model(root, self.text); app.fwget_update_versions(root)
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
                     sync_height: True
                 Spinner:
                     id: part
@@ -94,7 +95,7 @@
                     values: ['BLE', 'DRV', 'BMS']
                     on_text: app.fwget_update_versions(root)
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
                     sync_height: True
                 Spinner:
                     id: version
@@ -102,7 +103,7 @@
                     values: []
                     sync_height: True
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
                     text_autoupdate: True
         AnchorLayout:
             size_hint_y: 0.3
@@ -135,16 +136,13 @@
         cols: 1
         rows: 5
         GridLayout:
-            cols: 1
-            size_hint_y: .03
-        GridLayout:
-            size_hint_y: .12
+            size_hint_y: .15
             disabled: app.conn.state not in ('disconnected',)
             cols: 1
-            rows: 4
+            rows: 3
             BoxLayout:
                 orientation: 'horizontal'
-                size_hint_y: .25
+                size_hint_y: .20
                 FormLabel:
                     font_size: '12sp'
                     text: "Addr:"
@@ -152,7 +150,6 @@
                     multiline: False
                     on_text_validate: app.conn.address = self.text.lower()
                     font_size: '12sp'
-                    height: '12sp'
             BoxLayout:
                 orientation: 'horizontal'
                 size_hint_y: .25
@@ -161,13 +158,13 @@
                     values: ['BLE', 'TCP', 'Serial']
                     on_text: app.conn.link = self.text.lower()
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
                 Spinner:
                     text: 'Protocol'
                     values: ['xiaomi', 'ninebot']
                     on_text: app.conn.transport = self.text.lower()
                     font_size: '12sp'
-                    height: '14sp'
+                    height: '12sp'
             AnchorLayout:
                 anchor_y: 'bottom'
                 size_hint_y: .30
@@ -177,27 +174,27 @@
                     on_press: app.connection_toggle()
         GridLayout:
             cols: 1
-            size_hint_y: .03
+            size_hint_y: .02
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: .10
+            size_hint_y: .05
             Button:
                 text: "Flash"
                 font_size: '12sp'
-                height: '14sp'
+                height: '12sp'
                 on_press: manager.current = 'flash'
             Button:
                 text: "Download"
                 font_size: '12sp'
-                height: '14sp'
+                height: '12sp'
                 on_press: manager.current = 'download'
             Button:
                 text: "Command"
                 font_size: '12sp'
-                height: '14sp'
+                height: '12sp'
                 on_press: manager.current = 'command'
         ScreenManager:
-            size_hint_y: .72
+            size_hint_y: .60
             id: manager
             FlashScreen:
                 name: "flash"

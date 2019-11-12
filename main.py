@@ -13,6 +13,7 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
+from kivy.properties import BooleanProperty
 
 from utils import tprint, sidethread
 from fwupd import FWUpd
@@ -40,7 +41,7 @@ class NineRiFt(App):
         self.fwupd = FWUpd(self.conn)
         self.fwget = FWGet(self.cache_folder)
 
-        self.versel = False
+        self.versel = BooleanProperty(False)
 
     def build(self):
         self.initialize()
@@ -63,31 +64,31 @@ class NineRiFt(App):
     def fwget_func(self, dev, version):
         self.fwget.Gimme(dev, version)
 
-    @mainthread
     def selfile_filter(self, mod, vers, dev):
             check = ['!.md5']
+            filters = []
             if mod is 'm365':
                 if dev is 'DRV':
                     if vers=='>=141':
                         sf = ['*.bin.enc']
-                        filechooser.filters = sf+check
+                        filters = sf+check
                     if vers=='<141':
                         sf = ['*.bin']
-                        filechooser.filters = sf+check
+                        filters = sf+check
                 else:
                     sf = ['*.bin']
-                    filechooser.filters = sf+check
+                    filters = sf+check
             if mod is 'm365pro':
                 if dev is 'DRV':
                     sf = ['*.bin.enc']
-                    filechooser.filters = sf+check
+                    filters = sf+check
                 else:
                     sf = ['*.bin']
                     filters = sf+check
             if mod is 'esx':
                 sf = ['*.bin.enc']
-                filechooser.filters = sf+check
-            print('selfile_filter set to %s' % selfile.filters)
+                filters = sf+check
+            print('selfile_filter set to %s' % filters)
             return filters
 
     @mainthread
