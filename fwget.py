@@ -112,6 +112,15 @@ class FWGet():
                 if (r.status_code == 200):
                     print(filename + " downloaded successfully.")
                     print('download finished')
+                    with open(completePath + ".md5", "r") as md5cached:
+                        checksum = md5cached.read()
+                        match = self.md5Checksum(completePath, None) == checksum
+                        if not match:
+                            if os.path.exists(completePath):
+                                os.remove(completePath)
+                            else:
+                                print("The file does not exist")
+                            tprint('File was corrupted. try again?')
                     return(True, completePath)
                 else:
                     tprint("Server couldn't respond to download request. Local files aren't available. Aborting.")
