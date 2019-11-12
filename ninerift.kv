@@ -3,125 +3,179 @@
     size: self.texture_size
 
 <FlashScreen@Screen>:
-    BoxLayout:
-        orientation: "vertical"
+    GridLayout:
+        cols: 1
+        rows: 3
         GridLayout:
-            cols: 2
-            padding: "5sp"
-            spacing: "5sp"
-            row_force_default: True
-            size_hint_y: None
-
-            Spinner:
-                values: ['BLE', 'TCP', 'Serial']
+            rows: 2
+            size_hint_y: .25
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: .3
+                FormLabel:
+                    size_hint_x: .08
+                    text: "Addr:"
+                TextInput:
+                    multiline: False
+                    on_text_validate: app.conn.address = self.text.lower()
+            GridLayout:
+                cols: 4
+                size_hint_y: .7
+                Spinner:
+                    text: 'Protocol'
+                    values: ['xiaomi', 'ninebot']
+                    font_size: '12sp'
+                    height: '14sp'
+                    sync_height: True
+                    on_text: app.conn.transport = self.text.lower()
+                Spinner:
+                    text: 'Interface'
+                    values: ['BLE', 'TCP', 'Serial']
+                    font_size: '12sp'
+                    height: '14sp'
+                    sync_height: True
+                    on_text: app.conn.link = self.text.lower()
+                Spinner:
+                    text: 'Part'
+                    values: ['BLE', 'DRV', 'BMS']
+                    font_size: '12sp'
+                    height: '14sp'
+                    sync_height: True
+                    on_text: app.fwupd.device = self.text.lower()
+                Switch:
+                    active: True
+                    on_active: app.fwupd.lock = self.active
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: .5
+            FileChooserListView:
+                id: filechooser
+                path: app.cache_folder
+        GridLayout:
+            rows: 2
+            size_hint_y: .20
+            ProgressBar:
+                size_hint_y: .3
+            Button:
+                size_hint_y: .7
                 font_size: '12sp'
                 height: '14sp'
-                sync_height: True
-            TextInput:
-                multiline: False
-            Spinner:
-                values: ['xiaomi', 'ninebot']
-            Spinner:
-                values: ['BLE', 'DRV', 'BMS']
-                on_text: app.fwupd.device = self.text.lower()
-            Switch:
-                active: True
-                on_active: app.fwupd.lock = self.active
-
-        FileChooserListView:
-            id: filechooser
-            path: app.cache_folder
-
-        Label:
-            size_hint_y: None
-            text: "Pending..."
-        ProgressBar:
-            size_hint_y: None
-        Button:
-            size_hint_y: None
-            text: "Start"
-            on_press: app.fwupd_flash(filechooser)
+                text: "Start"
+                on_press: app.fwupd_func(filechooser)
 
 <DownloadScreen@Screen>:
-    BoxLayout:
+    GridLayout:
+        cols: 1
+        rows: 3
         orientation: "vertical"
-        BoxLayout:
-            size_hint_y: 0.3
-            Spinner:
-                id: model
-                text: 'Model'
-                values: ['esx', 'm365', 'm365pro']
-                on_text: app.fwget_select_model(root, self.text); app.fwget_update_versions(root)
-                sync_height: True
-            Spinner:
-                id: part
-                text: 'Part'
-                values: ['BLE', 'DRV', 'BMS']
-                on_text: app.fwget_update_versions(root)
-                sync_height: True
-            Spinner:
-                id: version
-                text: 'Version'
-                values: []
-                text_autoupdate: True
         AnchorLayout:
+            anchor_y: 'top'
+            GridLayout:
+                cols: 3
+                size_hint_y: .25
+                Spinner:
+                    id: model
+                    text: 'Model'
+                    values: ['esx', 'm365', 'm365pro']
+                    on_text: app.fwget_select_model(root, self.text); app.fwget_update_versions(root)
+                    font_size: '12sp'
+                    height: '14sp'
+                    sync_height: True
+                Spinner:
+                    id: part
+                    text: 'Part'
+                    values: ['BLE', 'DRV', 'BMS']
+                    on_text: app.fwget_update_versions(root)
+                    font_size: '12sp'
+                    height: '14sp'
+                    sync_height: True
+                Spinner:
+                    id: version
+                    text: 'Version'
+                    values: []
+                    sync_height: True
+                    font_size: '12sp'
+                    height: '14sp'
+                    text_autoupdate: True
+        AnchorLayout:
+            size_hint_y: 0.3
             anchor_y: 'bottom'
             Button:
                 text: 'Download it!'
-                on_press: app.fwget_download(part.text, version.text)
+                on_press: app.fwget_func(part.text, version.text)
 
 <CommandScreen@Screen>:
-    BoxLayout:
-        orientation: "vertical"
+    GridLayout:
+        cols: 1
+        rows: 3
         GridLayout:
-            disabled: app.conn.state not in ('disconnected',)
-            cols: 2
-            padding: "5sp"
-            spacing: "5sp"
-            row_force_default: True
-            row_default_height: "40sp"
+            rows: 3
+            size_hint_y: .3
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: 0.3
+                TextInput:
+                    multiline: False
+                    on_text: app.conn.address = self.text
+                    font_size: '12sp'
+                    height: '12sp'
+            GridLayout:
+                disabled: app.conn.state not in ('disconnected',)
+                cols: 2
+                rows: 2
+                size_hint_y: 0.7
+                Spinner:
+                    values: ['BLE', 'TCP', 'Serial']
+                    on_text: app.conn.link = self.text.lower()
+                    text_autoupdate: True
+                    font_size: '12sp'
+                    height: '14sp'
+                Spinner:
+                    values: ['xiaomi', 'ninebot']
+                    on_text: app.conn.transport = self.text.lower()
+                    text_autoupdate: True
+                    font_size: '12sp'
+                    height: '14sp'
+            Button:
+                text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
+                disabled: app.conn.state not in ('connected', 'disconnected')
+                on_press: app.connection_toggle()
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: .65
+        AnchorLayout:
+            anchor_y: 'bottom'
+            size_hint_y: .10
 
-            # FIXME why doesn't it fit automatically?
-            size_hint_y: None
-
-            Spinner:
-                values: ['BLE', 'TCP', 'Serial']
-                on_text: app.conn.link = self.text.lower()
-                text_autoupdate: True
-            TextInput:
-                multiline: False
-                on_text: app.conn.address = self.text
-            Spinner:
-                values: ['xiaomi', 'ninebot']
-                on_text: app.conn.transport = self.text.lower()
-                text_autoupdate: True
-
-        Button:
-            size_hint_y: None
-            text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
-            disabled: app.conn.state not in ('connected', 'disconnected')
-            on_press: app.connect_pressed()
 
 <MainWindow>:
     orientation: "vertical"
-    BoxLayout:
-        size_hint_y: None
-        orientation: "horizontal"
-        Button:
-            text: "Flash"
-            on_press: manager.current = 'flash'
-        Button:
-            text: "Download"
-            on_press: manager.current = 'download'
-        Button:
-            text: "Command"
-            on_press: manager.current = 'command'
-
-    ScreenManager:
-        id: manager
-        FlashScreen:
-            name: "flash"
-        DownloadScreen:
-            name: "download"
-        CommandScreen:
-            name: "command"
+    GridLayout:
+        cols: 1
+        rows: 2
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: .08
+            Button:
+                text: "Flash"
+                font_size: '12sp'
+                height: '14sp'
+                on_press: manager.current = 'flash'
+            Button:
+                text: "Download"
+                font_size: '12sp'
+                height: '14sp'
+                on_press: manager.current = 'download'
+            Button:
+                text: "Command"
+                font_size: '12sp'
+                height: '14sp'
+                on_press: manager.current = 'command'
+        ScreenManager:
+            id: manager
+            FlashScreen:
+                name: "flash"
+            DownloadScreen:
+                name: "download"
+            CommandScreen:
+                name: "command"

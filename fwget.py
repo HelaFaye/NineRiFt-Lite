@@ -23,7 +23,7 @@ class FWGet():
             tprint("Created NineRiFt cache directory")
         self.progress = 0
         self.maxprogress = 100
-        self.model = 'esx'
+        self.model = ''
         self.getboth = False
         self.BLE = []
         self.DRV = []

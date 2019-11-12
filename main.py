@@ -45,7 +45,7 @@ class NineRiFt(App):
 
         return MainWindow()
 
-    def connect_pressed(self):
+    def connection_toggle(self):
         if self.conn.state == 'connected':
             self.conn.disconnect()
         elif self.conn.state == 'disconnected':
@@ -58,7 +58,7 @@ class NineRiFt(App):
         self.fwget.loadRepo(self.fwget.repoURL)
 
     @sidethread
-    def fwget_download(self, dev, version):
+    def fwget_func(self, dev, version):
         self.fwget.Gimme(dev, version)
 
     @mainthread
@@ -79,11 +79,10 @@ class NineRiFt(App):
     def on_stop(self):
         self.conn.disconnect()
 
-    def fwupd_flash(self, chooser):
+    def fwupd_func(self, chooser):
         if len(chooser.selection) != 1:
             tprint('Choose file to flash')
             return
-
         self.fwupd.Flash(chooser.selection[0])
 
 
