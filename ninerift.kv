@@ -66,6 +66,7 @@
             ProgressBar:
                 size_hint_y: .3
             Button:
+                disabled: app.conn.state in ('disconnected',)
                 size_hint_y: .7
                 font_size: '12sp'
                 height: '12sp'
@@ -137,7 +138,6 @@
         rows: 5
         GridLayout:
             size_hint_y: .15
-            disabled: app.conn.state not in ('disconnected',)
             cols: 1
             rows: 3
             BoxLayout:
