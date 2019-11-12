@@ -8,33 +8,10 @@
         rows: 3
         GridLayout:
             rows: 2
-            size_hint_y: .25
-            BoxLayout:
-                orientation: 'horizontal'
-                size_hint_y: .3
-                FormLabel:
-                    size_hint_x: .08
-                    text: "Addr:"
-                TextInput:
-                    multiline: False
-                    on_text_validate: app.conn.address = self.text.lower()
+            size_hint_y: .20
             GridLayout:
                 cols: 4
-                size_hint_y: .7
-                Spinner:
-                    text: 'Protocol'
-                    values: ['xiaomi', 'ninebot']
-                    font_size: '12sp'
-                    height: '14sp'
-                    sync_height: True
-                    on_text: app.conn.transport = self.text.lower()
-                Spinner:
-                    text: 'Interface'
-                    values: ['BLE', 'TCP', 'Serial']
-                    font_size: '12sp'
-                    height: '14sp'
-                    sync_height: True
-                    on_text: app.conn.link = self.text.lower()
+                size_hint_y: .25
                 Spinner:
                     text: 'Part'
                     values: ['BLE', 'DRV', 'BMS']
@@ -47,7 +24,7 @@
                     on_active: app.fwupd.lock = self.active
         BoxLayout:
             orientation: 'vertical'
-            size_hint_y: .5
+            size_hint_y: .6
             FileChooserListView:
                 id: filechooser
                 path: app.cache_folder
@@ -67,7 +44,6 @@
     GridLayout:
         cols: 1
         rows: 3
-        orientation: "vertical"
         AnchorLayout:
             anchor_y: 'top'
             GridLayout:
@@ -109,37 +85,11 @@
         cols: 1
         rows: 3
         GridLayout:
-            rows: 3
+            rows: 2
             size_hint_y: .3
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_y: 0.3
-                TextInput:
-                    multiline: False
-                    on_text: app.conn.address = self.text
-                    font_size: '12sp'
-                    height: '12sp'
-            GridLayout:
-                disabled: app.conn.state not in ('disconnected',)
-                cols: 2
-                rows: 2
-                size_hint_y: 0.7
-                Spinner:
-                    values: ['BLE', 'TCP', 'Serial']
-                    on_text: app.conn.link = self.text.lower()
-                    text_autoupdate: True
-                    font_size: '12sp'
-                    height: '14sp'
-                Spinner:
-                    values: ['xiaomi', 'ninebot']
-                    on_text: app.conn.transport = self.text.lower()
-                    text_autoupdate: True
-                    font_size: '12sp'
-                    height: '14sp'
-            Button:
-                text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
-                disabled: app.conn.state not in ('connected', 'disconnected')
-                on_press: app.connection_toggle()
         BoxLayout:
             orientation: 'vertical'
             size_hint_y: .65
@@ -152,10 +102,55 @@
     orientation: "vertical"
     GridLayout:
         cols: 1
-        rows: 2
+        rows: 5
+        GridLayout:
+            cols: 1
+            size_hint_y: .03
+        GridLayout:
+            size_hint_y: .12
+            disabled: app.conn.state not in ('disconnected',)
+            cols: 1
+            rows: 4
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: .25
+                FormLabel:
+                    text: "Addr:"
+                TextInput:
+                    multiline: False
+                    on_text_validate: app.conn.address = self.text.lower()
+                    font_size: '12sp'
+                    height: '12sp'
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: .25
+                Spinner:
+                    text: 'Interface'
+                    values: ['BLE', 'TCP', 'Serial']
+                    on_text: app.conn.link = self.text.lower()
+                    text_autoupdate: True
+                    font_size: '12sp'
+                    height: '14sp'
+                Spinner:
+                    text: 'Protocol'
+                    values: ['xiaomi', 'ninebot']
+                    on_text: app.conn.transport = self.text.lower()
+                    text_autoupdate: True
+                    font_size: '12sp'
+                    height: '14sp'
+            AnchorLayout:
+                anchor_y: 'bottom'
+                size_hint_y: .30
+                Button:
+                    text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
+                    disabled: app.conn.state not in ('connected', 'disconnected')
+                    on_press: app.connection_toggle()
+        GridLayout:
+            cols: 1
+            size_hint_y: .03
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: .08
+            size_hint_y: .10
             Button:
                 text: "Flash"
                 font_size: '12sp'
@@ -172,6 +167,7 @@
                 height: '14sp'
                 on_press: manager.current = 'command'
         ScreenManager:
+            size_hint_y: .72
             id: manager
             FlashScreen:
                 name: "flash"
