@@ -1,5 +1,4 @@
 import time
-from threading import Event
 from py9b.link.base import LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
 from py9b.command.regio import ReadRegs, WriteRegs
@@ -10,8 +9,6 @@ try:
 except:
     print('no toast for you')
 
-from nbclient import Client
-
 # toast or print
 def tprint(msg):
     try:
@@ -21,53 +18,18 @@ def tprint(msg):
 
 
 class Command:
-    def __init__(self):
-        self.transport = ''
-        self.link = ''
-        self.address = ''
+    def __init__(self, conn):
         self.new_sn = ''
         self.device = ''
-        self.c = None
-        self.client = Client()
-        self.connected = Event()
-
-    def setaddr(self, a):
-        self.address = a
-        self.client.setaddr(self.address)
-        tprint(self.address+' selected as address')
+        self.c = conn
 
     def setdev(self, d):
         self.device = d.lower()
         tprint(self.device+' selected as device')
 
-    def setiface(self, i):
-        self.link = i.lower()
-        self.client.setiface(self.link)
-        tprint(self.link+' selected as interface')
-
-    def setproto(self, p):
-        self.transport = p.lower()
-        self.client.setproto(self.transport)
-        tprint(self.transport+' selected as protocol')
-
     def setnewsn(self, p):
         self.new_sn = p
         tprint(self.new_sn+' input for newsn')
-
-    def open(self):
-        if self.c is None and self.client.connected.is_set() is False:
-            self.c = self.client.connect()
-            self.client.connected.wait(10)
-            self.connected.set()
-        else:
-            tprint('device connection already established')
-
-    def close(self):
-        if self.c is not None:
-            self.c = self.client.disconnect()
-            self.connected.clear()
-        self.c = None
-        tprint('device connection closed')
 
     def dump(self, device):
         dev = {
@@ -94,20 +56,24 @@ class Command:
                     tprint(exc)
 
     def powerdown(self):
-        self.tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
-        tprint('Done')
+        with self.c as tran:
+            tran.execute(WriteRegs(BT.ESC, 0x79, "<H", 0x0001))
+            tprint('Done')
 
     def lock(self):
-        self.tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
-        tprint('Done')
+        with self.c as tran:
+            tran.execute(WriteRegs(BT.ESC, 0x70, "<H", 0x0001))
+            tprint('Done')
 
     def unlock(self):
-        self.tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
-        tprint('Done')
+        with self.c as tran:
+            tran.execute(WriteRegs(BT.ESC, 0x71, "<H", 0x0001))
+            tprint('Done')
 
     def reboot(self):
-        self.tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
-        tprint('Done')
+        with self.c as tran:
+            tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
+            tprint('Done')
 
     def print_reg(self, tran, desc, reg, format, dev=BT.ESC):
         try:
