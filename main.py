@@ -42,6 +42,7 @@ class NineRiFt(App):
         self.fwget = FWGet(self.cache_folder)
 
         self.versel = BooleanProperty(False)
+        self.hasextbms = BooleanProperty(False)
 
     def build(self):
         self.initialize()
@@ -106,27 +107,28 @@ class NineRiFt(App):
         screen.ids.version.values = versions
         tprint('FWGet Vers. available: '+str(versions))
 
-    @mainthread
     def select_model(self, mod):
+        values = ['BLE', 'DRV', 'BMS']
         if mod.startswith('m365'):
-            hasextbms = False
+            self.hasextbms = False
             if mod is 'm365':
                 self.versel = True
             elif mod is 'm365pro':
                 self.versel = False
         if mod is 'esx':
             self.versel = False
-            hasextbms = True
-        if hasextbms is True:
+            self.hasextbms = True
+        if self.hasextbms is True:
             try:
-                fwupart.values.append('ExtBMS')
+                values.append('ExtBMS')
             except:
                 print('ExtBMS entry already present')
-        if hasextbms is False:
+        if self.hasextbms is False:
             try:
-                fwupart.values.remove('ExtBMS')
+                values.remove('ExtBMS')
             except:
                 print('no ExtBMS entry to remove')
+        return values
 
     def on_stop(self):
         self.conn.disconnect()
