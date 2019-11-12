@@ -12,9 +12,9 @@ import asyncio
 
 class Client(EventDispatcher):
     state = StringProperty('disconnected')
-    transport = StringProperty('xiaomi')
+    transport = StringProperty('')
     address = ObjectProperty('')
-    link = StringProperty('ble')
+    link = StringProperty('')
 
     _link = None
     _tran = None
