@@ -40,6 +40,8 @@ class NineRiFt(App):
         self.fwupd = FWUpd(self.conn)
         self.fwget = FWGet(self.cache_folder)
 
+        self.versel = False
+
     def build(self):
         self.initialize()
 
@@ -62,6 +64,33 @@ class NineRiFt(App):
         self.fwget.Gimme(dev, version)
 
     @mainthread
+    def selfile_filter(self, mod, vers, dev):
+            check = ['!.md5']
+            if mod is 'm365':
+                if dev is 'DRV':
+                    if vers=='>=141':
+                        sf = ['*.bin.enc']
+                        filechooser.filters = sf+check
+                    if vers=='<141':
+                        sf = ['*.bin']
+                        filechooser.filters = sf+check
+                else:
+                    sf = ['*.bin']
+                    filechooser.filters = sf+check
+            if mod is 'm365pro':
+                if dev is 'DRV':
+                    sf = ['*.bin.enc']
+                    filechooser.filters = sf+check
+                else:
+                    sf = ['*.bin']
+                    filters = sf+check
+            if mod is 'esx':
+                sf = ['*.bin.enc']
+                filechooser.filters = sf+check
+            print('selfile_filter set to %s' % selfile.filters)
+            return filters
+
+    @mainthread
     def fwget_update_versions(self, screen):
         sel = screen.ids.part.text
         if sel == 'BLE':
@@ -75,6 +104,28 @@ class NineRiFt(App):
         versions = [str(e) for e in dev]
         screen.ids.version.values = versions
         tprint('FWGet Vers. available: '+str(versions))
+
+    @mainthread
+    def select_model(self, mod):
+        if mod.startswith('m365'):
+            hasextbms = False
+            if mod is 'm365':
+                self.versel = True
+            elif mod is 'm365pro':
+                self.versel = False
+        if mod is 'esx':
+            self.versel = False
+            hasextbms = True
+        if hasextbms is True:
+            try:
+                fwupart.values.append('ExtBMS')
+            except:
+                print('ExtBMS entry already present')
+        if hasextbms is False:
+            try:
+                fwupart.values.remove('ExtBMS')
+            except:
+                print('no ExtBMS entry to remove')
 
     def on_stop(self):
         self.conn.disconnect()
