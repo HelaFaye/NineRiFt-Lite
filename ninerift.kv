@@ -87,7 +87,7 @@
                     id: model
                     text: 'Model'
                     values: ['esx', 'm365', 'm365pro']
-                    on_text: app.fwget_select_model(root, self.text); app.fwget_update_versions(root)
+                    on_text: app.fwget_select_model(root, self.text)
                     font_size: '12sp'
                     height: '12sp'
                     sync_height: True
@@ -95,7 +95,7 @@
                     id: part
                     text: 'Part'
                     values: ['BLE', 'DRV', 'BMS']
-                    on_text: app.fwget_update_versions(root)
+                    on_text: app.fwget_select_model(root, model.text); app.fwget_update_versions(root)
                     font_size: '12sp'
                     height: '12sp'
                     sync_height: True

@@ -48,20 +48,25 @@ class NineRiFt(App):
 
     def build(self):
         self.initialize()
-
         return MainWindow()
 
+    @sidethread
     def connection_toggle(self):
         if self.conn.state == 'connected':
             self.conn.disconnect()
         elif self.conn.state == 'disconnected':
             self.conn.connect()
-
+ 
     @sidethread
     def fwget_select_model(self, screen, mod):
-        self.fwget.setModel(mod)
-        self.fwget.setRepo("https://files.scooterhacking.org/" + mod + "/fw/repo.json")
-        self.fwget.loadRepo(self.fwget.repoURL)
+        if mod is not 'Model':
+            self.fwget.setModel(mod)
+            self.fwget.setRepo("https://files.scooterhacking.org/" + mod + "/fw/repo.json")
+            tprint('loading repo')
+            self.fwget.loadRepo(self.fwget.repoURL)
+            self.fwget_update_versions(screen)
+        else:
+            tprint('set model to update available versions')
 
     @sidethread
     def fwget_func(self, dev, version):
@@ -105,9 +110,10 @@ class NineRiFt(App):
             dev = self.fwget.DRV
         else:
             dev = []
-        versions = [str(e) for e in dev]
-        screen.ids.version.values = versions
-        tprint('FWGet Vers. available: '+str(versions))
+        if dev != []:
+            versions = [str(e) for e in dev]
+            tprint('FWGet Vers. available: '+str(versions))
+            screen.ids.version.values = versions
 
     def select_model(self, mod):
         values = ['BLE', 'DRV', 'BMS']
