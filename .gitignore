@@ -115,4 +115,4 @@ venv.bak/
 
 .android/ndk
 .android/sdk
-.buildozer
+.android/.buildozer
