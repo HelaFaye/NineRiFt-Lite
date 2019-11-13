@@ -64,6 +64,8 @@
             size_hint_y: .20
             ProgressBar:
                 size_hint_y: .3
+                value: app.flash_progress('prog')
+                max: app.flash_progress('max')
             Button:
                 disabled: app.conn.state in ('disconnected',)
                 size_hint_y: .7

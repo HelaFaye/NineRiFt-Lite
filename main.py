@@ -13,7 +13,7 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, Property
 
 from utils import tprint, sidethread
 from fwupd import FWUpd
@@ -43,6 +43,8 @@ class NineRiFt(App):
 
         self.versel = BooleanProperty(False)
         self.hasextbms = BooleanProperty(False)
+        self.maxprogress = 100
+        self.progress = 0
 
     def build(self):
         self.initialize()
@@ -129,6 +131,12 @@ class NineRiFt(App):
             except:
                 print('no ExtBMS entry to remove')
         return values
+
+    def flash_progress(self, var):
+        if var is 'prog':
+            return self.progress
+        if var is 'max':
+            return self.maxprogress
 
     def on_stop(self):
         self.conn.disconnect()
