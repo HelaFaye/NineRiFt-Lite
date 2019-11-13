@@ -113,6 +113,7 @@ venv.bak/
 # JetBrains stuff
 .idea/
 
+.android/bin
 .android/ndk
 .android/sdk
 .android/.buildozer
