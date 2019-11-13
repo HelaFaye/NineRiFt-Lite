@@ -10,7 +10,7 @@ package.name = NineRiFt
 package.domain = com.netrafire
 
 # (str) Source code where the main.py live
-source.dir = .
+source.dir = ..
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
