@@ -29,7 +29,7 @@
                     font_size: '12sp'
                     height: '12sp'
                     sync_height: True
-                    on_text: app.fwupd.device = self.text.lower()
+                    on_text: app.fwupd.device = self.text.lower(); app.selfile_filter(fwumodel.text, versel.text, self.text); filechooser.do_layout()
                 GridLayout:
                     cols: 2
                     size_hint_x: .5

@@ -69,23 +69,23 @@ class NineRiFt(App):
             check = ['!.md5']
             filters = []
             if mod is 'm365':
-                if dev is 'DRV':
+                if dev is not 'DRV':
+                    sf = ['*.bin']
+                    filters = sf+check
+                elif dev is 'DRV':
                     if vers=='>=141':
                         sf = ['*.bin.enc']
-                        filters = sf+check
-                    if vers=='<141':
+                    elif vers=='<141':
                         sf = ['*.bin']
-                        filters = sf+check
-                else:
-                    sf = ['*.bin']
+                    else:
+                        sf = ['']
                     filters = sf+check
             if mod is 'm365pro':
                 if dev is 'DRV':
                     sf = ['*.bin.enc']
-                    filters = sf+check
                 else:
                     sf = ['*.bin']
-                    filters = sf+check
+                filters = sf+check
             if mod is 'esx':
                 sf = ['*.bin.enc']
                 filters = sf+check
