@@ -10,7 +10,7 @@ package.name = NineRiFt
 package.domain = com.netrafire
 
 # (str) Source code where the main.py live
-source.dir = ..
+source.dir = ../../
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
@@ -105,10 +105,10 @@ android.minapi = 21
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = ./ndk
+android.ndk_path = ../../.android/ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = ./sdk
+android.sdk_path = ../../.android/sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
@@ -168,7 +168,7 @@ android.whitelist = lib-dynload/termios.so
 #android.ouya.icon.filename = %(source.dir)s/data/ouya_icon.png
 
 # (str) XML file to include as an intent filters in <activity> tag
-android.manifest.intent_filters = ../intent-filter.xml 
+android.manifest.intent_filters = ../../intent-filter.xml 
 
 # (str) launchMode to set for the main activity
 #android.manifest.launch_mode = standard
@@ -207,7 +207,7 @@ android.arch = armeabi-v7a
 #p4a.source_dir =
 
 # (str) The directory in which python-for-android should look for your own build recipes (if any)
-p4a.local_recipes = ./able/recipes
+p4a.local_recipes = ../../.android/able/recipes
 
 # (str) Filename to the hook for p4a
 #p4a.hook =
