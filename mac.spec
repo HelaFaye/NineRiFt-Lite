@@ -1,24 +1,28 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
-from kivy.tools.packaging.pyinstaller_hooks import get_deps_all, hookspath, runtime_hooks
 
-a = Analysis(['../../main.py'],
+a = Analysis(['main.py'],
              pathex=['./'],
-             binaries=None,
+             binaries=[],
+             datas=[],
+             hiddenimports=[],
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,
-             hookspath=hookspath(),
-             runtime_hooks=runtime_hooks(),
-             **get_deps_all())
+             noarchive=False)
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
+          [],
           exclude_binaries=True,
-          name='touchtracer',
+          name='NineRiFt',
           debug=False,
+          bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           console=False )
@@ -29,8 +33,9 @@ coll = COLLECT(exe, Tree('../../'),
                a.datas,
                strip=False,
                upx=True,
-               name='touchtracer')
+               name='NineRiFt')
+
 app = BUNDLE(coll,
-             name='touchtracer.app',
+             name='NineRiFt.app',
              icon=None,
          bundle_identifier=None)
