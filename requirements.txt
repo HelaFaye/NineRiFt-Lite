@@ -7,8 +7,10 @@ pygments
 pypiwin32
 kivy_deps.sdl2
 kivy_deps.glew
+kivy_deps.angle
 kivy_deps.gstreamer
 kivy_deps.glew_dev
 kivy_deps.sdl2_dev
 kivy_deps.gstreamer_dev
 requests
+twisted
