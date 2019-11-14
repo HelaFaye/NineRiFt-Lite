@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal, get_deps_all, hookspath, runtime_hooks
+from kivy_deps import sdl2, glew
 
 block_cipher = None
 
@@ -8,8 +10,8 @@ a = Analysis(['main.py'],
              binaries=[],
              datas=[],
              hiddenimports=[],
-             hookspath=[],
-             runtime_hooks=[],
+             hookspath=hookspath(),
+             runtime_hooks=runtime_hooks(),
              excludes=[],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,

@@ -1,6 +1,8 @@
 import os
+os.environ['KIVY_GL_BACKEND'] = 'sdl2'
 from threading import Thread
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -56,7 +58,7 @@ class NineRiFt(App):
             self.conn.disconnect()
         elif self.conn.state == 'disconnected':
             self.conn.connect()
- 
+
     @sidethread
     def fwget_select_model(self, screen, mod):
         if mod is not 'Model':
