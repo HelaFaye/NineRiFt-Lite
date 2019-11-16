@@ -1,0 +1,10 @@
+kivymd
+bleak
+kivy
+numpy
+Cython==0.29.10
+docutils
+pygments
+requests
+twisted
+image

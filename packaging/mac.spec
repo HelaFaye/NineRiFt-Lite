@@ -1,9 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
+from kivy_deps import sdl2, glew
 
 block_cipher = None
 
 a = Analysis(['main.py'],
-             pathex=['./'],
+             pathex=['../'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -26,11 +27,16 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False )
-coll = COLLECT(exe,
+coll = COLLECT(exe, Tree('../'),
+               Tree('/Library/Frameworks/SDL2_ttf.framework/Versions/A/Frameworks/FreeType.framework'),
                a.binaries,
                a.zipfiles,
                a.datas,
                strip=False,
                upx=True,
-               upx_exclude=[],
                name='NineRiFt')
+
+app = BUNDLE(coll,
+             name='NineRiFt.app',
+             icon=None,
+         bundle_identifier=None)

@@ -1,0 +1,16 @@
+kivymd
+bleak
+kivy
+numpy
+kivy.deps.glew
+kivy.deps.gstreamer
+kivy.deps.sdl2
+kivy.deps.angle
+Cython==0.29.10
+docutils
+pygments
+pypiwin32
+pygame
+requests
+twisted
+image

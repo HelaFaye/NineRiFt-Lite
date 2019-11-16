@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(['main.py'],
-             pathex=['./'],
+             pathex=['../'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -18,24 +18,15 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
           [],
-          exclude_binaries=True,
-          name='NineRiFt',
+          name='NineRiFt-Lin',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
+          upx_exclude=[],
+          runtime_tmpdir=None,
           console=False )
-coll = COLLECT(exe, Tree('../../'),
-               Tree('/Library/Frameworks/SDL2_ttf.framework/Versions/A/Frameworks/FreeType.framework'),
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               name='NineRiFt')
-
-app = BUNDLE(coll,
-             name='NineRiFt.app',
-             icon=None,
-         bundle_identifier=None)

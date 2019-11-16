@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(['main.py'],
-             pathex=['./'],
+             pathex=['../'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -22,7 +22,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='main',
+          name='NineRiFt-Win',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
