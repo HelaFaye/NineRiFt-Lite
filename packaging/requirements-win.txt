@@ -1,7 +1,9 @@
+setuptools
 kivymd
 bleak
 kivy
 numpy
+openssl
 kivy.deps.glew
 kivy.deps.gstreamer
 kivy.deps.sdl2
@@ -14,3 +16,4 @@ pygame
 requests
 twisted
 image
+pyserial

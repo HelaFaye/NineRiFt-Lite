@@ -1,1 +1,0 @@
-packaging/buildozer.spec

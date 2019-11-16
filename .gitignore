@@ -15,6 +15,7 @@ __pycache__/
 .idea/
 bin/
 build/
+.buildozer/
 develop-eggs/
 dist/
 downloads/
@@ -116,3 +117,7 @@ venv.bak/
 .android/ndk
 .android/sdk
 .android/.buildozer
+/requirements.txt
+/linux.spec
+/mac.spec
+/windows.spec
