@@ -1,5 +1,4 @@
 import os
-os.environ['KIVY_GL_BACKEND'] = 'sdl2'
 from threading import Thread
 from kivy.app import App
 from kivy.core.window import Window
@@ -22,7 +21,6 @@ from fwupd import FWUpd
 from fwget import FWGet
 from nbcmd import Command
 from nbclient import Client
-
 
 
 class MainWindow(BoxLayout):

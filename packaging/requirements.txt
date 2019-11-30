@@ -1,13 +1,10 @@
 kivymd
 bleak
-numpy
 kivy
-kivy_deps.glew
-kivy_deps.sdl2
-kivy_deps.angle
 Cython==0.29.10
 docutils
-pygments
 requests
+twisted
 image
 pyserial
+
