@@ -16,7 +16,7 @@
                     size_hint_x: .5
                     id: fwumodel
                     text:'Model'
-                    values: ['esx', 'm365', 'm365pro']
+                    values: ['esx', 'max', 'm365', 'm365pro']
                     sync_height: True
                     font_size: '12sp'
                     height: '12sp'
@@ -124,6 +124,12 @@
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_y: 0.3
+                Spinner:
+                    text: 'Script'
+                    values: ['']
+                    on_text:
+                    font_size: '12sp'
+                    height: '12sp'
         BoxLayout:
             orientation: 'vertical'
             size_hint_y: .65
