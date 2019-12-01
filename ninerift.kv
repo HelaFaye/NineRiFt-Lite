@@ -64,8 +64,8 @@
             size_hint_y: .20
             ProgressBar:
                 size_hint_y: .3
-                value: app.flash_progress('prog')
-                max: app.flash_progress('max')
+                value: app.progress
+                max: app.maxprogress
             Button:
                 disabled: app.conn.state in ('disconnected',)
                 size_hint_y: .7
@@ -86,7 +86,7 @@
                 Spinner:
                     id: model
                     text: 'Model'
-                    values: ['esx', 'm365', 'm365pro']
+                    values: ['esx', 'max', 'm365', 'm365pro']
                     on_text: app.fwget_select_model(root, self.text)
                     font_size: '12sp'
                     height: '12sp'
@@ -120,19 +120,19 @@
         rows: 3
         GridLayout:
             rows: 2
-            size_hint_y: .3
+            size_hint_y: .10
             BoxLayout:
                 orientation: 'vertical'
-                size_hint_y: 0.3
+                size_hint_y: 0.5
                 Spinner:
                     text: 'Script'
                     values: ['']
                     on_text:
                     font_size: '12sp'
                     height: '12sp'
-        BoxLayout:
+        ScrollView:
             orientation: 'vertical'
-            size_hint_y: .65
+            size_hint_y: .80
         AnchorLayout:
             anchor_y: 'bottom'
             size_hint_y: .10
