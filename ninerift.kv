@@ -82,7 +82,7 @@
             anchor_y: 'top'
             GridLayout:
                 cols: 3
-                size_hint_y: .25
+                size_hint_y: .15
                 Spinner:
                     id: model
                     text: 'Model'
@@ -119,11 +119,10 @@
         cols: 1
         rows: 3
         GridLayout:
-            rows: 2
-            size_hint_y: .10
+            rows: 1
+            size_hint_y: .1
             BoxLayout:
                 orientation: 'vertical'
-                size_hint_y: 0.5
                 Spinner:
                     text: 'Script'
                     values: ['']
@@ -138,13 +137,13 @@
             anchor_y: 'bottom'
             size_hint_y: .10
 
-
 <MainWindow>:
     orientation: "vertical"
     GridLayout:
         cols: 1
-        rows: 5
+        rows: 4
         GridLayout:
+            id: connman
             size_hint_y: .15
             cols: 1
             rows: 3
