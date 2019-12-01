@@ -1,7 +1,7 @@
 kivymd
 bleak
 kivy
-Cython==0.29.10
+Cython
 docutils
 requests
 twisted
