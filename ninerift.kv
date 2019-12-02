@@ -114,6 +114,11 @@
                 text: 'Download it!'
                 on_press: app.fwget_func(part.text, version.text)
 
+<ScriptUI@ScrollView>:
+    id: scriptspace
+    orientation: 'vertical'
+    size_hint_y: .80
+
 <CommandScreen@Screen>:
     GridLayout:
         cols: 1
@@ -125,17 +130,21 @@
                 orientation: 'vertical'
                 Spinner:
                     text: 'Script'
-                    values: ['']
-                    on_text:
+                    values: ['lock', 'unlock', 'reboot', 'powerdown', 'sniff', 'dump', 'info', 'changesn']
+                    on_text: app.cmd=self.text
                     font_size: '12sp'
                     height: '12sp'
-        ScrollView:
-            id: scriptspace
-            orientation: 'vertical'
-            size_hint_y: .80
+
+        ScriptUI:
+            Label:
+                text: 'test'
+
         AnchorLayout:
             anchor_y: 'bottom'
             size_hint_y: .10
+            Button:
+                text: "Execute"
+                on_press: app.executecmd(app.cmd)
 
 <MainWindow>:
     orientation: "vertical"
@@ -146,10 +155,10 @@
             id: connman
             size_hint_y: .15
             cols: 1
-            rows: 3
+            rows: 4
             BoxLayout:
+                size_hint_y: .325
                 orientation: 'horizontal'
-                size_hint_y: .20
                 FormLabel:
                     font_size: '12sp'
                     text: "Addr:"
@@ -158,8 +167,8 @@
                     on_text_validate: app.conn.address = self.text.lower()
                     font_size: '12sp'
             BoxLayout:
+                size_hint_y: .325
                 orientation: 'horizontal'
-                size_hint_y: .25
                 Spinner:
                     text: 'Interface'
                     values: ['BLE', 'TCP', 'Serial']
@@ -172,16 +181,19 @@
                     on_text: app.conn.transport = self.text.lower()
                     font_size: '12sp'
                     height: '12sp'
+            BoxLayout:
+                size_hint_y: .02
             AnchorLayout:
+                size_hint_y: .33
                 anchor_y: 'bottom'
-                size_hint_y: .30
                 Button:
                     text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
                     disabled: app.conn.state not in ('connected', 'disconnected')
+                    font_size: '12sp'
                     on_press: app.connection_toggle()
         GridLayout:
             cols: 1
-            size_hint_y: .02
+            size_hint_y: .01
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: .05
@@ -201,7 +213,7 @@
                 height: '12sp'
                 on_press: manager.current = 'command'
         ScreenManager:
-            size_hint_y: .60
+            size_hint_y: .80
             id: manager
             FlashScreen:
                 name: "flash"

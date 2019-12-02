@@ -15,7 +15,8 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
-from kivy.properties import BooleanProperty, Property
+from kivy.properties import StringProperty, BooleanProperty, Property
+from kivy.lang import Builder
 
 from utils import tprint, sidethread
 from fwupd import FWUpd
@@ -44,6 +45,8 @@ class NineRiFt(App):
 
         self.versel = BooleanProperty(False)
         self.hasextbms = BooleanProperty(False)
+        self.cmd = StringProperty()
+
         self.maxprogress = 100
         self.progress = 0
 
@@ -72,6 +75,32 @@ class NineRiFt(App):
     @sidethread
     def fwget_func(self, dev, version):
         self.fwget.Gimme(dev, version)
+
+    @mainthread
+    def loadcmdui(self,c):
+        tprint(c)
+
+    @sidethread
+    def executecmd(self, c):
+        if self.conn.state == 'connected':
+            if c is 'lock':
+                Command.lock()
+            if c is 'unlock':
+                Command.unlock()
+            if c is 'reboot':
+                Command.reboot()
+            if c is 'powerdown':
+                Command.powerdown()
+            if c is 'sniff':
+                Command.sniff()
+            if c is 'dump':
+                Command.dump()
+            if c is 'info':
+                Command.info()
+            if c is 'changesn':
+                Command.changesn()
+        elif self.conn.state == 'disconnected':
+            tprint("You aren't connected")
 
     def selfile_filter(self, mod, vers, dev):
             check = ['!.md5']
