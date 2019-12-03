@@ -1,0 +1,11 @@
+GridLayout:
+    cols: 1
+    rows: 2
+    Label:
+        size_hint_y: .2
+        text: "NewSN:"
+    TextInput:
+        size_hint_y: .4
+        multiline: False
+        on_text_validate: Command.setnewsn(self.text)
+        font_size: '12sp'

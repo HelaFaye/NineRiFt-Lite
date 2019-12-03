@@ -32,8 +32,16 @@ class CommandScreen(Screen):
     def setcmd(self,c):
         self.cmd = c
         ScriptUI = self.ids['scriptspace']
+        ScriptUI.clear_widgets()
         if c == 'changesn':
-            ScriptUI.clear_widgets()
+            changesnui = Builder.load_file("changesn.kv")
+            ScriptUI.add_widget(changesnui)
+        if c == 'dump':
+            dumpui = Builder.load_file("dump.kv")
+            ScriptUI.add_widget(dumpui)
+        else:
+            tprint('no UI change needed')
+
 
 class NineRiFt(App):
     def initialize(self):
@@ -97,11 +105,17 @@ class NineRiFt(App):
             if c is 'sniff':
                 Command.sniff()
             if c is 'dump':
-                Command.dump()
+                if Command.device is not '':
+                    Command.dump()
+                else:
+                    tprint('set device first')
             if c is 'info':
                 Command.info()
             if c is 'changesn':
-                Command.changesn()
+                if Command.new_sn is not '':
+                    Command.changesn()
+                else:
+                    tprint('set NewSN first')
         elif self.conn.state == 'disconnected':
             tprint("You aren't connected")
 
