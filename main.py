@@ -28,6 +28,12 @@ from nbclient import Client
 class MainWindow(BoxLayout):
     pass
 
+class CommandScreen(Screen):
+    def setcmd(self,c):
+        self.cmd = c
+        ScriptUI = self.ids['scriptspace']
+        if c == 'changesn':
+            ScriptUI.clear_widgets()
 
 class NineRiFt(App):
     def initialize(self):
@@ -52,7 +58,8 @@ class NineRiFt(App):
 
     def build(self):
         self.initialize()
-        return MainWindow()
+        self.mainwindow = MainWindow()
+        return self.mainwindow
 
     @sidethread
     def connection_toggle(self):
@@ -75,10 +82,6 @@ class NineRiFt(App):
     @sidethread
     def fwget_func(self, dev, version):
         self.fwget.Gimme(dev, version)
-
-    @mainthread
-    def loadcmdui(self,c):
-        tprint(c)
 
     @sidethread
     def executecmd(self, c):

@@ -115,7 +115,6 @@
                 on_press: app.fwget_func(part.text, version.text)
 
 <ScriptUI@ScrollView>:
-    id: scriptspace
     orientation: 'vertical'
     size_hint_y: .80
 
@@ -131,13 +130,14 @@
                 Spinner:
                     text: 'Script'
                     values: ['lock', 'unlock', 'reboot', 'powerdown', 'sniff', 'dump', 'info', 'changesn']
-                    on_text: app.cmd=self.text
+                    on_text: root.setcmd(self.text)
                     font_size: '12sp'
                     height: '12sp'
 
         ScriptUI:
+            id: scriptspace
             Label:
-                text: 'test'
+                text: 'ScriptUI'
 
         AnchorLayout:
             anchor_y: 'bottom'
