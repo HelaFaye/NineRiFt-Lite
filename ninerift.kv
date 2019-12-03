@@ -13,7 +13,6 @@
                 cols: 2
                 rows: 2
                 Spinner:
-                    size_hint_x: .5
                     id: fwumodel
                     text:'Model'
                     values: ['esx', 'max', 'm365', 'm365pro']
@@ -22,7 +21,6 @@
                     height: '12sp'
                     on_text: app.select_model(self.text); app.selfile_filter(self.text, versel.text, fwupart.text); filechooser.do_layout()
                 Spinner:
-                    size_hint_x: .5
                     id: fwupart
                     text: 'Part'
                     values: app.select_model(fwumodel.text)
@@ -32,7 +30,6 @@
                     on_text: app.fwupd.device = self.text.lower(); app.selfile_filter(fwumodel.text, versel.text, self.text); filechooser.do_layout()
                 GridLayout:
                     cols: 2
-                    size_hint_x: .5
                     FormLabel:
                         size_hint_x: .2
                         font_size: '12sp'
@@ -42,7 +39,6 @@
                         active: True
                         on_active: app.fwupd.lock = self.active
                 BoxLayout:
-                    size_hint_x: .5
                     Spinner:
                         disabled: fwumodel.text != 'm365'
                         id: versel
