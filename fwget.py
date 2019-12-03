@@ -138,7 +138,6 @@ class FWGet():
             if (r.status_code != 200):
                 noInternet = True
                 tprint("Failed to fetch JSON! Will use cached if available. (Server response not 200)")
-                tprint("If it's Max you're looking for, be patient")
         except requests.ConnectionError:
             tprint("Failed to fetch JSON! Will use cached if available. (requests.ConnectionError)")
             noInternet = True
