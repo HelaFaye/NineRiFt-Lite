@@ -36,7 +36,7 @@ version = 0.8
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = libffi, python3, kivy, android, requests, openssl, kivymd, able, pyjnius, pyserial, usb4a, usbserial4a
+requirements = python3, kivy, android, requests, openssl, kivymd, able, pyjnius, pyserial, usb4a, usbserial4a
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -168,7 +168,7 @@ android.whitelist = lib-dynload/termios.so
 #android.ouya.icon.filename = %(source.dir)s/data/ouya_icon.png
 
 # (str) XML file to include as an intent filters in <activity> tag
-android.manifest.intent_filters = ../intent-filter.xml 
+android.manifest.intent_filters = ../intent-filter.xml
 
 # (str) launchMode to set for the main activity
 #android.manifest.launch_mode = standard

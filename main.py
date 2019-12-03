@@ -107,14 +107,14 @@ class NineRiFt(App):
                 self.com.sniff()
             if c is 'dump':
                 if self.com.device is not '':
-                    self.com.dump()
+                    self.com.dump(self.com.device)
                 else:
                     tprint('set device first')
             if c is 'info':
                 self.com.info()
             if c is 'changesn':
                 if self.com.new_sn is not '':
-                    self.com.changesn()
+                    self.com.changesn(self.com.new_sn)
                 else:
                     tprint('set NewSN first')
         elif self.conn.state == 'disconnected':
