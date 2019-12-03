@@ -54,6 +54,7 @@ class NineRiFt(App):
         self.conn = Client()
         self.conn.bind(on_error=lambda a,b: tprint(b))
 
+        self.com = Command(self.conn)
         self.fwupd = FWUpd(self.conn)
         self.fwget = FWGet(self.cache_folder)
 
@@ -95,25 +96,25 @@ class NineRiFt(App):
     def executecmd(self, c):
         if self.conn.state == 'connected':
             if c is 'lock':
-                Command.lock()
+                self.com.lock()
             if c is 'unlock':
-                Command.unlock()
+                self.com.unlock()
             if c is 'reboot':
-                Command.reboot()
+                self.com.reboot()
             if c is 'powerdown':
-                Command.powerdown()
+                self.com.powerdown()
             if c is 'sniff':
-                Command.sniff()
+                self.com.sniff()
             if c is 'dump':
-                if Command.device is not '':
-                    Command.dump()
+                if self.com.device is not '':
+                    self.com.dump()
                 else:
                     tprint('set device first')
             if c is 'info':
-                Command.info()
+                self.com.info()
             if c is 'changesn':
-                if Command.new_sn is not '':
-                    Command.changesn()
+                if self.com.new_sn is not '':
+                    self.com.changesn()
                 else:
                     tprint('set NewSN first')
         elif self.conn.state == 'disconnected':

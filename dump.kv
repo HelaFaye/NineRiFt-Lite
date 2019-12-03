@@ -1,7 +1,10 @@
 GridLayout:
     cols: 1
+    rows: 2
     Spinner:
         size_hint_y: .2
         text: "Device"
         values: ['esc','ble','bms','extbms']
-        on_text: Command.setdev(self.text)
+        on_text: app.com.setdev(self.text)
+    BoxLayout:
+        size_hint_y: .8
