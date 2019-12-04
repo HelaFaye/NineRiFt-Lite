@@ -4,7 +4,7 @@
 title = NineRiFt
 
 # (str) Package name
-package.name = NineRiFt
+package.name = NineRiFtLite
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = com.netrafire
