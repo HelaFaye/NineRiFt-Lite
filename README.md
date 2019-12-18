@@ -1,22 +1,25 @@
-This is an Open-Source Ninebot and Xiaomi compatible scooter interface app.
-THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!! It is still being added to but is in a functional state.
+## This is an Open-Source Ninebot and Xiaomi compatible scooter interface app.
+
+### **THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!!** It is still being added to but is in a functional state.
 
 
 This application is written in Python3. To install required libraries, run the following two commands:
 
+```bash
 git clone --recursive https://github.com/slinger360/NineRiFt-kivy.git
 pip install -r requirements.txt
+```
 
-To build for Android read up on Buildozer.
+To build for Android read up on `Buildozer`.
 
-After that, you can either run NineRiFt on your Windows, Mac, or Linux machine by opening main.py using your Python3 interpreter or you can use a prebuilt APK for Android (you could also compile a build if you want).
+After that, you can either run NineRiFt on your `Windows`, `Mac`, or `Linux` machine by opening `main.py` using your Python3 interpreter or you can use a prebuilt APK for Android (you could also compile a build if you want).
 
 On Android, BLE and TCP-Serial is supported.
 
 On, Windows, Mac, and Linux, BLE, Serial, and TCP is supported.
 
 
-The Download screen is for downloading firmware:
+## The Download screen is for downloading firmware:
 
 1. Select device you need firmware for in the dropdown on the left
 
@@ -25,7 +28,7 @@ The Download screen is for downloading firmware:
 3. Click "Download it!" and wait for download to complete
 
 
-The Flash screen is for flashing firmware:
+## The Flash screen is for flashing firmware:
 
 1. (Optional) Type the first few digits or the full length of the MAC address of the target scooter for flashing
 
