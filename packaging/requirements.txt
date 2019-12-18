@@ -1,0 +1,9 @@
+kivymd
+bleak
+kivy
+kivymd
+docutils
+requests
+twisted
+image
+pyserial

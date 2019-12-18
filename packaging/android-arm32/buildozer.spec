@@ -4,13 +4,13 @@
 title = NineRiFt
 
 # (str) Package name
-package.name = NineRiFt
+package.name = NineRiFtLite
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = com.netrafire
 
 # (str) Source code where the main.py live
-source.dir = .
+source.dir = ../../
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
@@ -28,7 +28,7 @@ source.include_exts = py,png,jpg,kv,atlas
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.5
+version = 1.4
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -36,7 +36,7 @@ version = 0.5
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,android,able,requests,openssl
+requirements = python3, kivy, android, requests, openssl, kivymd, able, pyjnius, pyserial, usb4a, usbserial4a
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -48,7 +48,7 @@ requirements = python3,kivy,android,able,requests,openssl
 #presplash.filename = %(source.dir)s/data/presplash.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = %(source.dir)s/packaging/icon.png
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = all
@@ -64,7 +64,7 @@ orientation = all
 # author = © Copyright Info
 
 # change the major version of python used by the app
-osx.python_version = 2
+osx.python_version = 3
 
 # Kivy version to use
 osx.kivy_version = 1.9.1
@@ -74,7 +74,7 @@ osx.kivy_version = 1.9.1
 #
 
 # (bool) Indicate if the application should be fullscreen or not
-fullscreen = 1
+fullscreen = 0
 
 # (string) Presplash background color (for new android toolchain)
 # Supported formats are: #RRGGBB #AARRGGBB or one of the following names:
@@ -87,10 +87,10 @@ fullscreen = 1
 android.permissions = INTERNET, READ_EXTERNAL_STORAGE, BLUETOOTH, BLUETOOTH_ADMIN, ACCESS_COARSE_LOCATION
 
 # (int) Target Android API, should be as high as possible.
-android.api = 28
+android.api = 29
 
 # (int) Minimum API your APK will support.
-#android.minapi = 18
+android.minapi = 21
 
 # (int) Android SDK version to use
 #android.sdk = 28
@@ -105,10 +105,10 @@ android.api = 28
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = /opt/android-studio/ndk-bundle
+android.ndk_path = ../../.android/ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = /opt/Android/Sdk
+android.sdk_path = ../../.android/sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
@@ -128,7 +128,7 @@ android.accept_sdk_license = True
 #android.entrypoint = org.renpy.android.PythonActivity
 
 # (list) Pattern to whitelist for the whole project
-#android.whitelist =
+android.whitelist = lib-dynload/termios.so
 
 # (str) Path to a custom whitelist file
 #android.whitelist_src =
@@ -167,9 +167,6 @@ android.accept_sdk_license = True
 # (str) Filename of OUYA Console icon. It must be a 732x412 png image.
 #android.ouya.icon.filename = %(source.dir)s/data/ouya_icon.png
 
-# (str) XML file to include as an intent filters in <activity> tag
-#android.manifest.intent_filters =
-
 # (str) launchMode to set for the main activity
 #android.manifest.launch_mode = standard
 
@@ -191,7 +188,7 @@ android.wakelock = True
 #android.library_references =
 
 # (str) Android logcat filters to use
-#android.logcat_filters = *:S python:D
+android.logcat_filters = *:S python:D
 
 # (bool) Copy library instead of making a libpymodules.so
 #android.copy_libs = 1
@@ -207,7 +204,7 @@ android.arch = armeabi-v7a
 #p4a.source_dir =
 
 # (str) The directory in which python-for-android should look for your own build recipes (if any)
-p4a.local_recipes = ~/able/recipes
+p4a.local_recipes = ../../.android/able/recipes
 
 # (str) Filename to the hook for p4a
 #p4a.hook =
@@ -218,22 +215,20 @@ p4a.local_recipes = ~/able/recipes
 # (int) port number to specify an explicit --port= p4a argument (eg for bootstrap flask)
 #p4a.port =
 
-android.whitelist = lib-dynload/termios.so
-
 
 #
 # iOS specific
 #
 
 # (str) Path to a custom kivy-ios folder
-#ios.kivy_ios_dir = ../kivy-ios
+#ios.kivy_ios_dir = ../../kivy-ios
 # Alternately, specify the URL and branch of a git checkout:
 ios.kivy_ios_url = https://github.com/kivy/kivy-ios
 ios.kivy_ios_branch = master
 
 # Another platform dependency: ios-deploy
 # Uncomment to use a custom checkout
-#ios.ios_deploy_dir = ../ios_deploy
+#ios.ios_deploy_dir = ../../ios_deploy
 # Or specify URL and branch
 ios.ios_deploy_url = https://github.com/phonegap/ios-deploy
 ios.ios_deploy_branch = 1.7.0
@@ -255,10 +250,10 @@ log_level = 2
 warn_on_root = 1
 
 # (str) Path to build artifact storage, absolute or relative to spec file
-# build_dir = ./.buildozer
+build_dir = ./.buildozer
 
 # (str) Path to build output (i.e. .apk, .ipa) storage
-# bin_dir = ./bin
+bin_dir = ../bin32
 
 #    -----------------------------------------------------------------------------
 #    List as sections

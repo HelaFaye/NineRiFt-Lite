@@ -1,0 +1,19 @@
+GridLayout:
+    cols: 1
+    rows: 2
+    GridLayout:
+        rows: 2
+        cols: 1
+        size_hint_y: .15
+        Label:
+            font_size: '12sp'
+            height: '12sp'
+            text: "NewSN:"
+        TextInput:
+            multiline: False
+            font_size: '12sp'
+            height: '12sp'
+            on_text_validate: app.com.setnewsn(self.text)
+            font_size: '12sp'
+    BoxLayout:
+        size_hint_y: .85

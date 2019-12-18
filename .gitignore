@@ -15,8 +15,8 @@ __pycache__/
 .idea/
 bin/
 build/
-develop-eggs/
 .buildozer/
+develop-eggs/
 dist/
 downloads/
 eggs/
@@ -36,7 +36,7 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-*.spec
+.spec
 
 # Installer logs
 pip-log.txt
@@ -109,3 +109,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# JetBrains stuff
+.idea/
+
+.android/bin
+.android/ndk
+.android/sdk
+/packaging/ninerift-1a.svg

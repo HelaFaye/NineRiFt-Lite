@@ -1,145 +1,209 @@
-from __future__ import print_function
-from sys import exit
 import os
-
+from threading import Thread
 from kivy.app import App
+from kivy.core.window import Window
+from kivy.clock import Clock, mainthread
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
-#from kivy.uix.progressbar import ProgressBar
+from kivy.uix.progressbar import ProgressBar
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.utils import platform
+from kivy.properties import StringProperty, BooleanProperty, Property
+from kivy.lang import Builder
+
+from utils import tprint, sidethread, specialthread
 from fwupd import FWUpd
 from fwget import FWGet
+from nbcmd import Command
+from nbclient import Client
+
+
+class MainWindow(BoxLayout):
+    pass
+
+class FlashScreen(Screen):
+    def setprog(self, prog, mprog):
+        ProgBar = self.ids['fwprogbar']
+        ProgBar.value = prog
+        ProgBar.max = mprog
+
+class CommandScreen(Screen):
+    def setcmd(self,c):
+        ScriptUI = self.ids['scriptspace']
+        ScriptUI.clear_widgets()
+        if c == 'changesn':
+            changesnui = Builder.load_file("changesn.kv")
+            ScriptUI.add_widget(changesnui)
+        if c == 'dump':
+            dumpui = Builder.load_file("dump.kv")
+            ScriptUI.add_widget(dumpui)
 
 
 class NineRiFt(App):
+    def initialize(self):
+        self.root_folder = self.user_data_dir
+        self.cache_folder = os.path.join(self.root_folder, 'cache')
+
+        if not os.path.exists(self.cache_folder):
+            os.makedirs(self.cache_folder)
+
+        self.conn = Client()
+        self.conn.bind(on_error=lambda a,b: tprint(b))
+
+        self.com = Command(self.conn)
+        self.fwupd = FWUpd(self.conn)
+        self.fwget = FWGet(self.cache_folder)
+
+        self.versel = BooleanProperty(False)
+        self.hasextbms = BooleanProperty(False)
+        tprint("Don't forget to post a review on the Play Store")
+
     def build(self):
-        root_folder = getattr(self, 'user_data_dir')
-        cache_folder = os.path.join(root_folder, 'cache')
-        fwget = FWGet(cache_folder)
-        fwupd = FWUpd()
+        self.initialize()
+        self.mainwindow = MainWindow()
+        return self.mainwindow
 
-        sm = ScreenManager()
-        def switch_screen(scrn):
-            sm.current = scrn
-        flashscreen = Screen(name='Flash')
-        downloadscreen = Screen(name='Download')
+    @specialthread
+    def connection_toggle(self):
+        if self.conn.state == 'connected':
+            self.conn.disconnect()
+        elif self.conn.state == 'disconnected':
+            self.conn.connect()
 
+    @sidethread
+    def fwget_select_model(self, screen, mod):
+        if mod is not 'Model':
+            self.fwget.setModel(mod)
+            self.fwget.setRepo("https://files.scooterhacking.org/" + mod + "/fw/repo.json")
+            tprint('loading repo')
+            self.fwget.loadRepo(self.fwget.repoURL)
+            self.fwget_update_versions(screen)
+        else:
+            tprint('set model to update available versions')
 
-        seladdr_label = Label(text="Addr:", font_size='12sp', height='15sp',
-         size_hint_y=1, size_hint_x=.08)
-        seladdr_input = TextInput(multiline=False, text='',
-        height='15sp', font_size='12sp', size_hint_x=.92, size_hint_y=1)
-        seladdr_input.bind(on_text_validate=lambda x: fwupd.setaddr(seladdr_input.text))
-        selfile_label = Label(text="FW file:", font_size='12sp', size_hint_x=1, height='12sp')
-        if platform != 'android':
-            ifaceselspin = Spinner(text='Interface', values=('TCP', 'Serial', 'BLE')
-        , font_size='12sp',height='14sp', sync_height=True)
-        elif platform == 'android':
-            ifaceselspin = Spinner(text='Interface', values=('TCP', 'BLE')
-        , font_size='12sp',height='14sp', sync_height=True)
-        ifaceselspin.bind(text=lambda x, y: fwupd.setiface(ifaceselspin.text))
-        devselspin = Spinner(text='Device', values=('BLE', 'ESC', 'BMS', 'ExtBMS'),
-         sync_height=True, font_size='12sp', height='14sp')
-        devselspin.bind(text=lambda x, y: fwupd.setdev(devselspin.text))
+    @sidethread
+    def fwget_func(self, dev, version):
+        self.fwget.Gimme(dev, version)
 
-        selfile = FileChooserListView(path=cache_folder)
-        flash_button = Button(text="Flash It!", font_size='12sp', height='14sp',
-         on_press=lambda x: fwupd.Flash(selfile.selection[0]))
+    @sidethread
+    def executecmd(self, c):
+        if self.conn.state == 'connected':
+            tprint(c+' execute')
+            if c is 'lock':
+                self.com.lock()
+            if c is 'unlock':
+                self.com.unlock()
+            if c is 'reboot':
+                self.com.reboot()
+            if c is 'powerdown':
+                self.com.powerdown()
+            if c is 'sniff':
+                self.com.sniff()
+            if c is 'dump':
+                if self.com.device is not '':
+                    self.com.dump(self.com.device)
+                else:
+                    tprint('set device first')
+            if c is 'info':
+                self.com.info()
+            if c is 'changesn':
+                if self.com.new_sn is not '':
+                    self.com.changesn(self.com.new_sn)
+                else:
+                    tprint('set NewSN first')
+        elif self.conn.state == 'disconnected':
+            tprint("You aren't connected")
 
-        switcherlayout = BoxLayout(orientation='horizontal', size_hint_y=.08)
-        flashtoplayout = GridLayout(rows=2, size_hint_y=.2)
-        flashaddrlayout = BoxLayout(orientation='horizontal', size_hint_y=.3)
-        flashaddrlayout.add_widget(seladdr_label)
-        flashaddrlayout.add_widget(seladdr_input)
-        #flashtopbtnlayout = GridLayout(orientation='horizontal', cols=3, size_hint_y=.7)
-        flashtopbtnlayout = GridLayout(orientation='horizontal', cols=2, size_hint_y=.7)
-        # topbtnlayout.add_widget(ble_button)
-        # topbtnlayout.add_widget(esc_button)
-        # topbtnlayout.add_widget(bms_button)
-        # topbtnlayout.add_widget(ebms_button)
-        flashtopbtnlayout.add_widget(ifaceselspin)
-        flashtopbtnlayout.add_widget(devselspin)
-        #flashtopbtnlayout.add_widget()
-        flashtoplayout.add_widget(flashaddrlayout)
-        flashtoplayout.add_widget(flashtopbtnlayout)
-        flashmidlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
-        flashmidlabelbox = AnchorLayout(anchor_y='top', size_hint_y=.1)
-        flashmidlabelbox.add_widget(selfile_label)
-        flashmidlayout.add_widget(flashmidlabelbox)
-        flashmidlayout.add_widget(selfile)
-        flashbotlayout = BoxLayout(orientation='vertical', size_hint_y=.15)
-        flashbotlayout.add_widget(flash_button)
-        #botlayout.add_widget(pb)
+    def selfile_filter(self, mod, vers, dev):
+            check = ['!.md5']
+            filters = []
+            if mod is 'm365':
+                if dev is not 'DRV':
+                    sf = ['*.bin']
+                    filters = sf+check
+                elif dev is 'DRV':
+                    if vers=='>=141':
+                        sf = ['*.bin.enc']
+                    elif vers=='<141':
+                        sf = ['*.bin']
+                    else:
+                        sf = ['']
+                    filters = sf+check
+            if mod is 'm365pro':
+                if dev is 'DRV':
+                    sf = ['*.bin.enc']
+                else:
+                    sf = ['*.bin']
+                filters = sf+check
+            if mod is 'esx' or 'max':
+                sf = ['*.bin.enc']
+                filters = sf+check
+            print('selfile_filter set to %s' % filters)
+            return filters
 
-        flashlayout = GridLayout(cols=1, rows=3)
-        flashlayout.add_widget(flashtoplayout)
-        flashlayout.add_widget(flashmidlayout)
-        flashlayout.add_widget(flashbotlayout)
+    @mainthread
+    def fwget_update_versions(self, screen):
+        sel = screen.ids.part.text
+        if sel == 'BLE':
+            dev = self.fwget.BLE
+        elif sel == 'BMS':
+            dev = self.fwget.BMS
+        elif sel == 'DRV':
+            dev = self.fwget.DRV
+        else:
+            dev = []
+        if dev != []:
+            versions = [str(e) for e in dev]
+            tprint('FWGet Vers. available: '+str(versions))
+            screen.ids.version.values = versions
 
-        fwget_devselspin = Spinner(text='Device', values=('BLE', 'DRV', 'BMS'),
-         sync_height=True, font_size='12sp', height='14sp')
-        fwget_verselspin = Spinner(text='Version', sync_height=True,
-         font_size='12sp', height='14sp', values = [], text_autoupdate = True)
+    def select_model(self, mod):
+        values = ['BLE', 'DRV', 'BMS']
+        if mod.startswith('m365'):
+            self.hasextbms = False
+            if mod is 'm365':
+                self.versel = True
+            elif mod is 'm365pro':
+                self.versel = False
+        if mod is 'esx':
+            self.versel = False
+            self.hasextbms = True
+        if mod is 'max':
+            self.versel = False
+            self.hasextbms = False
+        if self.hasextbms is True:
+            try:
+                values.append('ExtBMS')
+            except:
+                print('ExtBMS entry already present')
+        if self.hasextbms is False:
+            try:
+                values.remove('ExtBMS')
+            except:
+                print('no ExtBMS entry to remove')
+        return values
 
-        def fwget_preload():
-            fwget.setRepo("https://files.scooterhacking.org/esx/fw/repo.json")
-            fwget.loadRepo(fwget.repoURL)
-        fwget_preload()
+    def on_stop(self):
+        self.conn.disconnect()
 
-        def fwget_dynver(sel):
-            fwget_verselspin.values = []
-            if sel == 'BLE':
-                dev = fwget.BLE
-            elif sel == 'BMS':
-                dev = fwget.BMS
-            elif sel == 'DRV':
-                dev = fwget.DRV
-            for i in dev:
-                fwget_verselspin.values.append(str(i))
-            return fwget_verselspin.values
+    @sidethread
+    def fwupd_func(self, chooser):
+        if len(chooser.selection) != 1:
+            tprint('Choose file to flash')
+            return
+        self.fwupd.Flash(chooser.selection[0])
 
-        fwget_devselspin.bind(text=lambda x, y: fwget_dynver(fwget_devselspin.text))
-        fwget_download_button = Button(text="Download It!", font_size='12sp', height='14sp',
-         on_press=lambda x: fwget.Gimme(fwget_devselspin.text, fwget_verselspin.text))
-
-        fwget_toplayout = AnchorLayout(anchor_y='top', size_hint_y=.15)
-        fwget_topbtnlayout = GridLayout(cols=2)
-        fwget_topbtnlayout.add_widget(fwget_devselspin)
-        fwget_topbtnlayout.add_widget(fwget_verselspin)
-        fwget_toplayout.add_widget(fwget_topbtnlayout)
-        fwget_midlayout = BoxLayout(orientation='vertical', size_hint_y=.70)
-        fwget_botlayout = AnchorLayout(anchor_y='bottom', size_hint_y=.15)
-        fwget_botlayout.add_widget(fwget_download_button)
-        downloadlayout = GridLayout(cols=1, rows=3)
-        downloadlayout.add_widget(fwget_toplayout)
-        downloadlayout.add_widget(fwget_midlayout)
-        downloadlayout.add_widget(fwget_botlayout)
-
-        fwupd_screen_btn = Button(text="Flash", font_size='12sp', height='14sp',
-         on_press=lambda x: switch_screen('Flash'))
-        fwget_screen_btn = Button(text="Download", font_size='12sp', height='14sp',
-         on_press=lambda x: switch_screen('Download'))
-
-        switcherlayout.add_widget(fwupd_screen_btn)
-        switcherlayout.add_widget(fwget_screen_btn)
-
-        mainlayout = GridLayout(cols=1, rows=2)
-        mainlayout.add_widget(switcherlayout)
-
-        flashscreen.add_widget(flashlayout)
-        downloadscreen.add_widget(downloadlayout)
-        sm.add_widget(flashscreen)
-        sm.add_widget(downloadscreen)
-
-        mainlayout.add_widget(sm)
-        return mainlayout
+    @mainthread
+    def setprogbar(self, prog, maxprog):
+        FlashScreen.setprog(prog, maxprog)
 
 if __name__ == "__main__":
     NineRiFt().run()
+    tprint("Don't forget to post a review")

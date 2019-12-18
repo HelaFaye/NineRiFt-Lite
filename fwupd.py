@@ -1,3 +1,4 @@
+import os
 
 from py9b.link.base import LinkOpenException, LinkTimeoutException
 from py9b.transport.base import BaseTransport as BT
@@ -5,153 +6,103 @@ from py9b.transport.xiaomi import XiaomiTransport
 from py9b.transport.ninebot import NinebotTransport
 from py9b.command.regio import ReadRegs, WriteRegs
 from py9b.command.update import *
+
 from kivy.utils import platform
-import os
+from kivy.clock import mainthread
+from kivy.event import EventDispatcher
+from kivy.properties import BooleanProperty, StringProperty, ObjectProperty
+from utils import tprint, specialthread
 
-class FWUpd(object):
-    def __init__(self):
-        self.devices = {'ble': BT.BLE, 'esc': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
+
+class FWUpd(EventDispatcher):
+    device = StringProperty('')
+    lock = BooleanProperty(True)
+
+    def __init__(self, conn):
+        self.devices = {'ble': BT.BLE, 'drv': BT.ESC, 'bms': BT.BMS, 'extbms': BT.EXTBMS}
         self.protocols = {'xiaomi': XiaomiTransport, 'ninebot': NinebotTransport}
-        self.PING_RETRIES = 20
-        self.device = 'esc'
-        self.fwfilep = ''
-        self.interface = 'ble'
-        self.protocol = 'ninebot'
-        self.address = ''
+        self.PING_RETRIES = 3
+        self.nolock = False
+        self.conn = conn
 
-    def setaddr(self, a):
-        self.address = a
-        print(self.address+' selected as address')
-
-    def setdev(self, d):
-        self.device = d.lower()
-        print(self.device+' selected as device')
-
-    def setfwfilep(self, f):
-        self.fwfilep = f
-        print(self.fwfilep+' selected as fwfile')
-
-    def setiface(self, i):
-        self.interface = i.lower()
-        print(self.interface+' selected as interface')
-
-    def setproto(self, p):
-        self.protocol = p.lower()
-        print(self.protocol+' selected as protocol')
-
-    def checksum(s, data):
+    def checksum(self, s, data):
         for c in data:
-            s += ord(c)
+            s += c
         return (s & 0xFFFFFFFF)
 
-    def UpdateFirmware(self, link, tran, dev, fwfile):
-        print('flashing '+self.fwfilep+' to ' + self.device)
+    def UpdateFirmware(self, tran, dev, fwfile):
+        tprint('update started')
+
+        tprint('flashing '+self.fwfilep+' to ' + self.device)
         fwfile.seek(0, os.SEEK_END)
         fw_size = fwfile.tell()
         fwfile.seek(0)
         fw_page_size = 0x80
 
         dev = self.devices.get(self.device)
-        print('Pinging...')
+
+
         for retry in range(self.PING_RETRIES):
-            print('.')
+            tprint('Pinging...')
             try:
                 if dev == BT.BLE:
-                    tran.execute(ReadRegs(dev, 0, '13s'))
+                    tran.execute(ReadRegs(dev, 0, "13s"))
                 else:
-                    tran.execute(ReadRegs(dev, 0x10, '14s'))
+                    tran.execute(ReadRegs(dev, 0x10, "14s"))
             except LinkTimeoutException:
                 continue
             break
         else:
-            print('Timed out !')
+            tprint("Timed out!")
             return False
-        print('OK')
+        tprint("OK")
 
-        if self.interface != 'tcpnl':
-            print('Locking...')
+        if self.lock:
+            tprint('Locking...')
             tran.execute(WriteRegs(BT.ESC, 0x70, '<H', 0x0001))
         else:
-            print('Not Locking...')
+            tprint('Not Locking...')
 
-        print('Starting...')
+        tprint('Starting...')
         tran.execute(StartUpdate(dev, fw_size))
 
-        print('Writing...')
+        tprint('Writing...')
+
         page = 0
         chk = 0
         while fw_size:
+            self.update_progress(page, fw_size // fw_page_size + 1)
             chunk_sz = min(fw_size, fw_page_size)
             data = fwfile.read(chunk_sz)
             chk = self.checksum(chk, data)
-            #tran.execute(WriteUpdate(dev, page, data))
             tran.execute(WriteUpdate(dev, page, data+b'\x00'*(fw_page_size-chunk_sz)))
             page += 1
             fw_size -= chunk_sz
 
-        print('Finalizing...')
+        tprint('Finalizing...')
         tran.execute(FinishUpdate(dev, chk ^ 0xFFFFFFFF))
 
-        print('Reboot')
+        tprint('Reboot')
         tran.execute(RebootUpdate(dev))
-        print('Done')
+        tprint('Done')
+        tprint('update finished')
         return True
 
+    @specialthread
     def Flash(self, fwfilep):
-        if self.device == 'extbms' and self.protocol != 'ninebot':
-            exit('Only Ninebot supports External BMS !')
-        self.setfwfilep(fwfilep)
+        if self.device == 'extbms' and self.conn.transport != 'ninebot':
+            tprint('Only Ninebot supports External BMS !')
+            return
+        self.fwfilep = fwfilep
         file = open(fwfilep, 'rb')
         dev = self.devices.get(self.device)
-        if self.interface == 'ble':
-            if platform != 'android':
-                try:
-                    from py9b.link.ble import BLELink
-                except:
-                    exit('BLE is not yet working with your configuration !')
-            elif platform == 'android':
-                try:
-                    from py9b.link.droidble import BLELink
-                except:
-                    exit('BLE on Android failed to import!')
-            else:
-                exit('BLE is not supported on your system !')
-            link = BLELink()
-        elif self.interface == 'tcp':
-            from py9b.link.tcp import TCPLink
-            link = TCPLink()
-        elif self.interface == 'serial':
-            if platform == 'android':
-                exit('Serial is not yet supported on Android !')
-            from py9b.link.serial import SerialLink
-            link = SerialLink()
-        else:
-            exit('!!! BUG !!! Unknown interface selected: '+self.interface)
+        tran = self.conn._tran
+        try:
+            self.UpdateFirmware(tran, dev, file)
+        except Exception as e:
+            tprint('Error: %r' % (e,))
+            raise
 
-        with link:
-            tran = self.protocols.get(self.protocol)(link)
-
-            if self.address:
-                addr = self.address
-                print('link address assigned')
-            else:
-                try:
-                    print('Scanning...')
-                    ports = link.scan()
-                    if not ports:
-                        exit("No interfaces found !")
-                    print('Connecting to', ports[0][0])
-                    addr = ports[0][1]
-                except:
-                    raise LinkOpenException
-            try:
-                link.open(addr)
-            except:
-                print('failed to open link')
-                raise LinkOpenException
-            print('Connected')
-            try:
-                self.UpdateFirmware(link, tran, dev, file)
-            except Exception as e:
-                print('Error:', e)
-                raise
+    @mainthread
+    def update_progress(self, progress, maxprogress):
+        setprogbar(progress, maxprogress)

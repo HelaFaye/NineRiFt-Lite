@@ -1,0 +1,12 @@
+GridLayout:
+    cols: 1
+    rows: 2
+    Spinner:
+        text: "Device"
+        font_size: '12sp'
+        height: '12sp'
+        size_hint_y: .15
+        values: ['esc','ble','bms','extbms']
+        on_text: app.com.setdev(self.text)
+    BoxLayout:
+        size_hint_y: .85

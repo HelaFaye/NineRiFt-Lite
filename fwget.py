@@ -1,9 +1,17 @@
 import os
-from os import path
 import requests
-from kivy.utils import platform
 import hashlib
+try:
+    from kivymd.toast import toast
+except:
+    print('no toast for you')
 
+# toast or print
+def tprint(msg):
+    try:
+        toast(msg)
+    except:
+        print(msg)
 
 class FWGet():
     def __init__(self, cache):
@@ -12,7 +20,17 @@ class FWGet():
         self.dirname = "null"
         if not os.path.exists(self.cachePath):
             os.makedirs(self.cachePath)
-            print("Created NineRiFt cache directory")
+            tprint("Created NineRiFt cache directory")
+        self.progress = 0
+        self.maxprogress = 100
+        self.model = ''
+        self.getboth = False
+        self.BLE = []
+        self.DRV = []
+        self.BMS = []
+
+    def setModel(self, model):
+        self.model = model
 
     def setRepo(self, repo):
         self.repoURL = repo
@@ -36,7 +54,7 @@ class FWGet():
 
     def getFile(self, FWtype, version):
         if (self.repoURL == "http://null" or self.dirname == "null"):
-            print("You need to load a valid repo first.")
+            tprint("You need to load a valid repo first.")
             return(False)
         noInternet = False
         if not os.path.exists(self.cachePath + "/" + self.dirname + "/"):
@@ -46,11 +64,18 @@ class FWGet():
             r = requests.head(self.repoURL)
             if (r.status_code != 200):
                 noInternet = True
-                print("Failed to connect to the repo, using local files if available (Server response not 200)")
+                tprint("Failed to connect to the repo, using local files if available (Server response not 200)")
         except requests.ConnectionError:
-            print("Failed to connect to the repo, using local files if available (requests.ConnectionError)")
+            tprint("Failed to connect to the repo, using local files if available (requests.ConnectionError)")
             noInternet = True
-        filename = FWtype.upper() + version + ".bin.enc"
+        if self.model.startswith('m365'):
+            if FWtype is 'DRV' and self.getboth is False:
+                filename = FWtype.upper() + version + ".bin.enc"
+                self.getboth = True
+            else:
+                filename = FWtype.upper() + version + ".bin"
+        else:
+            filename = FWtype.upper() + version + ".bin.enc"
         completePath = self.cachePath + "/" + self.dirname + "/" + filename
         isFilePresent = os.path.isfile(completePath)
         if noInternet == False:
@@ -73,9 +98,10 @@ class FWGet():
         else:
             url = self.repoURL + FWtype.lower() + "/" + filename
             try:
+                print('download started')
                 r = requests.head(url)
                 if (r.status_code == 404):
-                    print("Failed to fetch " + filename + " (Error 404 file not found)")
+                    tprint("Failed to fetch " + filename + " (Error 404 file not found)")
                     return(False, completePath)
                 print('Beginning file download; writing to ' + completePath)
                 url = self.repoURL + FWtype.lower() + "/" + filename
@@ -85,25 +111,35 @@ class FWGet():
                     f.write(r.content)
                 if (r.status_code == 200):
                     print(filename + " downloaded successfully.")
+                    print('download finished')
+                    with open(completePath + ".md5", "r") as md5cached:
+                        checksum = md5cached.read()
+                        match = self.md5Checksum(completePath, None) == checksum
+                        if not match:
+                            if os.path.exists(completePath):
+                                os.remove(completePath)
+                            else:
+                                print("The file does not exist")
+                            tprint('File was corrupted. try again?')
                     return(True, completePath)
                 else:
-                    print("Server couldn't respond to download request. Local files aren't available. Aborting.")
+                    tprint("Server couldn't respond to download request. Local files aren't available. Aborting.")
                     return(False, completePath)
             except requests.ConnectionError:
-                print("Connection error. Local files aren't available. Aborting.")
+                tprint("Connection error. Local files aren't available. Aborting.")
                 return(False, completePath)
 
     def loadRepo(self, jsonURL):
         d = ''
         noInternet = False
-        hashedName = hashlib.md5(jsonURL).hexdigest()
+        hashedName = hashlib.md5(jsonURL.encode("utf-8")).hexdigest()
         try:
             r = requests.head(jsonURL)
             if (r.status_code != 200):
                 noInternet = True
-                print("Failed to fetch JSON! Will use cached if available. (Server response not 200)")
+                tprint("Failed to fetch JSON! Will use cached if available. (Server response not 200)")
         except requests.ConnectionError:
-            print("Failed to fetch JSON! Will use cached if available. (requests.ConnectionError)")
+            tprint("Failed to fetch JSON! Will use cached if available. (requests.ConnectionError)")
             noInternet = True
         if noInternet == False:
             try:
@@ -114,7 +150,7 @@ class FWGet():
                     d = eval(f.read())
                     print("Fetched repo JSON.")
             except requests.ConnectionError:
-                print("Failed to grab JSON! (requests.ConnectionError)")
+                tprint("Failed to grab JSON! (requests.ConnectionError)")
                 return(False)
 
         elif os.path.isfile(self.cachePath + hashedName + ".json"):
@@ -122,7 +158,7 @@ class FWGet():
                 d = eval(f.read())
             print("Fetched cached repo JSON.")
         else:
-            print("Couldn't download file and couldn't load from cache. Aborting.")
+            tprint("Couldn't download file and couldn't load from cache. Aborting.")
             return(False)
         self.dirname = str(d["repo"]["infos"]["dirname"])
         self.repoURL = str(d["repo"]["infos"]["files_URL"])
@@ -135,4 +171,7 @@ class FWGet():
         return(True, self.dirname, self.repoURL, name, self.DRV, self.BMS, self.BLE)
 
     def Gimme(self, firm, ver):
+        tprint('download started')
         self.getFile(firm,ver)
+        self.getFile(firm, ver)
+        tprint('download finished')

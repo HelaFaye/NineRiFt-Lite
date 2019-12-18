@@ -1,0 +1,219 @@
+<FormLabel@Label>:
+    size_hint_x: None
+    size: self.texture_size
+
+<FlashScreen@Screen>:
+    GridLayout:
+        cols: 1
+        rows: 3
+        GridLayout:
+            rows: 2
+            size_hint_y: .20
+            GridLayout:
+                cols: 2
+                rows: 2
+                Spinner:
+                    id: fwumodel
+                    text:'Model'
+                    values: ['esx', 'max']
+                    sync_height: True
+                    font_size: '12sp'
+                    height: '12sp'
+                    on_text: app.select_model(self.text); app.selfile_filter(self.text, versel.text, fwupart.text); filechooser.do_layout()
+                Spinner:
+                    id: fwupart
+                    text: 'Part'
+                    values: app.select_model(fwumodel.text)
+                    font_size: '12sp'
+                    height: '12sp'
+                    sync_height: True
+                    on_text: app.fwupd.device = self.text.lower(); app.selfile_filter(fwumodel.text, versel.text, self.text); filechooser.do_layout()
+                GridLayout:
+                    cols: 2
+                    FormLabel:
+                        size_hint_x: .2
+                        font_size: '12sp'
+                        text: "Lock:"
+                    Switch:
+                        size_hint_x: .8
+                        active: True
+                        on_active: app.fwupd.lock = self.active
+                BoxLayout:
+                    Spinner:
+                        disabled: fwumodel.text != 'm365'
+                        id: versel
+                        text: 'Vers.'
+                        font_size: '12sp'
+                        height: '12sp'
+                        sync_height: True
+                        values: ['<141', '>=141']
+                        on_text: app.selfile_filter(fwumodel.text, self.text, fwupart.text); filechooser.do_layout()
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: .6
+            FileChooserListView:
+                id: filechooser
+                path: app.cache_folder
+                filters: app.selfile_filter(fwumodel.text, versel.text, fwupart.text)
+        GridLayout:
+            rows: 2
+            size_hint_y: .20
+            ProgressBar:
+                id: fwprogbar
+                size_hint_y: .3
+                value: 0
+                max: 100
+            Button:
+                disabled: app.conn.state in ('disconnected',)
+                size_hint_y: .7
+                font_size: '12sp'
+                height: '12sp'
+                text: "Start"
+                on_press: app.fwupd_func(filechooser)
+
+<DownloadScreen@Screen>:
+    GridLayout:
+        cols: 1
+        rows: 3
+        AnchorLayout:
+            anchor_y: 'top'
+            GridLayout:
+                cols: 3
+                size_hint_y: .15
+                Spinner:
+                    id: model
+                    text: 'Model'
+                    values: ['esx', 'max']
+                    on_text: app.fwget_select_model(root, self.text)
+                    font_size: '12sp'
+                    height: '12sp'
+                    sync_height: True
+                Spinner:
+                    id: part
+                    text: 'Part'
+                    values: ['BLE', 'DRV', 'BMS']
+                    on_text: app.fwget_select_model(root, model.text); app.fwget_update_versions(root)
+                    font_size: '12sp'
+                    height: '12sp'
+                    sync_height: True
+                Spinner:
+                    id: version
+                    text: 'Version'
+                    values: []
+                    sync_height: True
+                    font_size: '12sp'
+                    height: '12sp'
+                    text_autoupdate: True
+        AnchorLayout:
+            size_hint_y: 0.3
+            anchor_y: 'bottom'
+            Button:
+                text: 'Download it!'
+                on_press: app.fwget_func(part.text, version.text)
+
+<ScriptUI@ScrollView>:
+    orientation: 'vertical'
+    size_hint_y: .80
+
+<CommandScreen@Screen>:
+    GridLayout:
+        cols: 1
+        rows: 3
+        GridLayout:
+            rows: 1
+            size_hint_y: .1
+            BoxLayout:
+                orientation: 'vertical'
+                Spinner:
+                    id: scriptsel
+                    text: 'Script'
+                    values: ['lock', 'unlock', 'reboot', 'powerdown']
+                    on_text: root.setcmd(self.text)
+                    font_size: '12sp'
+                    height: '12sp'
+
+        ScriptUI:
+            id: scriptspace
+
+        AnchorLayout:
+            anchor_y: 'bottom'
+            size_hint_y: .10
+            Button:
+                text: "Execute"
+                on_press: app.executecmd(scriptsel.text)
+
+<MainWindow>:
+    orientation: "vertical"
+    GridLayout:
+        cols: 1
+        rows: 4
+        GridLayout:
+            id: connman
+            size_hint_y: .15
+            cols: 1
+            rows: 4
+            BoxLayout:
+                size_hint_y: .325
+                orientation: 'horizontal'
+                FormLabel:
+                    font_size: '12sp'
+                    text: "Addr:"
+                TextInput:
+                    multiline: False
+                    on_text_validate: app.conn.address = self.text.lower()
+                    font_size: '12sp'
+            BoxLayout:
+                size_hint_y: .325
+                orientation: 'horizontal'
+                Spinner:
+                    text: 'Interface'
+                    values: ['BLE', 'TCP']
+                    on_text: app.conn.link = self.text.lower()
+                    font_size: '12sp'
+                    height: '12sp'
+                Spinner:
+                    text: 'Protocol'
+                    values: ['xiaomi', 'ninebot']
+                    on_text: app.conn.transport = self.text.lower()
+                    font_size: '12sp'
+                    height: '12sp'
+            BoxLayout:
+                size_hint_y: .02
+            AnchorLayout:
+                size_hint_y: .33
+                anchor_y: 'bottom'
+                Button:
+                    text: "Connect" if app.conn.state == 'disconnected' else "Disconnect"
+                    disabled: app.conn.state not in ('connected', 'disconnected')
+                    font_size: '12sp'
+                    on_press: app.connection_toggle()
+        GridLayout:
+            cols: 1
+            size_hint_y: .01
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: .05
+            Button:
+                text: "Flash"
+                font_size: '12sp'
+                height: '12sp'
+                on_press: manager.current = 'flash'
+            Button:
+                text: "Download"
+                font_size: '12sp'
+                height: '12sp'
+                on_press: manager.current = 'download'
+            Button:
+                text: "Command"
+                font_size: '12sp'
+                height: '12sp'
+                on_press: manager.current = 'command'
+        ScreenManager:
+            size_hint_y: .80
+            id: manager
+            FlashScreen:
+                name: "flash"
+            DownloadScreen:
+                name: "download"
+            CommandScreen:
+                name: "command"
