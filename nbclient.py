@@ -120,7 +120,10 @@ class Client(EventDispatcher):
     def disconnect(self):
         if self.state == 'connected':
             self.update_state('disconnecting')
-            self._link.close()
+            try:
+                self._link.close()
+            except:
+                pass
             self.update_state('disconnected')
 
     def on_error(self, *args):

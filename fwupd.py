@@ -105,4 +105,4 @@ class FWUpd(EventDispatcher):
 
     @mainthread
     def update_progress(self, progress, maxprogress):
-        setprogbar(progress, maxprogress)
+        pass
