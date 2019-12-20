@@ -1,4 +1,3 @@
-kivymd
 bleak
 kivy
 kivymd
