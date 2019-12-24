@@ -28,7 +28,7 @@ source.include_exts = py,png,jpg,kv,atlas
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 1.5
+version = 1.6
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -105,7 +105,7 @@ android.minapi = 21
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = ../../.android/ndk
+#android.ndk_path = ../../.android/ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 android.sdk_path = ../../.android/sdk
@@ -158,7 +158,7 @@ android.whitelist = lib-dynload/termios.so
 #android.add_activites = com.example.ExampleActivity
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = master
+#p4a.branch = release-2019.10.06
 
 # (str) OUYA Console category. Should be one of GAME or APP
 # If you leave this blank, OUYA support will not be enabled
@@ -201,7 +201,7 @@ android.arch = arm64-v8a
 #
 
 # (str) python-for-android git clone directory (if empty, it will be automatically cloned from github)
-#p4a.source_dir =
+#p4a.source_dir = ~/.buildozer/android/platform/python-for-android
 
 # (str) The directory in which python-for-android should look for your own build recipes (if any)
 p4a.local_recipes = ../../.android/able/recipes

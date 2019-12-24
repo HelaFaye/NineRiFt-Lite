@@ -117,3 +117,6 @@ venv.bak/
 .android/ndk
 .android/sdk
 /packaging/ninerift-1a.svg
+
+.pydevproject
+.project
