@@ -10,7 +10,7 @@ package.name = NineRiFtLite
 package.domain = com.netrafire
 
 # (str) Source code where the main.py live
-source.dir = ../../
+source.dir = ../
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
@@ -36,7 +36,7 @@ version = 1.6
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy, android, requests, openssl, kivymd, able, pyjnius, pyserial, usb4a, usbserial4a
+requirements = python3, kivy, android, requests, openssl, kivymd, able, pyjnius==6553ad4, pyserial
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -108,7 +108,7 @@ android.minapi = 21
 #android.ndk_path = ../../.android/ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = ../../.android/sdk
+android.sdk_path = ../.android/sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
@@ -158,7 +158,7 @@ android.whitelist = lib-dynload/termios.so
 #android.add_activites = com.example.ExampleActivity
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = release-2019.10.06
+p4a.branch = release-2019.10.06
 
 # (str) OUYA Console category. Should be one of GAME or APP
 # If you leave this blank, OUYA support will not be enabled
@@ -204,7 +204,7 @@ android.arch = arm64-v8a
 #p4a.source_dir = ~/.buildozer/android/platform/python-for-android
 
 # (str) The directory in which python-for-android should look for your own build recipes (if any)
-p4a.local_recipes = ../../.android/able/recipes
+p4a.local_recipes = ../.android/able/recipes
 
 # (str) Filename to the hook for p4a
 #p4a.hook =
@@ -253,7 +253,7 @@ warn_on_root = 1
 build_dir = ./.buildozer
 
 # (str) Path to build output (i.e. .apk, .ipa) storage
-bin_dir = ../bin64
+bin_dir = ./bin
 
 #    -----------------------------------------------------------------------------
 #    List as sections

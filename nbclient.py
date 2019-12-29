@@ -24,7 +24,6 @@ class Client(EventDispatcher):
         super(Client, self).__init__()
         self.loop = None
 
-    @specialthread
     def connect(self):
         self.update_state('connecting')
         try:
@@ -116,7 +115,6 @@ class Client(EventDispatcher):
         print('Current state:', state)
         self.state = state
 
-    @specialthread
     def disconnect(self):
         if self.state == 'connected':
             self.update_state('disconnecting')

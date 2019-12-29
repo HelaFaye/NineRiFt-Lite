@@ -88,7 +88,6 @@ class FWUpd(EventDispatcher):
         tprint('update finished')
         return True
 
-    @specialthread
     def Flash(self, fwfilep):
         if self.device == 'extbms' and self.conn.transport != 'ninebot':
             tprint('Only Ninebot supports External BMS !')

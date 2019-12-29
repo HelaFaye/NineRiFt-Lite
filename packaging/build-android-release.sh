@@ -1,1 +1,1 @@
-source ../../keystores/nrliteactive.sh&&cd android-arm32/&&buildozer -v android release&cd android-arm64/&&buildozer -v android release&cd ../
+source ~/kivy_venv/bin/activate&&source ../../keystores/nrliteactive.sh&&python3 -m buildozer -v android release

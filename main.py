@@ -77,7 +77,7 @@ class NineRiFt(App):
         elif self.conn.state == 'disconnected':
             self.conn.connect()
 
-    @sidethread
+    @specialthread
     def fwget_select_model(self, screen, mod):
         if mod is not 'Model':
             self.fwget.setModel(mod)
@@ -88,7 +88,7 @@ class NineRiFt(App):
         else:
             tprint('set model to update available versions')
 
-    @sidethread
+    @specialthread
     def fwget_func(self, dev, version):
         self.fwget.Gimme(dev, version)
 
