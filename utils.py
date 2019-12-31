@@ -5,7 +5,8 @@ try:
 except:
     pass
 
-th = Thread()
+th0 = Thread()
+th1 = Thread()
 
 # toast or print
 def tprint(msg):
@@ -18,15 +19,15 @@ def tprint(msg):
 def sidethread(fn):
     """
     Essentially reverse of @mainthread kivy decorator - runs function/method in
-    a separate thread
+    a separate thread but, only if sidethread isn't already running
     """
     def wrapped(*args, **kwargs):
-        global th
-        if not th.is_alive():
-            th = Thread(target=fn, args=args, kwargs=kwargs)
-            th.start()
+        if th0.is_alive() == False:
+            th0 = Thread(target=fn, args=args, kwargs=kwargs)
+            th0.start()
         else:
             tprint('sidethread is already active')
+    
     return wrapped
 
 def specialthread(fn):

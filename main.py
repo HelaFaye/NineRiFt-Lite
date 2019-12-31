@@ -63,7 +63,7 @@ class NineRiFt(App):
 
         self.versel = BooleanProperty(False)
         self.hasextbms = BooleanProperty(False)
-        tprint("Don't forget to post a review on the Play Store")
+        tprint("Don't forget to post a review")
 
     def build(self):
         self.initialize()
@@ -206,4 +206,3 @@ class NineRiFt(App):
 
 if __name__ == "__main__":
     NineRiFt().run()
-    tprint("Don't forget to post a review")
