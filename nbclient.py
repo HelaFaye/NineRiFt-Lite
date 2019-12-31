@@ -38,9 +38,11 @@ class Client(EventDispatcher):
                     if self.loop is None:
                         self.loop = asyncio.get_event_loop()
                     link = BLELink(loop=self.loop)
+
             elif self.link == 'tcp':
                 from py9b.link.tcp import TCPLink
                 link = TCPLink()
+
             elif self.link == 'serial':
                 if platform == 'android':
                     from py9b.link.droidserial import SerialLink
@@ -48,6 +50,7 @@ class Client(EventDispatcher):
                 else:
                     from py9b.link.serial import SerialLink
                     link = SerialLink(timeout=1.0)
+
             elif self.link == 'mock':
                 from mocklink import MockLink
                 link = MockLink()
@@ -58,11 +61,8 @@ class Client(EventDispatcher):
                 # (namely droidble) requiring some initalization in main thread...
                 self._connect_inner(link)
                 time.sleep(3)
-                if self.link == 'ble':
-                    if link:
-                        self.update_state('connected')
-                else:
-                    self.update_state('connected')
+                self.update_state('connected')
+
             elif link == None:
                     tprint('select interface and protocol first')
                     self.update_state('disconnected')
