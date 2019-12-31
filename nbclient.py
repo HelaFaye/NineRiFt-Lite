@@ -24,6 +24,7 @@ class Client(EventDispatcher):
         super(Client, self).__init__()
         self.loop = None
 
+    @mainthread
     def connect(self):
         self.update_state('connecting')
         try:
@@ -57,7 +58,11 @@ class Client(EventDispatcher):
                 # (namely droidble) requiring some initalization in main thread...
                 self._connect_inner(link)
                 time.sleep(3)
-                self.update_state('connected')
+                if self.link == 'ble':
+                    if link:
+                        self.update_state('connected')
+                else:
+                    self.update_state('connected')
             elif link == None:
                     tprint('select interface and protocol first')
                     self.update_state('disconnected')

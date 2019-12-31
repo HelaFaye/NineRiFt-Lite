@@ -168,7 +168,7 @@ android.whitelist = lib-dynload/termios.so
 #android.ouya.icon.filename = %(source.dir)s/data/ouya_icon.png
 
 # (str) XML file to include as an intent filters in <activity> tag
-android.manifest.intent_filters = ../intent-filter.xml
+#android.manifest.intent_filters = ../intent-filter.xml
 
 # (str) launchMode to set for the main activity
 #android.manifest.launch_mode = standard
