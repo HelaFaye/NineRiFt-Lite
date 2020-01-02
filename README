@@ -2,10 +2,17 @@ This is an Open-Source Ninebot and Xiaomi compatible scooter interface app.
 THIS TOOL IS ONLY FOR USE ON DEVICES YOU OWN!!! It is still being added to but is in a functional state.
 
 
-This application is written in Python3. To install required libraries, run the following two commands:
+This application is written in Python3.
+This application works with Windows, Mac, Linux and Android.
+The Android version is available on the Google Play Store: https://play.google.com/store/apps/details?id=com.netrafire.nineriftlite
 
-git clone --recursive https://github.com/slinger360/NineRiFt-kivy.git
-pip install -r requirements.txt
+To install required libraries and launch NineRiFt for Desktop, run the following few commands:
+
+git clone --recursive https://github.com/slinger360/NineRiFt-Lite.git
+cd NineRiFt-Lite/packaging/
+python3 -m pip install -r requirements.txt
+cd ..
+python3 ./main.py
 
 To build for Android read up on Buildozer.
 
