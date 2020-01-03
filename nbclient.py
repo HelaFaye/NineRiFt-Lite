@@ -15,6 +15,7 @@ class Client(EventDispatcher):
     transport = StringProperty('')
     address = ObjectProperty('')
     link = StringProperty('')
+    stay_connected = False
 
     _link = None
     _tran = None
@@ -129,5 +130,10 @@ class Client(EventDispatcher):
             self.update_state('disconnected')
 
     def on_error(self, *args):
+        if not self.stay_connected:
+            self.update_state('disconnected')
+            self.disconnect()
+        elif self.stay_connected:
+            self.connect()
         # Required for event handling dispatch
         pass
