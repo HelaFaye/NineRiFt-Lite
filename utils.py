@@ -22,12 +22,13 @@ def sidethread(fn):
     a separate thread but, only if sidethread isn't already running
     """
     def wrapped(*args, **kwargs):
+        global th0
         if th0.is_alive() == False:
             th0 = Thread(target=fn, args=args, kwargs=kwargs)
             th0.start()
         else:
             tprint('sidethread is already active')
-    
+
     return wrapped
 
 def specialthread(fn):
@@ -36,6 +37,7 @@ def specialthread(fn):
     a separate thread
     """
     def wrapped(*args, **kwargs):
+        global th1
         th1 = Thread(target=fn, args=args, kwargs=kwargs)
         th1.start()
 
