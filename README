@@ -14,7 +14,7 @@ python3 -m pip install -r requirements.txt
 cd ..
 python3 ./main.py
 
-To build for Android read up on Buildozer.
+To build for Android read up on Buildozer or just get it off the Play Store.
 
 After that, you can either run NineRiFt on your Windows, Mac, or Linux machine by opening main.py using your Python3 interpreter or you can use a prebuilt APK for Android (you could also compile a build if you want).
 
@@ -46,7 +46,8 @@ The Flash screen is for flashing firmware:
 
 
 
-At the moment only Segway-Ninebot SNSC, ES1, ES2, and ES4 and Xiaomi M365 and M365 Pro are supported.
+At the moment only Segway-Ninebot SNSC, ES1, ES2, ES3, and ES4 and Xiaomi M365 dashboards are supported in Lite as interfaces.
+NineRiFt Pro builds for Windows, Mac, and Android as well as source code can be provided to anyone that has a valid transaction ID for NineRiFt Pro on the Play Store and can send an email from the associated address.
 
 
 SNSC dashboards cannot be flashed without either TCP-Serial or Serial interface.
