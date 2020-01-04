@@ -101,7 +101,7 @@ class Client(EventDispatcher):
                 transport = XiaomiTransport(link)
 
                 if transport.execute(ReadRegs(BT.ESC, 0x68, "<H"))[0] > 0x081 and self.link is ('ble'):
-                    transport.keys = link.fetch_keys_pro()
+                    transport.keys = link.fetch_keys()
                     transport.recover_keys()
                     tprint('Keys recovered')
 
