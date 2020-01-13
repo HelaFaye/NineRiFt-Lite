@@ -62,7 +62,14 @@ class Client(EventDispatcher):
                 # (namely droidble) requiring some initalization in main thread...
                 self._connect_inner(link)
                 time.sleep(3)
-
+                if self.link == 'ble':
+                    if self._link.device:
+                        self.update_state('connected')
+                elif self.link == 'tcp':
+                    if self._link.connected:
+                        self.update_state('connected')
+                else:
+                    self.update_state('connected')
             elif link == None:
                     tprint('select interface and protocol first')
                     self.update_state('disconnected')
@@ -75,8 +82,6 @@ class Client(EventDispatcher):
             self.dispatch('on_error', repr(exc))
             raise exc
 
-        if link != None:
-            self.update_state('connected')
 
     @specialthread
     def _connect_inner(self, link):
