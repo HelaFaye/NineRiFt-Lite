@@ -15,7 +15,6 @@ class Client(EventDispatcher):
     transport = StringProperty('')
     address = ObjectProperty('')
     link = StringProperty('')
-    stay_connected = False
 
     _link = None
     _tran = None
@@ -24,6 +23,7 @@ class Client(EventDispatcher):
         self.register_event_type('on_error')
         super(Client, self).__init__()
         self.loop = None
+        self.stay_connected = True
 
     @mainthread
     def connect(self):
@@ -62,7 +62,6 @@ class Client(EventDispatcher):
                 # (namely droidble) requiring some initalization in main thread...
                 self._connect_inner(link)
                 time.sleep(3)
-                self.update_state('connected')
 
             elif link == None:
                     tprint('select interface and protocol first')
@@ -75,6 +74,9 @@ class Client(EventDispatcher):
             self.update_state('disconnected')
             self.dispatch('on_error', repr(exc))
             raise exc
+
+        if link != None:
+            self.update_state('connected')
 
     @specialthread
     def _connect_inner(self, link):
@@ -101,7 +103,7 @@ class Client(EventDispatcher):
                 transport = XiaomiTransport(link)
 
                 if transport.execute(ReadRegs(BT.ESC, 0x68, "<H"))[0] > 0x081 and self.link is ('ble'):
-                    transport.keys = link.fetch_keys()
+                    transport.keys = link.fetch_keys_pro()
                     transport.recover_keys()
                     tprint('Keys recovered')
 
@@ -130,10 +132,10 @@ class Client(EventDispatcher):
             self.update_state('disconnected')
 
     def on_error(self, *args):
-        if not self.stay_connected:
+        if self.link is 'ble':
             self.update_state('disconnected')
             self.disconnect()
-        elif self.stay_connected:
-            self.connect()
+            if self.stay_connected:
+                self.connect()
         # Required for event handling dispatch
         pass
