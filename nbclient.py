@@ -63,11 +63,15 @@ class Client(EventDispatcher):
                 self._connect_inner(link)
                 time.sleep(3)
                 if self.link == 'ble':
-                    if self._link.device:
+                    if link.device:
                         self.update_state('connected')
+                    else:
+                        print('BLE not connected')
                 elif self.link == 'tcp':
-                    if self._link.connected:
+                    if link.connected:
                         self.update_state('connected')
+                    else:
+                        print('Socket not connected')
                 else:
                     self.update_state('connected')
             elif link == None:
