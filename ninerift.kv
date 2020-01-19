@@ -61,8 +61,8 @@
             ProgressBar:
                 id: fwprogbar
                 size_hint_y: .3
-                value: 0
-                max: 100
+                value: app.fwupd.progress
+                max: app.fwupd.maxprog
             Button:
                 disabled: app.conn.state in ('disconnected',)
                 size_hint_y: .7

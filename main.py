@@ -28,12 +28,6 @@ from nbclient import Client
 class MainWindow(BoxLayout):
     pass
 
-class FlashScreen(Screen):
-    def setprog(self, prog, mprog):
-        ProgBar = self.ids['fwprogbar']
-        ProgBar.value = prog
-        ProgBar.max = mprog
-
 class CommandScreen(Screen):
     def setcmd(self,c):
         ScriptUI = self.ids['scriptspace']

@@ -24,6 +24,8 @@ class FWUpd(EventDispatcher):
         self.PING_RETRIES = 3
         self.nolock = False
         self.conn = conn
+        self.progress = 0
+        self.maxprog = 100
 
     def checksum(self, s, data):
         for c in data:
@@ -104,4 +106,6 @@ class FWUpd(EventDispatcher):
 
     @mainthread
     def update_progress(self, progress, maxprogress):
+        self.progress = progress
+        self.maxprog = maxprogress
         pass
