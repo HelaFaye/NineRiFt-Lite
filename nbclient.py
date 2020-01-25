@@ -65,12 +65,14 @@ class Client(EventDispatcher):
                 if self.link == 'ble':
                     if platform == 'android':
                         if link.device is not None:
+                            print('Device found')
                             self.update_state('connected')
                         else:
                             self.update_state('disconnected')
                             print('BLE device not found')
                     else:
-                        if self._link and self._link._client is not None:
+                        if link._client is not None:
+                            print('Device found')
                             self.update_state('connected')
                         else:
                             self.update_state('disconnected')
@@ -93,7 +95,6 @@ class Client(EventDispatcher):
         except Exception as exc:
             self.update_state('disconnected')
             self.dispatch('on_error', repr(exc))
-            raise exc
 
 
     @specialthread
