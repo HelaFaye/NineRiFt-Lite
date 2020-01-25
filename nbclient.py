@@ -64,7 +64,7 @@ class Client(EventDispatcher):
                 time.sleep(3)
                 if self.link == 'ble':
                     if platform == 'android':
-                        if link.connected.is_set():
+                        if link._adapter is not None:
                             print('Device found')
                             self.update_state('connected')
                         else:
@@ -84,9 +84,7 @@ class Client(EventDispatcher):
                         self.update_state('disconnected')
                         print('Socket not connected')
                 else:
-                    if link.connected.is_set():
-                        self.update_state('connected')
-
+                    self.update_state('connected')
             elif link == None:
                     tprint('select interface and protocol first')
                     self.update_state('disconnected')
