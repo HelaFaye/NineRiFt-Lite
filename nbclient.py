@@ -80,14 +80,13 @@ class Client(EventDispatcher):
     def _connect_inner(self, link):
         try:
             if self.address is '':
-                if platform!='android':
-                    ports = link.scan()
-                    if not ports:
-                        raise Exception('No devices found')
-                    if isinstance(ports[0], tuple):
-                        self.address = ports[0][1]
-                    else:
-                        self.address = ports[0]
+                ports = link.scan()
+                if not ports:
+                    raise Exception('No devices found')
+                if isinstance(ports[0], tuple):
+                    self.address = ports[0][1]
+                else:
+                    self.address = ports[0]
                 link.open(self.address)
             elif self.address is not '':
                 link.open(self.address)
