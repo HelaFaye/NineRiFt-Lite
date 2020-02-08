@@ -1,6 +1,6 @@
 [submodule "vendor/py9b"]
 	path = vendor/py9b
-	url = https://github.com/Slinger360/py9b.git
+	url = https://github.com/FalkorDev/py9b.git
 [submodule ".android/able"]
 	path = .android/able
 	url = https://github.com/b3b/able.git
