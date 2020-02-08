@@ -19,17 +19,12 @@ def tprint(msg):
 
 class Command:
     def __init__(self, conn):
-        self.new_sn = ''
         self.device = ''
         self.conn = conn
 
     def setdev(self, d):
         self.device = d.lower()
         tprint(self.device+' selected as device')
-
-    def setnewsn(self, p):
-        self.new_sn = p
-        tprint(self.new_sn+' input for newsn')
 
     def powerdown(self):
         tran = self.conn._tran
@@ -50,5 +45,3 @@ class Command:
         tran = self.conn._tran
         tran.execute(WriteRegs(BT.ESC, 0x78, "<H", 0x0001))
         tprint('Done')
-
-    

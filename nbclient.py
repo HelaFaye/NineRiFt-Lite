@@ -9,6 +9,7 @@ from kivy.clock import mainthread
 from kivy.properties import BooleanProperty, StringProperty, ObjectProperty
 from utils import tprint, specialthread
 import asyncio
+from threading import Event
 
 class Client(EventDispatcher):
     state = StringProperty('disconnected')
@@ -100,17 +101,20 @@ class Client(EventDispatcher):
                 transport = XiaomiTransport(link)
 
                 if transport.execute(ReadRegs(BT.ESC, 0x68, "<H"))[0] > 0x081 and self.link is ('ble'):
-                    transport.keys = link.fetch_keys_pro()
+                    transport.keys = link.fetch_keys()
                     transport.recover_keys()
                     tprint('Keys recovered')
 
             self._tran = transport
             self._link = link
 
-            if self._tran is not None and self._link is not None:
+            if not self._link.connected.is_set():
+                self._link.connected.wait(self._link.timeout*1.5)
+
+            if self._link.connected.is_set():
                 self.update_state('connected')
             else:
-                self.disconnect
+                self.disconnect()
 
             return transport
 
@@ -125,11 +129,13 @@ class Client(EventDispatcher):
 
     def disconnect(self):
         self.update_state('disconnecting')
+        self.address = ''
         try:
             self._link.close()
+            self._link = None
+            self._tran = None
         except:
             pass
-        self.address = ''
         self.update_state('disconnected')
 
     def on_error(self, *args):
