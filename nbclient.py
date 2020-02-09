@@ -47,8 +47,7 @@ class Client(EventDispatcher):
 
             elif self.link == 'serial':
                 if platform == 'android':
-                    from py9b.link.droidserial import SerialLink
-                    link = SerialLink(timeout=1.0)
+                    tprint('Serial on Android is only available in Pro')
                 else:
                     from py9b.link.serial import SerialLink
                     link = SerialLink(timeout=1.0)
@@ -106,6 +105,7 @@ class Client(EventDispatcher):
                     transport.keys = link.fetch_keys()
                     transport.recover_keys()
                     tprint('Keys recovered')
+                    tprint('functionality may be limited for now')
 
             self._tran = transport
             self._link = link
