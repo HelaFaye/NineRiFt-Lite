@@ -82,6 +82,8 @@ class Client(EventDispatcher):
         try:
             if self.address is '':
                 ports = link.scan()
+                if not link.scanned.is_set():
+                    link.scanned.wait(link.timeout)
                 if not ports:
                     raise Exception('No devices found')
                 if isinstance(ports[0], tuple):
