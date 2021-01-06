@@ -8,7 +8,7 @@ The Android version is available on the Google Play Store: https://play.google.c
 
 To install required libraries and launch NineRiFt for Desktop, run the following few commands:
 
-git clone --recursive https://github.com/slinger360/NineRiFt-Lite.git
+git clone --recursive https://github.com/HelaFaye/NineRiFt-Lite.git
 cd NineRiFt-Lite/packaging/
 python3 -m pip install -r requirements.txt
 cd ..
